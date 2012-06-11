@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, SwarmControlActivity!</string>
+    <string name="app_name">SwarmControl</string>
+    <string name="about">About</string>
+
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="quit">Quit</string>    
+    
+    <string name="intro">SwarmControl is developed at Distributed Organisms, DO bots. It
+        is meant to showcase remote control of many different robots, and in due time,
+        group functionality.</string>
+
+    <string name="placeholder">This will show data coming from the robot (like images or
+        compass needle).</string>
+    
+    <!-- About Dialog -->
+    <string name="about_general">  
+        SwarmControl is developed at Distributed Organisms or DO bots. DO researches,
+        develops, and maintains robotic swarms. DO is a daughter company of the Dutch 
+        research company Almende B.V. 
+        
+        This Android app will be appended over the course of time to showcase remote
+        control of a wide variety of commercial-off-the-shelf robots. Moreover, it will
+        demonstrate group functionality in due time.
+          
+        Please, realize that most of our swarm solutions use more dedicated robots. See 
+        for example http://www.fireswarm.nl for one of our projects, where UAVs are used
+        to find fire for the fire brigade.
+    </string>    
+    <string name="about_license_gpl">
+        SwarmControl is released under GPLv3 license, http://gplv3.fsf.org/
+    </string>    
+    <string name="about_ok">OK</string>
+    
+    <string name="choose_swarm_action">Choose a swarm action</string>
+    <string-array name="swarm_action">
+        <item>Search</item>
+        <item>March</item>
+        <item>Play tag</item>
+        <item>Guard</item>
+        <item>Follow me</item>
+        <item>Find exit</item>
+    </string-array>
+</resources>
