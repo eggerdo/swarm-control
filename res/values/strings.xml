@@ -44,4 +44,6 @@
         <item>Follow me</item>
         <item>Find exit</item>
     </string-array>
+        <string name="robotdevice_title">This is the robot name</string>
+        <string name="robotdevice_sensorselection">Choose one of the following sensors to display it\'s data</string>
 </resources>
