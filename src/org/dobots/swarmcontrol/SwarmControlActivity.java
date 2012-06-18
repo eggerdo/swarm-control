@@ -1,8 +1,13 @@
 package org.dobots.swarmcontrol;
 
 import org.dobots.swarmcontrol.About;
+import org.dobots.swarmcontrol.robots.RobotDevice;
+import org.dobots.swarmcontrol.robots.RobotDeviceFactory;
+import org.dobots.swarmcontrol.robots.RobotType;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,7 +54,8 @@ public class SwarmControlActivity extends Activity {
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case CONNECT_ID:
-			// connect
+			AlertDialog dlgConnect = CreateConnectDialog();
+			dlgConnect.show();
 			return true;
 		case DISCONNECT_ID:
 			return true;
@@ -63,6 +69,22 @@ public class SwarmControlActivity extends Activity {
 		}
 
 		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	private AlertDialog CreateConnectDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Choose a robot");
+		final ArrayAdapter<RobotType> adapter = new ArrayAdapter<RobotType>(this, android.R.layout.simple_spinner_item,
+				RobotType.values());
+		builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int which) {
+				RobotType eRobot = adapter.getItem(which);
+				RobotDevice oRobot = RobotDeviceFactory.getRobotDevice(eRobot);
+				oRobot.show(SwarmControlActivity.this, eRobot);
+			}
+		});
+		return builder.create();
 	}
 
 }
