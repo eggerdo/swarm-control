@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE expression PUBLIC "-//CREATE Lab//TeRK//Expression//EN" "http://www.createlab.ri.cmu.edu/dtd/terk/expression.dtd">
+
+<expression version="1.0">
+   <info>
+      <name><![CDATA[Hello World]]></name>
+      <description><![CDATA[This is a description]]></description>
+      <created-timestamp>1207926600000</created-timestamp>
+   </info>
+
+   <services>
+      <!-- AUDIO-->
+      <service type-id="::TeRK::AudioController">
+         <operation name="speak">
+            <device id="0">
+               <parameter name="message"><![CDATA[Hello, I am a robot.]]></parameter>
+            </device>
+         </operation>
+      </service>
+
+      <!--
+      Here are other examples for the Audio Service...
+
+      <service type-id="::TeRK::AudioController">
+         <operation name="playTone">
+            <device id="0">
+               <parameter name="frequency"><![CDATA[440]]></parameter>
+               <parameter name="amplitude"><![CDATA[5]]></parameter>
+               <parameter name="duration"><![CDATA[1000]]></parameter>
+            </device>
+         </operation>
+      </service>
+
+      <service type-id="::TeRK::AudioController">
+         <operation name="playClip">
+            <device id="0">
+               <parameter name="file"><![CDATA[cow.wav]]></parameter>
+            </device>
+         </operation>
+      </service>
+      -->
+
+      <!-- FULL COLOR LEDs -->
+      <service type-id="::TeRK::led::FullColorLEDService">
+         <operation name="setColor">
+            <device id="0">
+               <parameter name="red"><![CDATA[255]]></parameter>
+               <parameter name="green"><![CDATA[127]]></parameter>
+               <parameter name="blue"><![CDATA[0]]></parameter>
+            </device>
+         </operation>
+      </service>
+
+      <!-- LEDs -->
+      <service type-id="::TeRK::led::SimpleLEDService">
+         <operation name="setIntensity">
+            <device id="0">
+               <parameter name="intensity"><![CDATA[42]]></parameter>
+            </device>
+            <device id="1">
+               <parameter name="intensity"><![CDATA[255]]></parameter>
+            </device>
+         </operation>
+      </service>
+
+      <!-- Servos -->
+      <service type-id="::TeRK::servo::SimpleServoService">
+         <operation name="setPosition">
+            <device id="3">
+               <parameter name="position"><![CDATA[10]]></parameter>
+            </device>
+         </operation>
+      </service>
+
+      <!-- VIBRATION MOTORS -->
+      <service type-id="::TeRK::motor::SpeedControllableMotorService">
+         <operation name="setSpeed">
+            <device id="0">
+               <parameter name="speed"><![CDATA[242]]></parameter>
+            </device>
+         </operation>
+      </service>
+
+      <!-- MOTORS -->
+      <service type-id="::TeRK::motor::VelocityControllableMotorService">
+         <operation name="setVelocity">
+            <device id="0">
+               <parameter name="velocity"><![CDATA[100]]></parameter>
+            </device>
+            <device id="1">
+               <parameter name="velocity"><![CDATA[101]]></parameter>
+            </device>
+         </operation>
+      </service>
+   </services>
+</expression>

@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -30,6 +31,8 @@ public class SwarmControlActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
         
         Spinner spinner = (Spinner) findViewById(R.id.spinner1);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -74,7 +77,7 @@ public class SwarmControlActivity extends Activity {
 	private AlertDialog CreateConnectDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Choose a robot");
-		final ArrayAdapter<RobotType> adapter = new ArrayAdapter<RobotType>(this, android.R.layout.simple_spinner_item,
+		final ArrayAdapter<RobotType> adapter = new ArrayAdapter<RobotType>(this, android.R.layout.select_dialog_item,
 				RobotType.values());
 		builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
 			
