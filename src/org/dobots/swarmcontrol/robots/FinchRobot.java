@@ -71,13 +71,13 @@ public class FinchRobot extends RobotDevice {
 					
 					break;
 				case SENS_ACCELERATION:
-					TextView x_axis = (TextView) activity.findViewById(R.id.x_axis_value);
+					TextView x_axis = (TextView) m_oActivity.findViewById(R.id.x_axis_value);
 					x_axis.setText(String.format("%.4f", oData.dblAccelZ));
 	
-					TextView y_axis = (TextView) activity.findViewById(R.id.y_axis_value);
+					TextView y_axis = (TextView) m_oActivity.findViewById(R.id.y_axis_value);
 					y_axis.setText(String.format("%.4f", oData.dblAccelY));
 	
-					TextView z_axis = (TextView) activity.findViewById(R.id.z_axis_value);
+					TextView z_axis = (TextView) m_oActivity.findViewById(R.id.z_axis_value);
 					z_axis.setText(String.format("%.4f", oData.dblAccelZ));
 					break;
 				case SENS_OBSTACLE:
@@ -163,9 +163,9 @@ public class FinchRobot extends RobotDevice {
 		
 		
 		// fill spinner
-		Spinner spSensors = (Spinner) activity.findViewById(R.id.spSensors);
+		Spinner spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		spSensors.setVisibility(View.VISIBLE);
-		final ArrayAdapter<FinchSensorType> adapter = new ArrayAdapter<FinchSensorType>(activity.getApplicationContext(), 
+		final ArrayAdapter<FinchSensorType> adapter = new ArrayAdapter<FinchSensorType>(m_oActivity.getApplicationContext(), 
 				android.R.layout.simple_spinner_item, FinchSensorType.values());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spSensors.setAdapter(adapter);
@@ -196,7 +196,7 @@ public class FinchRobot extends RobotDevice {
 	}
 	
 	private void showAcceleration(Boolean i_bShow) {
-		TableLayout tblAcceleration = (TableLayout) activity.findViewById(R.id.tblAcceleration);
+		TableLayout tblAcceleration = (TableLayout) m_oActivity.findViewById(R.id.tblAcceleration);
 		if (i_bShow) {
 			tblAcceleration.setVisibility(View.VISIBLE);
 			oSensorGatherer.setSensor(FinchSensorType.SENS_ACCELERATION);
@@ -206,6 +206,12 @@ public class FinchRobot extends RobotDevice {
 			tblAcceleration.setVisibility(View.INVISIBLE);
 			oHandler.removeCallbacks(oGUIUpdater);
 		}
+	}
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

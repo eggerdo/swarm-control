@@ -46,4 +46,10 @@
     </string-array>
         <string name="robotdevice_title">This is the robot name</string>
         <string name="robotdevice_sensorselection">Choose one of the following sensors to display it\'s data</string>
+        <string name="roomba_title">Roomba</string>
+        <string name="txtChargingState"></string>
+        <string name="chargingstate">Charging State:</string>
+        <string name="charge">Charge:</string>
+        <string name="temperature">Temperature:</string>
+        <string name="power">Power:</string>
 </resources>

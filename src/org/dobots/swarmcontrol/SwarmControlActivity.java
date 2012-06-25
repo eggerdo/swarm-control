@@ -25,6 +25,7 @@ public class SwarmControlActivity extends Activity {
 	private static final int ABOUT_ID = Menu.FIRST + 2;
 	private static final int EXIT_ID = Menu.FIRST + 3;
 
+	private RobotDevice m_oRobot;
 	
     /** Called when the activity is first created. */
     @Override
@@ -75,6 +76,10 @@ public class SwarmControlActivity extends Activity {
 	}
 	
 	private AlertDialog CreateConnectDialog() {
+		if (m_oRobot != null) {
+			m_oRobot.close();
+		}
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Choose a robot");
 		final ArrayAdapter<RobotType> adapter = new ArrayAdapter<RobotType>(this, android.R.layout.select_dialog_item,
@@ -83,11 +88,19 @@ public class SwarmControlActivity extends Activity {
 			
 			public void onClick(DialogInterface dialog, int which) {
 				RobotType eRobot = adapter.getItem(which);
-				RobotDevice oRobot = RobotDeviceFactory.getRobotDevice(eRobot);
-				oRobot.show(SwarmControlActivity.this, eRobot);
+				m_oRobot = RobotDeviceFactory.getRobotDevice(eRobot);
+				dialog.dismiss();
+				m_oRobot.show(SwarmControlActivity.this, eRobot);
 			}
 		});
 		return builder.create();
+	}
+	
+	@Override
+	public void onDestroy() {
+		if (m_oRobot != null) {
+			m_oRobot.close();
+		}
 	}
 
 }

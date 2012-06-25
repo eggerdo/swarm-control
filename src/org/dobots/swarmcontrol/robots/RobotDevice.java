@@ -9,20 +9,25 @@ import android.widget.TextView;
 
 public class RobotDevice {
 
-	Activity activity;
+	Activity m_oActivity;
     
 	public void show(Activity myActivity, RobotType i_eRobot) {
-		this.activity = myActivity;
+		this.m_oActivity = myActivity;
 		
-        activity.setContentView(R.layout.robotdevice);
+        m_oActivity.setContentView(R.layout.robotdevice);
         setProperties(i_eRobot);
 	}
 	
 	protected void setProperties(RobotType i_eRobot) {
-		TextView lblRobot = (TextView) activity.findViewById(R.id.lblRobot);
+		TextView lblRobot = (TextView) m_oActivity.findViewById(R.id.lblRobot);
 		lblRobot.setText(i_eRobot.toString());
 		
-		Spinner spSensors = (Spinner) activity.findViewById(R.id.spSensors);
+		Spinner spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		spSensors.setVisibility(View.INVISIBLE);
 	}
+	
+	public void close() {
+		// to be implemented
+	}
+	
 }

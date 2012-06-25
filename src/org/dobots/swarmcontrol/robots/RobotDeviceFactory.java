@@ -8,8 +8,12 @@ public class RobotDeviceFactory {
 	public static RobotDevice getRobotDevice(RobotType robot)
 	{
 		switch (robot) {
-			case RBT_FINCH: return new FinchRobot(); 
-			default: 		return new RobotDevice();
+			case RBT_FINCH: 
+				return new FinchRobot(); 
+			case RBT_ROOMBA:
+				return new RoombaRobot();
+			default: 		
+				return new RobotDevice();
 		}
 	}
 
