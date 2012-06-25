@@ -65,17 +65,32 @@ public class RoombaTypes {
 		}
 	}
 	
+	public static final int STATUS_LED_LOW_BIT 	= 4;
+	public static final int STATUS_LED_HIGH_BIT	= 5;
+	
 	public enum ERoombaStatusLEDColours {
 		ledCol_Red,
 		ledCol_Green,
 		ledCol_Amber
 	}
 	
+	public static final int POWER_LED_GREEN = 0;
+	public static final int POWER_LED_RED	= 255;
+	
 	public enum ERoombaSensorPackages {
-		sensPkg_All,
-		sensPkg_1,
-		sensPkg_2,
-		sensPkg_3
+		sensPkg_All(0),
+		sensPkg_1(1),
+		sensPkg_2(2),
+		sensPkg_3(3);
+		private int id;
+		
+		private ERoombaSensorPackages(int id) {
+			this.id = id;
+		}
+		
+		public int getID() {
+			return id;
+		}
 	}
 	
 	public class BumpsWheeldrops {
@@ -97,6 +112,14 @@ public class RoombaTypes {
 			bRight_Wheeldrop	= IsBitSet(i_nVal, RIGHT_WHEELDROP);
 			bLeft_Bump			= IsBitSet(i_nVal, LEFT_BUMP);
 			bRight_Bump			= IsBitSet(i_nVal, RIGHT_BUMP);
+		}
+
+		public String toString() {
+			return "Caster_Wheeldrop=" + bCaster_Wheeldrop + ", " +
+				   "Left_Wheeldrop=" + bLeft_Wheeldrop + ", " +
+				   "Right_Wheeldrop=" + bRight_Wheeldrop + ", " +
+				   "Left_Bump=" + bLeft_Bump + ", " +
+				   "Right_Bump=" + bRight_Bump;
 		}
 	}
 	
@@ -120,6 +143,14 @@ public class RoombaTypes {
 			bVacuum		= IsBitSet(i_nVal, VACUUM);
 			bSideBrush	= IsBitSet(i_nVal, SIDE_BRUSH);
 		}
+
+		public String toString() {
+			return "DriveLeft=" + bDriveLeft + ", " +
+				   "DriveRight=" + bDriveRight + ", " +
+				   "MainBrush=" + bMainBrush + ", " +
+				   "Vacuum=" + bVacuum + ", " +
+				   "bSideBrush=" + bSideBrush;
+		}
 	}
 	
 	public class ButtonsPressed {
@@ -139,6 +170,13 @@ public class RoombaTypes {
 			bClean	= IsBitSet(i_nVal, CLEAN);
 			bMax	= IsBitSet(i_nVal, MAX);
 		}
+		
+		public String toString() {
+			return "Power=" + bPower + ", " +
+				   "Spot=" + bSpot + ", " +
+				   "Clean=" + bClean + ", " +
+				   "Max=" + bMax;
+		}
 	}
 	
 	public enum EChargingState {
@@ -154,7 +192,11 @@ public class RoombaTypes {
 		}
 	}
 	
-	public class SensorPackage1 {
+	public interface SensorPackage{
+		public String toString();
+	};
+	
+	public class SensorPackage1 implements SensorPackage {
 		public static final int IDX_BUMPWHEELDROPS		= 0;
 		public static final int IDX_WALL				= 1;
 		public static final int IDX_CLIFFLEFT			= 2;
@@ -215,9 +257,22 @@ public class RoombaTypes {
 				}
 			}
 		}
+
+		public String toString() {
+			return oBumpsWheeldrops.toString() + ", " +
+			       "Wall=" + bWall + ", " +
+			       "CliffLeft=" + bCliffLeft + ", " +
+			       "CliffFrontLeft=" + bCliffFrontLeft + ", " +
+			       "CliffFrontRight=" + bCliffFrontRight + ", " +
+			       "CliffRight=" + bCliffRight + ", " +
+			       "VirtualWall=" + bVirtualWall + ", " +
+			       oMotorOvercurrents.toString() + ", " +
+			       "DirtDetectionLeft=" + byDirtDetectionLeft + ", " +
+			       "DirtDetectionRight=" + byDirtDetectionRight;
+		}
 	}
 	
-	public class SensorPackage2 {
+	public class SensorPackage2 implements SensorPackage {
 		private static final int IDX_REMOTEOPCODE		= 0;
 		private static final int IDX_BUTTONSPRESSED		= 1;
 		private static final int IDX_DISTANCE			= 2; // 2 bytes
@@ -251,9 +306,16 @@ public class RoombaTypes {
 				}
 			}
 		}
+
+		public String toString() {
+			return "RemoteOpCode=" + byRemoteOpCode + ", " +
+				   oButtonsPressed.toString() + ", " +
+				   "Distance=" + sDistance + ", " +
+				   "Angle=" + sAngle;
+		}
 	}
 	
-	public class SensorPackage3 {
+	public class SensorPackage3 implements SensorPackage {
 		private static final int IDX_CHARGINGSTATE		= 0;
 		private static final int IDX_VOLTAGE			= 1; // 2 bytes
 		private static final int IDX_CURRENT			= 3; // 2 bytes
@@ -261,12 +323,12 @@ public class RoombaTypes {
 		private static final int IDX_CHARGE				= 6; // 2 bytes
 		private static final int IDX_CAPACITY			= 8; // 2 bytes
 		
-		EChargingState eChargingState;
-		short sVoltage;
-		short sCurrent;
-		byte byTemperature;
-		short sCharge;
-		short sCapacity;
+		public EChargingState eChargingState;
+		public short sVoltage;
+		public short sCurrent;
+		public byte byTemperature;
+		public short sCharge;
+		public short sCapacity;
 		
 		public SensorPackage3(byte[] i_rgbyValues) {
 			for (int i = 0; i < i_rgbyValues.length; i++) {
@@ -302,9 +364,18 @@ public class RoombaTypes {
 				}
 			}
 		}
+
+		public String toString() {
+			return "ChargingState=" + eChargingState + ", " +
+				   "Voltage=" + sVoltage + ", " +
+				   "Current=" + sCurrent + ", " +
+				   "Temperature=" + byTemperature + ", " +
+				   "Charge=" + sCharge + ", " +
+				   "Capacity=" + sCapacity;
+		}
 	}
 	
-	public class SensorPackageAll {
+	public class SensorPackageAll implements SensorPackage {
 		private static final int IDX_SENSORPACKAGE1_START 	= 0;
 		private static final int IDX_SENSORPACKAGE1_END		= 9;
 		private static final int IDX_SENSORPACKAGE2_START 	= 10;
@@ -322,6 +393,28 @@ public class RoombaTypes {
 			oSensorPackage2 = new SensorPackage2(Arrays.copyOfRange(i_rgbyValues, IDX_SENSORPACKAGE2_START, IDX_SENSORPACKAGE2_END));
 			oSensorPackage3 = new SensorPackage3(Arrays.copyOfRange(i_rgbyValues, IDX_SENSORPACKAGE3_START, IDX_SENSORPACKAGE3_END));
 		}
+		
+		public String toString() {
+			return oSensorPackage1.toString() + ", " +
+				   oSensorPackage2.toString() + ", " +
+				   oSensorPackage3.toString();
+		}
+	}
+	
+	public static SensorPackage assembleSensorPackage(ERoombaSensorPackages i_ePackage, byte[] i_bySensorData) {
+		RoombaTypes oRoombaTypes = new RoombaTypes();
+		switch (i_ePackage) {
+			case sensPkg_All:
+				return oRoombaTypes.new SensorPackageAll(i_bySensorData);
+			case sensPkg_1:
+				return oRoombaTypes.new SensorPackage1(i_bySensorData);
+			case sensPkg_2:
+				return oRoombaTypes.new SensorPackage2(i_bySensorData);
+			case sensPkg_3:
+				return oRoombaTypes.new SensorPackage3(i_bySensorData);
+			default:
+				return null;
+		}
 	}
 
 	/////////////////////////////////////////////////////////////////////////
@@ -333,7 +426,7 @@ public class RoombaTypes {
 	}
 	
 	private short HighLowByteToShort(byte i_byHighByte, byte i_byLowByte) {
-		return (short) ((i_byHighByte << 8) | i_byLowByte);
+		return (short)(((i_byHighByte & 0xFF) << 8) | (i_byLowByte & 0xFF));
 	}
 
 }

@@ -1,8 +1,11 @@
 package org.dobots.roomba;
 
-import org.dobots.roomba.RoombaTypes.ERoombaBaudRates;
+import java.util.concurrent.TimeoutException;
 
-import android.text.TextUtils.TruncateAt;
+import org.dobots.roomba.RoombaTypes.ERoombaBaudRates;
+import org.dobots.roomba.RoombaTypes.SensorPackage;
+
+import android.bluetooth.BluetoothSocket;
 
 public class Roomba {
 	
@@ -10,6 +13,8 @@ public class Roomba {
 	
 	byte m_byMotorState;
 	byte m_byLEDState;
+	byte m_byPowerColor;
+	byte m_byPowerIntensity;
 	
 	public Roomba() {
 		oRoombaCtrl = new RoombaController();
@@ -18,6 +23,17 @@ public class Roomba {
 		// oRoombaCtrl.setConnection(oConnection);
 	}
 	
+	public void setConnection(BluetoothSocket i_oSocket) {
+		oRoombaCtrl.setConnection(i_oSocket);
+	}
+	
+	public boolean isConnected() {
+		return oRoombaCtrl.isConnected();
+	}
+	
+	/*
+	 * Initialise Robot. sends the start command, then sets the roomba to the safe mode
+	 */
 	public void init() {
 		try {
 			oRoombaCtrl.start();
@@ -29,18 +45,31 @@ public class Roomba {
 		}
 	}
 	
-	public void setBaud(ERoombaBaudRates i_eBaudRate) {
+	/*
+	 * Set the Baudrate of the Roomba (default is 57600)
+	 */
+	public void setBaud(RoombaTypes.ERoombaBaudRates i_eBaudRate) {
 		oRoombaCtrl.baud((byte)i_eBaudRate.getID());
 	}
 	
+	/*
+	 * Sets the Roomba to safe control (cliff sensors are checked
+	 * and prevent the Roomba to fall down stairs etc.
+	 */
 	public void startSafeControl() {
 		oRoombaCtrl.safe();
 	}
 	
+	/* 
+	 * Sets the Roomba to full control (cliff sensors ar NOT checked!)
+	 */
 	public void startFullControl() {
 		oRoombaCtrl.full();
 	}
 	
+	/*
+	 * 
+	 */
 	public void powerOff() {
 		oRoombaCtrl.power();
 	}
@@ -161,7 +190,56 @@ public class Roomba {
 			}
 		}
 		
-		oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity)
+		oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
+	}
+	
+	public void setStatusLED(boolean i_bOn, RoombaTypes.ERoombaStatusLEDColours i_eLEDColour) {
+		if (i_bOn) {
+			switch (i_eLEDColour) {
+				case ledCol_Green:
+					SetBit(m_byLEDState, RoombaTypes.STATUS_LED_HIGH_BIT);
+					ClearBit(m_byLEDState, RoombaTypes.STATUS_LED_LOW_BIT);
+					break;
+				case ledCol_Red:
+					ClearBit(m_byLEDState, RoombaTypes.STATUS_LED_HIGH_BIT);
+					SetBit(m_byLEDState, RoombaTypes.STATUS_LED_LOW_BIT);
+					break;
+				case ledCol_Amber:
+					SetBit(m_byLEDState, RoombaTypes.STATUS_LED_HIGH_BIT);
+					SetBit(m_byLEDState, RoombaTypes.STATUS_LED_LOW_BIT);
+					break;
+			}
+		} else {
+			ClearBit(m_byLEDState, RoombaTypes.STATUS_LED_LOW_BIT);
+			ClearBit(m_byLEDState, RoombaTypes.STATUS_LED_HIGH_BIT);
+		}
+		
+		oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
+	}
+	
+	public void setPowerLED(int i_nColor, int i_nIntensity) {
+		m_byPowerColor = (byte)i_nColor;
+		m_byPowerIntensity = (byte)i_nIntensity;
+		
+		oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
 	}
 
+	public SensorPackage getSensors(RoombaTypes.ERoombaSensorPackages i_ePackage) {
+		byte nPackage = (byte)i_ePackage.getID();
+		int nResultLength = 0;
+		
+		byte[] byResult;
+		try {
+			byResult = oRoombaCtrl.sensors(nPackage, nResultLength);
+			return RoombaTypes.assembleSensorPackage(i_ePackage, byResult);
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public void seekDocking() {
+		oRoombaCtrl.dock();
+	}
 }
