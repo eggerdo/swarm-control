@@ -18,6 +18,10 @@ public class RobotDevice {
         setProperties(i_eRobot);
 	}
 	
+	public void onActivityResult(int requestCode, int resultCode) {
+		// do nothing
+	}
+	
 	protected void setProperties(RobotType i_eRobot) {
 		TextView lblRobot = (TextView) m_oActivity.findViewById(R.id.lblRobot);
 		lblRobot.setText(i_eRobot.toString());

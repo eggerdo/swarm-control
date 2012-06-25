@@ -5,10 +5,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.dobots.roomba.Roomba;
+import org.dobots.roomba.RoombaBluetooth;
 import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.roomba.RoombaTypes.SensorPackage;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.SwarmControlActivity;
 import org.dobots.swarmcontrol.robots.FinchRobot.FinchSensorType;
+import org.dobots.utility.AccelerometerListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,16 +23,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Rect;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-public class RoombaRobot extends RobotDevice {
+public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 
 	private static final String TAG = "Roomba";
 	
@@ -44,6 +51,13 @@ public class RoombaRobot extends RobotDevice {
 	private RoombaSensorGatherer oSensorGatherer;
 	
 	private boolean m_bShow = false;
+	
+	private boolean m_bControl = false;
+	
+	private Button m_btnFwd;
+	private Button m_btnBwd;
+	private Button m_btnLeft;
+	private Button m_btnRight;
 	
 	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	
@@ -91,9 +105,10 @@ public class RoombaRobot extends RobotDevice {
 		oSensorGatherer = new RoombaSensorGatherer(i_oActivity, oRoomba);
 		
 		try {
-			initBluetooth();
-			
-			selectDevice();
+			// if bluetooth is not yet enabled, initBluetooth will return false
+			// and the device selection will be called in the onActivityResult
+			if (initBluetooth())
+				selectDevice();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,8 +116,57 @@ public class RoombaRobot extends RobotDevice {
 		
 	}
 	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode) {
+		if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
+			selectDevice();
+		}
+	}
 
-	public void initBluetooth() throws Exception {
+	@Override
+	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
+//		if (tx && streaming && !controls) {
+//			// convert to [-127,127]
+//			int speed = (int) (x * (127.0F / 9.9F));
+//
+//			// convert to [-127,127]
+//			int offset = (int) (y * (127.0F / 9.9F));
+//
+//			Log.i("Speeds", "speed=" + speed + ", offset=" + offset); 
+//
+//			if (speed < -sensitivity) {
+//				if (offset > sensitivity) {
+//					Drive(1, 0);
+//				} else if (offset < -sensitivity) {
+//					Drive(2, 0);
+//				} else {
+//					Drive(3, 0);
+//				}
+//			}
+//
+//			if (speed > sensitivity) {
+//				if (offset > sensitivity) {
+//					Drive(0, 1);
+//				} else if (offset < -sensitivity) {
+//					Drive(0, 2);
+//				} else {
+//					Drive(0, 3);
+//				}
+//			}
+//		}
+	}
+
+	public void SetButtonVisible(boolean visible) {
+		if (visible) {
+			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.tblControlButtons);
+			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams());
+		} else {
+			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.tblControlButtons);
+			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams(0, 0));
+		}
+	}
+
+	public boolean initBluetooth() throws Exception {
 		m_oBTAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (m_oBTAdapter == null) {
 			throw new Exception("Roomba Connection not possible without Bluetooth!");
@@ -111,7 +175,9 @@ public class RoombaRobot extends RobotDevice {
 		if (!m_oBTAdapter.isEnabled()) {
 			Intent oEnableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			m_oActivity.startActivityForResult(oEnableBTIntent, REQUEST_ENABLE_BT);
-		}
+			return false;
+		} else
+			return true;
 	}
 	
 	private class BTDevice {
@@ -185,7 +251,10 @@ public class RoombaRobot extends RobotDevice {
 		
 		try {
 			m_oSocket.connect();
-			oRoomba.setConnection(m_oSocket);
+			
+			RoombaBluetooth m_oConnection = new RoombaBluetooth(m_oSocket); 
+			
+			oRoomba.setConnection(m_oConnection);
 //				oRoomba.init();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -230,6 +299,27 @@ public class RoombaRobot extends RobotDevice {
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
 		
+		Spinner spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
+		final ArrayAdapter<ERoombaSensorPackages> adapter = new ArrayAdapter<ERoombaSensorPackages>(m_oActivity, 
+				android.R.layout.simple_spinner_item, ERoombaSensorPackages.values());
+        adapter.setDropDownViewResource(android.R.layout.select_dialog_item);
+		spSensors.setAdapter(adapter);
+		spSensors.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				ERoombaSensorPackages eSensorPkg = adapter.getItem(position);
+				oSensorGatherer.showSensorPackage(eSensorPkg);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// do nothing
+			}
+			
+		});
+
 		Button btnClean = (Button) m_oActivity.findViewById(R.id.button1);
 		btnClean.setOnClickListener(new OnClickListener() {
 			
@@ -266,51 +356,166 @@ public class RoombaRobot extends RobotDevice {
 			}
 		});
 		
-		Button btnS1 = (Button) m_oActivity.findViewById(R.id.button4);
-		btnS1.setOnClickListener(new OnClickListener() {
+
+		Button btnControl = (Button) m_oActivity.findViewById(R.id.btnCtrl);
+		btnControl.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_1);
-				Log.d(TAG, sensors.toString());
-				int i = 0;
+				m_bControl = !m_bControl;
+				SetButtonVisible(m_bControl);
+				if (m_bControl) {
+					oRoomba.init();
+					oRoomba.startSafeControl();
+				} else {
+					oRoomba.powerOff();
+				}
+			}
+		});
+		
+
+		m_btnFwd = (Button) m_oActivity.findViewById(R.id.btnFwd);
+		m_btnLeft = (Button) m_oActivity.findViewById(R.id.btnLeft);
+		m_btnBwd = (Button) m_oActivity.findViewById(R.id.btnBwd);
+		m_btnRight = (Button) m_oActivity.findViewById(R.id.btnRight);
+		
+		m_btnFwd.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent e) {
+				int action = e.getAction();
+				switch (action & MotionEvent.ACTION_MASK) {
+				case MotionEvent.ACTION_CANCEL:
+				case MotionEvent.ACTION_UP:
+					oRoomba.stop();
+					break;
+				case MotionEvent.ACTION_POINTER_UP:
+					break;
+				case MotionEvent.ACTION_DOWN:
+					oRoomba.driveForward(50);
+					break;
+				case MotionEvent.ACTION_POINTER_DOWN:
+					break;					
+				case MotionEvent.ACTION_MOVE:
+					break;
+				}
+				return true;
+			}
+		});
+		
+		m_btnBwd.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent e) {
+				int action = e.getAction();
+				switch (action & MotionEvent.ACTION_MASK) {
+				case MotionEvent.ACTION_CANCEL:
+				case MotionEvent.ACTION_UP:
+					oRoomba.stop();
+					break;
+				case MotionEvent.ACTION_POINTER_UP:
+					break;
+				case MotionEvent.ACTION_DOWN:
+					oRoomba.driveBackward(50);
+					break;
+				case MotionEvent.ACTION_POINTER_DOWN:
+					break;					
+				case MotionEvent.ACTION_MOVE:
+					break;
+				}
+				return true;
 			}
 		});
 
-		Button btnS2 = (Button) m_oActivity.findViewById(R.id.button5);
-		btnS2.setOnClickListener(new OnClickListener() {
-			
+		m_btnLeft.setOnTouchListener(new OnTouchListener() {
 			@Override
-			public void onClick(View v) {
-				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_2);
-				Log.d(TAG, sensors.toString());
-				int i = 0;
+			public boolean onTouch(View v, MotionEvent e) {
+				int action = e.getAction();
+				switch (action & MotionEvent.ACTION_MASK) {
+				case MotionEvent.ACTION_CANCEL:
+				case MotionEvent.ACTION_UP:
+					oRoomba.stop();
+					break;
+				case MotionEvent.ACTION_POINTER_UP:
+					break;
+				case MotionEvent.ACTION_DOWN:
+					oRoomba.rotateCounterClockwise(50);
+					break;
+				case MotionEvent.ACTION_POINTER_DOWN:
+					break;					
+				case MotionEvent.ACTION_MOVE:
+					break;
+				}
+				return true;
+			}
+		});
+
+		m_btnRight.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent e) {
+				int action = e.getAction();
+				switch (action & MotionEvent.ACTION_MASK) {
+				case MotionEvent.ACTION_CANCEL:
+				case MotionEvent.ACTION_UP:
+					oRoomba.stop();
+					break;
+				case MotionEvent.ACTION_POINTER_UP:
+					break;
+				case MotionEvent.ACTION_DOWN:
+					oRoomba.rotateClockwise(50);
+					break;
+				case MotionEvent.ACTION_POINTER_DOWN:
+					break;					
+				case MotionEvent.ACTION_MOVE:
+					break;
+				}
+				return true;
 			}
 		});
 		
-		Button btnS3 = (Button) m_oActivity.findViewById(R.id.button6);
-		btnS3.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				m_bShow = !m_bShow;
-				oSensorGatherer.showSensorPackage3(m_bShow);
-//				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_3);
+//		Button btnS1 = (Button) m_oActivity.findViewById(R.id.button4);
+//		btnS1.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_1);
 //				Log.d(TAG, sensors.toString());
 //				int i = 0;
-			}
-		});
-		
-		Button btnSAll = (Button) m_oActivity.findViewById(R.id.button7);
-		btnSAll.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_All);
-				Log.d(TAG, sensors.toString());
-				int i = 0;
-			}
-		});
+//			}
+//		});
+//
+//		Button btnS2 = (Button) m_oActivity.findViewById(R.id.button5);
+//		btnS2.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_2);
+//				Log.d(TAG, sensors.toString());
+//				int i = 0;
+//			}
+//		});
+//		
+//		Button btnS3 = (Button) m_oActivity.findViewById(R.id.button6);
+//		btnS3.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				m_bShow = !m_bShow;
+//				oSensorGatherer.showSensorPackage3(m_bShow);
+////				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_3);
+////				Log.d(TAG, sensors.toString());
+////				int i = 0;
+//			}
+//		});
+//		
+//		Button btnSAll = (Button) m_oActivity.findViewById(R.id.button7);
+//		btnSAll.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				SensorPackage sensors = oRoomba.getSensors(ERoombaSensorPackages.sensPkg_All);
+//				Log.d(TAG, sensors.toString());
+//				int i = 0;
+//			}
+//		});
 	}
 	
 //	public void scanForDevices() {

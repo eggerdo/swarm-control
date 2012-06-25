@@ -52,4 +52,42 @@
         <string name="charge">Charge:</string>
         <string name="temperature">Temperature:</string>
         <string name="power">Power:</string>
+        <string-array name="roomba_sensor_pkgs">
+            <item >Environment Sensors</item>
+            <item >Controls, Buttons, Actuators</item>
+            <item >Power Settings</item>
+        </string-array>
+        <string name="choose_roomba_sensor">Choose a sensor package</string>
+        <string name="roomba_lbl_wheeldrop">Wheeldrop</string>
+        <string name="roomba_lbl_BumpLeft">Bump Left</string>
+        <string name="roomba_lbl_bumpright">Bump Right</string>
+        <string name="roomba_lbl_casterwd">Caster</string>
+        <string name="roomba_lbl_leftwd">Left</string>
+        <string name="roomba_lbl_rightwd">Right</string>
+        <string name="roomba_lbl_Wall">Wall</string>
+        <string name="roomba_lbl_cliffleft">Left</string>
+        <string name="roomba_lbl_clifffrontleft">Front Left</string>
+        <string name="roomba_lbl_clifffrontright">Front Right</string>
+        <string name="roomba_lbl_cliffright">Right</string>
+        <string name="roomba_lbl_wall">Wall</string>
+        <string name="roomba_lbl_virtualwall">Virtual Wall</string>
+        <string name="roomba_lbl_dirtleft">Dirt Left</string>
+        <string name="roomba_lbl_dirtright">Dirt Right</string>
+        <string name="roomba_lbl_motorovercurrents">Motor Overcurrents:</string>
+        <string name="roomba_lbl_driveleft">Drive Left</string>
+        <string name="roomba_lbl_driveright">Drive Right</string>
+        <string name="roomba_lbl_mainbrush">Main Brush</string>
+        <string name="roomba_lbl_vacuum">Vacuum</string>
+        <string name="roomba_lbl_sidebrush">Side Brush</string>
+        <string name="roomba_lbl_cliffsensors">Cliff Sensors:</string>
+        <string name="roomba_commands">Roomba Commands</string>
+        <string name="roomba_lbl_remoteopcode">Remote OpCode:</string>
+        <string name="roomba_lbl_buttons">Buttons pressed:</string>
+        <string name="roomba_lbl_Power">Power</string>
+        <string name="roomba_lbl_spot">Spot</string>
+        <string name="roomba_lbl_Clean">Clean</string>
+        <string name="roomba_lbl_max">Max</string>
+        <string name="roomba_lbl_distance">Distance:</string>
+        <string name="roomba_lbl_angle">Angle:</string>
+        <string name="roomba_lbl_control">Control</string>
 </resources>

@@ -9,84 +9,18 @@ import android.bluetooth.BluetoothSocket;
 
 public class RoombaController {
 	
-	private BTConnectionThread m_oConnectionHandler; 
+	RoombaBluetooth m_oConnection;
 	
-	private boolean m_bMsgReceived;
-	private byte[] m_rgRxBuffer;
-	private int m_nRxBytes;
-	
-	private class BTConnectionThread extends Thread {
-		private BluetoothSocket m_oSocket;
-		private InputStream m_oInStream;
-		private OutputStream m_oOutStream;
-		
-		private Object m_oParent;
-		
-		public BTConnectionThread(Object i_oParent, BluetoothSocket i_oSocket) {
-			m_oSocket = i_oSocket;
-			m_oParent = i_oParent;
-			
-			try {
-				m_oInStream = m_oSocket.getInputStream();
-				m_oOutStream = m_oSocket.getOutputStream();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		public void run() {
-//			byte[] buffer = new byte[1024];
-			m_rgRxBuffer = new byte[1024];
-//			int bytes;
-			
-			while (true) {
-				try {
-					m_nRxBytes = m_oInStream.read(m_rgRxBuffer);
-					m_bMsgReceived = true;
-					synchronized(m_oParent) {
-						m_oParent.notify();
-					}
-//					m_oHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-//							  .sendToTarget();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					break;
-				}
-			}
-		}
-		
-		public void write(byte[] buffer) {
-			try {
-				m_oOutStream.write(buffer);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		public void close() {
-			try {
-				m_oSocket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
 	/////////////////////////////////////////////////////////////////////////
 	/// Public Functions
 	/////////////////////////////////////////////////////////////////////////
 
-	public void setConnection(BluetoothSocket i_oSocket) {
-		m_oConnectionHandler = new BTConnectionThread(this, i_oSocket);
-		m_oConnectionHandler.start();
+	public void setConnection(RoombaBluetooth i_oConnection) {
+		m_oConnection = i_oConnection;
 	}
 	
 	public boolean isConnected() {
-		return m_oConnectionHandler != null;
+		return m_oConnection != null;
 	}
 		
 	/*
@@ -417,10 +351,10 @@ public class RoombaController {
 			default: nLength = 26;
 					break;
 		}
-		byte[] result = new byte[nLength];
+//		byte[] result = new byte[nLength];
 		
 		executeCommand(142, i_byPackage);
-		getResults(result);
+		byte[] result = getResults(nLength);
 		
 		return result;
 	}
@@ -458,38 +392,16 @@ public class RoombaController {
 		}
 		
 		// send buffer into connection object ...
-		if (m_oConnectionHandler != null) {
-			m_oConnectionHandler.write(buffer);
+		if (m_oConnection != null) {
+			m_oConnection.send(buffer);
 		}
 	}
 		
-	private synchronized void getResults(byte[] results) throws TimeoutException {
-		int nRequiredBytes = results.length;
-		int nReceivedBytes = 0;
-		byte[] buffer = new byte[results.length];
-		
-		while (nReceivedBytes != nRequiredBytes) {
-			try {
-				wait(5000);
-				if (!m_bMsgReceived) {
-					// TODO error, no answer received
-					throw new TimeoutException("No answer received");
-				} else {
-					m_bMsgReceived = false;
-					
-					System.arraycopy(m_rgRxBuffer, 0, buffer, nReceivedBytes, m_nRxBytes);
-
-					nReceivedBytes += m_nRxBytes;
-					m_nRxBytes = 0;
-				}
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		for (int i = 0; i < nReceivedBytes; i++) {
-			results[i] = buffer[i];
+	private byte[] getResults(int i_nBytes) throws TimeoutException {
+		if (m_oConnection != null) {
+			return m_oConnection.read(i_nBytes);
+		} else {
+			return null;
 		}
 	}
 	

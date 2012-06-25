@@ -2,10 +2,7 @@ package org.dobots.roomba;
 
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.roomba.RoombaTypes.ERoombaBaudRates;
 import org.dobots.roomba.RoombaTypes.SensorPackage;
-
-import android.bluetooth.BluetoothSocket;
 
 public class Roomba {
 	
@@ -23,8 +20,8 @@ public class Roomba {
 		// oRoombaCtrl.setConnection(oConnection);
 	}
 	
-	public void setConnection(BluetoothSocket i_oSocket) {
-		oRoombaCtrl.setConnection(i_oSocket);
+	public void setConnection(RoombaBluetooth i_oConnection) {
+		oRoombaCtrl.setConnection(i_oConnection);
 	}
 	
 	public boolean isConnected() {
@@ -106,7 +103,7 @@ public class Roomba {
 	}
 	
 	private int calculateVelocity(double i_dblSpeed) {
-		return (int) i_dblSpeed * RoombaTypes.MAX_VELOCITY;
+		return (int) Math.round(i_dblSpeed / 100.0 * RoombaTypes.MAX_VELOCITY);
 	}
 	
 	public void driveForward(double i_dblSpeed) {
@@ -231,7 +228,10 @@ public class Roomba {
 		byte[] byResult;
 		try {
 			byResult = oRoombaCtrl.sensors(nPackage, nResultLength);
-			return RoombaTypes.assembleSensorPackage(i_ePackage, byResult);
+			if (byResult != null) {
+				return RoombaTypes.assembleSensorPackage(i_ePackage, byResult);
+			} else
+				return null;
 		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -242,4 +242,5 @@ public class Roomba {
 	public void seekDocking() {
 		oRoombaCtrl.dock();
 	}
+
 }

@@ -4,10 +4,13 @@ import org.dobots.swarmcontrol.About;
 import org.dobots.swarmcontrol.robots.RobotDevice;
 import org.dobots.swarmcontrol.robots.RobotDeviceFactory;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.RoombaRobot;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,10 +30,15 @@ public class SwarmControlActivity extends Activity {
 
 	private RobotDevice m_oRobot;
 	
+	private static Context CONTEXT;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        CONTEXT = this;
+        
         setContentView(R.layout.main);
         
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -40,6 +48,9 @@ public class SwarmControlActivity extends Activity {
                 this, R.array.swarm_action, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        
+        m_oRobot = RobotDeviceFactory.getRobotDevice(RobotType.RBT_ROOMBA);
+		m_oRobot.show(SwarmControlActivity.this, RobotType.RBT_ROOMBA);
     }
     
 	@Override
@@ -73,6 +84,15 @@ public class SwarmControlActivity extends Activity {
 		}
 
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		m_oRobot.onActivityResult(requestCode, resultCode);
+	}
+	
+	public static Context getContext() {
+		return CONTEXT;
 	}
 	
 	private AlertDialog CreateConnectDialog() {

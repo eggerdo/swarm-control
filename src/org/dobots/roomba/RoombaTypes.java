@@ -78,18 +78,25 @@ public class RoombaTypes {
 	public static final int POWER_LED_RED	= 255;
 	
 	public enum ERoombaSensorPackages {
-		sensPkg_All(0),
-		sensPkg_1(1),
-		sensPkg_2(2),
-		sensPkg_3(3);
+		sensPkg_None(-1, "Nothing"),
+		sensPkg_All(0, "Everything"),
+		sensPkg_1(1, "Environment"),
+		sensPkg_2(2, "Actuators"),
+		sensPkg_3(3, "Power");
 		private int id;
+		private String strName;
 		
-		private ERoombaSensorPackages(int id) {
+		private ERoombaSensorPackages(int id, String name) {
 			this.id = id;
+			this.strName = name;
 		}
 		
 		public int getID() {
 			return id;
+		}
+		
+		public String toString() {
+			return strName;
 		}
 	}
 	
@@ -180,15 +187,24 @@ public class RoombaTypes {
 	}
 	
 	public enum EChargingState {
-		chg_notCharging,
-		chg_chargingRecovery,
-		chg_charging,
-		chg_trickleCharging,
-		chg_Waiting,
-		chg_ChargingError;
+		chg_notCharging("Not Charging"),
+		chg_chargingRecovery("Recovery Charging"),
+		chg_charging("Charging"),
+		chg_trickleCharging("Trickle Charging"),
+		chg_Waiting("Waiting"),
+		chg_ChargingError("Charging Error");
+		private String strName;
+		
+		EChargingState(String i_strName) {
+			this.strName = i_strName;
+		}
 		
 		public static EChargingState OrdToEnum(int i_nVal) {
 			return EChargingState.values()[i_nVal];
+		}
+		
+		public String toString() {
+			return strName;
 		}
 	}
 	
@@ -208,16 +224,16 @@ public class RoombaTypes {
 		public static final int IDX_DIRTDETECTIONLEFT	= 8;
 		public static final int IDX_DIRTDETECTIONRIGHT	= 9;
 		
-		BumpsWheeldrops oBumpsWheeldrops;
-		boolean bWall;
-		boolean bCliffLeft;
-		boolean bCliffFrontLeft;
-		boolean bCliffFrontRight;
-		boolean bCliffRight;
-		boolean bVirtualWall;
-		MotorOvercurrents oMotorOvercurrents;
-		byte byDirtDetectionLeft;
-		byte byDirtDetectionRight;
+		public BumpsWheeldrops oBumpsWheeldrops;
+		public boolean bWall;
+		public boolean bCliffLeft;
+		public boolean bCliffFrontLeft;
+		public boolean bCliffFrontRight;
+		public boolean bCliffRight;
+		public boolean bVirtualWall;
+		public MotorOvercurrents oMotorOvercurrents;
+		public byte byDirtDetectionLeft;
+		public byte byDirtDetectionRight;
 		
 		public SensorPackage1(byte[] i_rgbyValues) {
 			for (int i = 0; i < i_rgbyValues.length; i++) {
@@ -278,10 +294,10 @@ public class RoombaTypes {
 		private static final int IDX_DISTANCE			= 2; // 2 bytes
 		private static final int IDX_ANGLE				= 4; // 2 bytes
 		
-		byte byRemoteOpCode;
-		ButtonsPressed oButtonsPressed;
-		short sDistance;
-		short sAngle;
+		public byte byRemoteOpCode;
+		public ButtonsPressed oButtonsPressed;
+		public short sDistance;
+		public short sAngle;
 		
 		public SensorPackage2(byte[] i_rgbyValues) {
 			for (int i = 0; i < i_rgbyValues.length; i++) {
