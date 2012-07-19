@@ -12,91 +12,15 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/lblSensorSelection"
+        android:id="@+id/lblNotImplemented"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/robotdevice_sensorselection" />
+        android:text="@string/robotdevice_lbl_notimplemented" />
 
     <Spinner
         android:id="@+id/spSensors"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TableLayout
-        android:id="@+id/tblAcceleration"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:visibility="invisible">
-	
-	    <View
-	        android:layout_height="2dip"
-	        android:background="#FF909090" />
-	        
-        <TableRow
-            android:id="@+id/tblrwTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/x_axis"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dip"
-                android:text="x-axis" />
-
-            <TextView
-                android:id="@+id/y_axis"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dip"
-                android:text="y-axis" />
-
-            <TextView
-                android:id="@+id/z_axis"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dip"
-                android:text="z-axis" />
-
-        </TableRow>
-	
-	    <View
-	        android:layout_height="2dip"
-	        android:background="#FF909090" />
-	        
-        <TableRow
-            android:id="@+id/tblrwElements"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                android:id="@+id/x_axis_value"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dip"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/y_axis_value"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dip"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/z_axis_value"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dip"
-                android:text="" />
-            
-        </TableRow>
-    </TableLayout>
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
 
 </LinearLayout>

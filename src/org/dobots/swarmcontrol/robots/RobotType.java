@@ -2,9 +2,10 @@ package org.dobots.swarmcontrol.robots;
 
 public enum RobotType {
 	
+	RBT_ROOMBA("Roomba"),
+	RBT_NXT("Mindstorm NXT"),
 	RBT_FINCH("Finch"),
 	RBT_SURVEYOR("Surveyor"),
-	RBT_ROOMBA("Roomba"),
 	ROBOT_TRAKR("Trakr"),
 	RBT_SPYKEE("Spykee");
 	private String strDisplayName;

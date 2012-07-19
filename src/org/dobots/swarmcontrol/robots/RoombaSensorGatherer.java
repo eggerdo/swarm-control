@@ -44,8 +44,11 @@ public class RoombaSensorGatherer extends Thread {
 	public void run() {
 		
 		while (true) {
-			if (m_bEnabled) {
+			if (m_bEnabled && oRoomba.isPowerOn()) {
 				oSensorData = oRoomba.getSensors(eSensor);
+				oHandler.postDelayed(oGUIUpdater, 10);
+			} else {
+				oSensorData = null;
 			}
 		
 			try {
@@ -91,21 +94,87 @@ public class RoombaSensorGatherer extends Thread {
 
 		public void run() {
 			
-			switch (eSensor) {
-			case sensPkg_1:
-				if (SensorPackage1.class.isInstance(oSensorData)) 
-					updateSensorData1();
-				break;
-			case sensPkg_2:
-				if (SensorPackage2.class.isInstance(oSensorData))
-					updateSensorData2();
-				break;
-			case sensPkg_3:
-				if (SensorPackage3.class.isInstance(oSensorData))
-					updateSensorData3();
-				break;
+			if (oRoomba.isPowerOn()) {
+			
+				switch (eSensor) {
+				case sensPkg_1:
+					if (SensorPackage1.class.isInstance(oSensorData)) 
+						updateSensorData1();
+					break;
+				case sensPkg_2:
+					if (SensorPackage2.class.isInstance(oSensorData))
+						updateSensorData2();
+					break;
+				case sensPkg_3:
+					if (SensorPackage3.class.isInstance(oSensorData))
+						updateSensorData3();
+					break;
+				}
+//			    oHandler.postDelayed(this, 100);
+			    
+			} else {
+				resetSensorData1();
+				resetSensorData2();
+				resetSensorData3();
 			}
-		    oHandler.postDelayed(this, 100);
+		}
+		
+		private void resetSensorData1() {
+
+			TextView oElement = (TextView) m_oActivity.findViewById(R.id.txtCasterWD);
+			oElement.setText("---");
+			
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtLeftWD);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtRightWD);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtBumpLeft);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtBumpRight);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtWall);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtCliffLeft);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtCliffFrontLeft);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtCliffFrontRight);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtCliffRight);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtVirtualWall);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtDriveLeft);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtDriveRight);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtMainBrush);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtVacuum);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtSideBrush);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtDirtLeft);
+			oElement.setText("---");
+			
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtDirtRight);
+			oElement.setText("---");
+			
 		}
 			
 		private void updateSensorData1() {
@@ -168,6 +237,31 @@ public class RoombaSensorGatherer extends Thread {
 			
 		}
 		
+		private void resetSensorData2() {
+
+			TextView oElement = (TextView) m_oActivity.findViewById(R.id.txtRemoteOpCode);
+			oElement.setText("---");
+			
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtPowerBtn);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtSpotBtn);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtCleanBtn);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtMaxBtn);
+			oElement.setText("---");
+			
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtDistance);
+			oElement.setText("---");
+			
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtAngle);
+			oElement.setText("---");
+			
+		}
+		
 		private void updateSensorData2() {
 	
 			SensorPackage2 oSensorData2 = (SensorPackage2)oSensorData;
@@ -175,16 +269,16 @@ public class RoombaSensorGatherer extends Thread {
 			TextView oElement = (TextView) m_oActivity.findViewById(R.id.txtRemoteOpCode);
 			oElement.setText(String.valueOf(oSensorData2.byRemoteOpCode));
 			
-			oElement = (TextView) m_oActivity.findViewById(R.id.txtPower);
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtPowerBtn);
 			setBoolElement(oElement, oSensorData2.oButtonsPressed.bPower);
 	
-			oElement = (TextView) m_oActivity.findViewById(R.id.txtSpot);
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtSpotBtn);
 			setBoolElement(oElement, oSensorData2.oButtonsPressed.bSpot);
 	
-			oElement = (TextView) m_oActivity.findViewById(R.id.txtClean);
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtCleanBtn);
 			setBoolElement(oElement, oSensorData2.oButtonsPressed.bClean);
 	
-			oElement = (TextView) m_oActivity.findViewById(R.id.txtMax);
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtMaxBtn);
 			setBoolElement(oElement, oSensorData2.oButtonsPressed.bMax);
 			
 			oElement = (TextView) m_oActivity.findViewById(R.id.txtDistance);
@@ -192,6 +286,22 @@ public class RoombaSensorGatherer extends Thread {
 			
 			oElement = (TextView) m_oActivity.findViewById(R.id.txtAngle);
 			oElement.setText(String.valueOf(oSensorData2.sAngle) + " mm");
+			
+		}
+		
+		private void resetSensorData3() {
+
+			TextView oElement = (TextView) m_oActivity.findViewById(R.id.txtChargingState);
+			oElement.setText("---");
+			
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtCharge);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtPower);
+			oElement.setText("---");
+	
+			oElement = (TextView) m_oActivity.findViewById(R.id.txtTemperature);
+			oElement.setText("---");
 			
 		}
 		
@@ -203,12 +313,13 @@ public class RoombaSensorGatherer extends Thread {
 			oElement.setText(oSensorData3.eChargingState.toString());
 			
 			oElement = (TextView) m_oActivity.findViewById(R.id.txtCharge);
-			CharSequence strTmp = String.format("%.2f", (float)oSensorData3.sCharge / oSensorData3.sCapacity * 100) + "% ( " + oSensorData3.sCharge + 
-								  " / " + oSensorData3.sCapacity + " mAh )";
+			CharSequence strTmp = String.format("%.2f", (float)oSensorData3.sCharge / oSensorData3.sCapacity * 100) + "%" + 
+								  " ( " + oSensorData3.sCharge + " / " + oSensorData3.sCapacity + " mAh )";
 			oElement.setText(strTmp);
 	
 			oElement = (TextView) m_oActivity.findViewById(R.id.txtPower);
-			strTmp = "( " + oSensorData3.sCurrent + " mA, " + oSensorData3.sVoltage + " mV )";
+			strTmp = String.format("%.2f", (float)oSensorData3.sCurrent / 1000 * oSensorData3.sVoltage / 1000) + "W" +
+					 " ( " + oSensorData3.sCurrent + " mA, " + oSensorData3.sVoltage + " mV )";
 			oElement.setText(strTmp);
 	
 			oElement = (TextView) m_oActivity.findViewById(R.id.txtTemperature);
@@ -220,8 +331,10 @@ public class RoombaSensorGatherer extends Thread {
 			io_oElement.setText(Boolean.toString(i_bBool));
 			if (i_bBool) {
 				io_oElement.setBackgroundColor(Color.RED);
+				io_oElement.setTextColor(Color.LTGRAY);
 			} else {
 				io_oElement.setBackgroundColor(Color.GREEN);
+				io_oElement.setTextColor(Color.BLACK);
 			}
 		}
 		

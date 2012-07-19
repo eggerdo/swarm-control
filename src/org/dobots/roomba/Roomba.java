@@ -2,6 +2,8 @@ package org.dobots.roomba;
 
 import java.util.concurrent.TimeoutException;
 
+import org.dobots.roomba.RoombaTypes.ERoombaModes;
+import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.roomba.RoombaTypes.SensorPackage;
 
 public class Roomba {
@@ -13,8 +15,12 @@ public class Roomba {
 	byte m_byPowerColor;
 	byte m_byPowerIntensity;
 	
+	ERoombaModes m_eMode;
+	
 	public Roomba() {
 		oRoombaCtrl = new RoombaController();
+		
+		m_eMode = ERoombaModes.mod_Unknown;
 		
 		// create bluetooth connection object and add it to the controller
 		// oRoombaCtrl.setConnection(oConnection);
@@ -27,19 +33,28 @@ public class Roomba {
 	public boolean isConnected() {
 		return oRoombaCtrl.isConnected();
 	}
-	
+
 	/*
 	 * Initialise Robot. sends the start command, then sets the roomba to the safe mode
 	 */
-	public void init() {
+	public boolean init() {
 		try {
 			oRoombaCtrl.start();
 			Thread.sleep(20);
-			oRoombaCtrl.control();
+//			oRoombaCtrl.control();
+			
+			if (getSensors(ERoombaSensorPackages.sensPkg_1) == null) {
+				m_eMode = ERoombaModes.mod_PowerOff;
+			} else {
+				m_eMode = ERoombaModes.mod_Passive;
+				return true;
+			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return false;
 	}
 	
 	/*
@@ -47,36 +62,145 @@ public class Roomba {
 	 */
 	public void setBaud(RoombaTypes.ERoombaBaudRates i_eBaudRate) {
 		oRoombaCtrl.baud((byte)i_eBaudRate.getID());
+
+		m_eMode = ERoombaModes.mod_Passive;
 	}
 	
 	/*
-	 * Sets the Roomba to safe control (cliff sensors are checked
+	 * Sets the Roomba back to passive mode
+	 */
+	public void setPassiveMode() {
+		try {
+			oRoombaCtrl.start();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		m_eMode = ERoombaModes.mod_Passive;
+	}
+	
+	/*
+	 * Sets the Roomba to safe mode (cliff sensors are checked
 	 * and prevent the Roomba to fall down stairs etc.
 	 */
-	public void startSafeControl() {
-		oRoombaCtrl.safe();
+	public void setSafeMode() {
+		try {
+			oRoombaCtrl.control();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+
+			oRoombaCtrl.safe();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		m_eMode = ERoombaModes.mod_Safe;
 	}
 	
 	/* 
-	 * Sets the Roomba to full control (cliff sensors ar NOT checked!)
+	 * Sets the Roomba to full mode (cliff sensors ar NOT checked!)
 	 */
-	public void startFullControl() {
-		oRoombaCtrl.full();
+	public void setFullMode() {
+		try {
+			oRoombaCtrl.control();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+
+			oRoombaCtrl.full();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		m_eMode = ERoombaModes.mod_Full;
 	}
 	
 	/*
 	 * 
 	 */
 	public void powerOff() {
-		oRoombaCtrl.power();
+		try {
+			oRoombaCtrl.power();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+			
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		m_eMode = ERoombaModes.mod_PowerOff;
+	}
+	
+	public void powerOn() {
+		try {
+			// wake up roomba
+			if (!oRoombaCtrl.powerOn()) {
+				return;
+			}
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+			
+			// set up roomba for control
+			oRoombaCtrl.start();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+			
+			m_eMode = ERoombaModes.mod_Passive;
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean isPowerOn() {
+		return m_eMode != ERoombaModes.mod_PowerOff;
 	}
 	
 	public void startSpotMode() {
-		oRoombaCtrl.spot();
+		try {
+			oRoombaCtrl.spot();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		m_eMode = ERoombaModes.mod_Passive;
 	}
 	
 	public void startCleanMode() {
-		oRoombaCtrl.clean();
+		try {
+			oRoombaCtrl.clean();
+			
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		m_eMode = ERoombaModes.mod_Passive;
 	}
 	
 	private void capSpeed(double io_dblSpeed) {
@@ -154,26 +278,38 @@ public class Roomba {
 		oRoombaCtrl.drive(0, 0);
 	}
 	
-	public void setMotors(boolean i_bOn, RoombaTypes.ERoombaMotors ... i_eMotors) {
+	public void setVacuum(boolean i_bOn) {
+		setMotors(i_bOn, RoombaTypes.ERoombaMotors.motor_Vacuum);
+	}
+
+	public void setMainBrush(boolean i_bOn) {
+		setMotors(i_bOn, RoombaTypes.ERoombaMotors.motor_MainBrush);
+	}
+
+	public void setSideBrush(boolean i_bOn) {
+		setMotors(i_bOn, RoombaTypes.ERoombaMotors.motor_SideBrush);
+	}
+	
+	private void setMotors(boolean i_bOn, RoombaTypes.ERoombaMotors ... i_eMotors) {
 		int nBit;
 		for (RoombaTypes.ERoombaMotors eMotor : i_eMotors) {
 			nBit = eMotor.getID();
 			if (i_bOn) {
-				SetBit(m_byMotorState, nBit);
+				m_byMotorState = SetBit(m_byMotorState, nBit);
 			} else {
-				ClearBit(m_byMotorState, nBit);
+				m_byMotorState = ClearBit(m_byMotorState, nBit);
 			}
 		}
 		
 		oRoombaCtrl.motors(m_byMotorState);
 	}
 	
-	private void SetBit(byte io_byValue, int i_nBit) {
-		io_byValue |= (1 << i_nBit);
+	private byte SetBit(byte io_byValue, int i_nBit) {
+		return io_byValue |= (1 << i_nBit);
 	}
 	
-	private void ClearBit(byte io_byValue, int i_nBit) {
-		io_byValue &= (0 << i_nBit);
+	private byte ClearBit(byte io_byValue, int i_nBit) {
+		return io_byValue &= ~(1 << i_nBit);
 	}
 	
 	public void setLEDs(boolean i_bOn, RoombaTypes.ERoombaOnOffLEDs ... i_eLEDs) {
@@ -240,7 +376,17 @@ public class Roomba {
 	}
 	
 	public void seekDocking() {
-		oRoombaCtrl.dock();
+		try {
+			oRoombaCtrl.dock();
+
+			// Allow 20 milliseconds between sending commands that change the SCI mode. 
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		m_eMode = ERoombaModes.mod_Passive;
 	}
 
 }

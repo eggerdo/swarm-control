@@ -6,20 +6,37 @@
 
     <uses-sdk android:minSdkVersion="10" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/swarmcontrol_icon"
         android:label="@string/app_name" >
         <activity
             android:name=".SwarmControlActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:keepScreenOn="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="org.dobots.utility.DeviceListActivity"
+			android:label="@string/select_device"
+			android:screenOrientation="portrait" 
+			android:theme="@android:style/Theme.Dialog"
+			android:configChanges="keyboardHidden|orientation">
+		</activity>
+		<activity android:name="org.dobots.swarmcontrol.robots.RobotDevice"
+			android:screenOrientation="portrait" 
+            android:keepScreenOn="true" ></activity>
+		<activity android:name="org.dobots.swarmcontrol.robots.RoombaRobot"
+			android:screenOrientation="portrait" 
+            android:keepScreenOn="true" ></activity>
+		<activity android:name="org.dobots.swarmcontrol.robots.FinchRobot"
+            android:keepScreenOn="true" ></activity>
+		<activity android:name="org.dobots.swarmcontrol.robots.NXTRobot"
+            android:keepScreenOn="true" ></activity>
     </application>
 
 </manifest>

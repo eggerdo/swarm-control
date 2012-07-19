@@ -9,6 +9,7 @@ import org.dobots.swarmcontrol.R;
 import edu.cmu.ri.createlab.terk.robot.finch.Finch;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.ViewDebug.IntToString;
@@ -71,14 +72,14 @@ public class FinchRobot extends RobotDevice {
 					
 					break;
 				case SENS_ACCELERATION:
-					TextView x_axis = (TextView) m_oActivity.findViewById(R.id.x_axis_value);
-					x_axis.setText(String.format("%.4f", oData.dblAccelZ));
-	
-					TextView y_axis = (TextView) m_oActivity.findViewById(R.id.y_axis_value);
-					y_axis.setText(String.format("%.4f", oData.dblAccelY));
-	
-					TextView z_axis = (TextView) m_oActivity.findViewById(R.id.z_axis_value);
-					z_axis.setText(String.format("%.4f", oData.dblAccelZ));
+//					TextView x_axis = (TextView) m_oActivity.findViewById(R.id.x_axis_value);
+//					x_axis.setText(String.format("%.4f", oData.dblAccelZ));
+//	
+//					TextView y_axis = (TextView) m_oActivity.findViewById(R.id.y_axis_value);
+//					y_axis.setText(String.format("%.4f", oData.dblAccelY));
+//	
+//					TextView z_axis = (TextView) m_oActivity.findViewById(R.id.z_axis_value);
+//					z_axis.setText(String.format("%.4f", oData.dblAccelZ));
 					break;
 				case SENS_OBSTACLE:
 					
@@ -144,9 +145,13 @@ public class FinchRobot extends RobotDevice {
 		
 	}
 	
-	@Override
-	public void show(Activity myActivity, RobotType i_eRobot) {
-		super.show(myActivity, i_eRobot);
+//	@Override
+//	public void show(Activity myActivity, RobotType i_eRobot) {
+//		super.show(myActivity, i_eRobot);
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+    	super.onCreate(savedInstanceState);
 		
 		oFinch = new Finch();
 		oData = new FinchSensorData();
@@ -196,16 +201,16 @@ public class FinchRobot extends RobotDevice {
 	}
 	
 	private void showAcceleration(Boolean i_bShow) {
-		TableLayout tblAcceleration = (TableLayout) m_oActivity.findViewById(R.id.tblAcceleration);
-		if (i_bShow) {
-			tblAcceleration.setVisibility(View.VISIBLE);
-			oSensorGatherer.setSensor(FinchSensorType.SENS_ACCELERATION);
-			oGUIUpdater.setSensor(FinchSensorType.SENS_ACCELERATION);
-			oHandler.postDelayed(oGUIUpdater, 100);
-		} else {
-			tblAcceleration.setVisibility(View.INVISIBLE);
-			oHandler.removeCallbacks(oGUIUpdater);
-		}
+//		TableLayout tblAcceleration = (TableLayout) m_oActivity.findViewById(R.id.tblAcceleration);
+//		if (i_bShow) {
+//			tblAcceleration.setVisibility(View.VISIBLE);
+//			oSensorGatherer.setSensor(FinchSensorType.SENS_ACCELERATION);
+//			oGUIUpdater.setSensor(FinchSensorType.SENS_ACCELERATION);
+//			oHandler.postDelayed(oGUIUpdater, 100);
+//		} else {
+//			tblAcceleration.setVisibility(View.INVISIBLE);
+//			oHandler.removeCallbacks(oGUIUpdater);
+//		}
 	}
 
 	@Override

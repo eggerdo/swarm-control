@@ -5,9 +5,12 @@ import org.dobots.swarmcontrol.robots.RobotDevice;
 import org.dobots.swarmcontrol.robots.RobotDeviceFactory;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RoombaRobot;
+import org.dobots.utility.DeviceListActivity;
+import org.dobots.utility.ProgressDlg;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,19 +43,21 @@ public class SwarmControlActivity extends Activity {
         CONTEXT = this;
         
         setContentView(R.layout.main);
-        
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
-        
+		
         Spinner spinner = (Spinner) findViewById(R.id.spinner1);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.swarm_action, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         
-        m_oRobot = RobotDeviceFactory.getRobotDevice(RobotType.RBT_ROOMBA);
-		m_oRobot.show(SwarmControlActivity.this, RobotType.RBT_ROOMBA);
+        m_oRobot = new RoombaRobot();
+		Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(RobotType.RBT_ROOMBA));
+		intent.putExtra("RobotType", RobotType.RBT_ROOMBA);
+		startActivity(intent);
+
     }
-    
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -88,7 +93,7 @@ public class SwarmControlActivity extends Activity {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		m_oRobot.onActivityResult(requestCode, resultCode);
+		m_oRobot.onActivityResult(requestCode, resultCode, data);
 	}
 	
 	public static Context getContext() {
@@ -96,9 +101,6 @@ public class SwarmControlActivity extends Activity {
 	}
 	
 	private AlertDialog CreateConnectDialog() {
-		if (m_oRobot != null) {
-			m_oRobot.close();
-		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Choose a robot");
@@ -110,7 +112,10 @@ public class SwarmControlActivity extends Activity {
 				RobotType eRobot = adapter.getItem(which);
 				m_oRobot = RobotDeviceFactory.getRobotDevice(eRobot);
 				dialog.dismiss();
-				m_oRobot.show(SwarmControlActivity.this, eRobot);
+				Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(eRobot));
+				intent.putExtra("RobotType", eRobot);
+				startActivity(intent);
+//				m_oRobot.show(SwarmControlActivity.this, eRobot);
 			}
 		});
 		return builder.create();
@@ -118,6 +123,7 @@ public class SwarmControlActivity extends Activity {
 	
 	@Override
 	public void onDestroy() {
+		super.onDestroy();
 		if (m_oRobot != null) {
 			m_oRobot.close();
 		}

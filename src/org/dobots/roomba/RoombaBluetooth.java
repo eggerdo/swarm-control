@@ -3,7 +3,9 @@ package org.dobots.roomba;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
+
 
 import android.bluetooth.BluetoothSocket;
 
@@ -93,8 +95,30 @@ public class RoombaBluetooth implements RoombaConnection {
 		m_oConnectionHandler.write(buffer);
 	}
 	
-	public byte[] read() {
-		return null;
+	public synchronized byte[] read() throws TimeoutException {
+		byte[] buffer = null;
+		
+		try {
+			wait(5000);
+			if (!m_bMsgReceived) {
+				// TODO error, no answer received
+				throw new TimeoutException("No answer received");
+			} else {
+				m_bMsgReceived = false;
+				
+				buffer = new byte[m_nRxBytes];
+				
+				System.arraycopy(m_rgRxBuffer, 0, buffer, 0, m_nRxBytes);
+
+				Arrays.fill(m_rgRxBuffer, (byte)0);
+				m_nRxBytes = 0;
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return buffer;
 	}
 	
 	public synchronized byte[] read(int i_nBytes) throws TimeoutException {
@@ -114,6 +138,7 @@ public class RoombaBluetooth implements RoombaConnection {
 					System.arraycopy(m_rgRxBuffer, 0, buffer, nReceivedBytes, m_nRxBytes);
 
 					nReceivedBytes += m_nRxBytes;
+					Arrays.fill(m_rgRxBuffer, (byte)0);
 					m_nRxBytes = 0;
 				}
 			} catch (InterruptedException e) {

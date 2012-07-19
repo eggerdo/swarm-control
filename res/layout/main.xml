@@ -14,16 +14,40 @@
         android:layout_height="wrap_content" >
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/imgRoomba"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/brookstone_rover_ac13" />
+            android:src="@drawable/roomba" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/imgNXT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/surveyor" />
+            android:src="@drawable/nxt" />
+
+        <ImageView
+            android:id="@+id/imgFinch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/finch" />
+
+        <ImageView
+            android:id="@+id/imgRover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/rover" />
+
+        <ImageView
+            android:id="@+id/imgTrakr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/trakr" />
+
+        <ImageView
+            android:id="@+id/imgSpykee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/spykee" />
         
     </LinearLayout>
 

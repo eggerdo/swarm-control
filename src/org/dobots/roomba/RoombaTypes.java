@@ -2,13 +2,25 @@ package org.dobots.roomba;
 
 import java.util.Arrays;
 
+import org.dobots.utility.Utils;
+
 public class RoombaTypes {
+	
+	public static String MAC_FILTER = "00:06:66";
 	
 	public static int MAX_VELOCITY = 500; // -500 - 500 mm/s
 	public static int MAX_RADIUS = 2000;  // -2000 - 2000 mm/s
 	public static int STRAIGHT = 32768;
 	public static int CLOCKWISE = -1;
 	public static int COUNTER_CLOCKWISE = 1;
+	
+	public enum ERoombaModes {
+		mod_Unknown,
+		mod_Passive,
+		mod_Safe,
+		mod_Full,
+		mod_PowerOff
+	}
 	
 	public enum ERoombaBaudRates {
 		baud_300(0),
@@ -79,7 +91,7 @@ public class RoombaTypes {
 	
 	public enum ERoombaSensorPackages {
 		sensPkg_None(-1, "Nothing"),
-		sensPkg_All(0, "Everything"),
+//		sensPkg_All(0, "Everything"),
 		sensPkg_1(1, "Environment"),
 		sensPkg_2(2, "Actuators"),
 		sensPkg_3(3, "Power");
@@ -114,11 +126,11 @@ public class RoombaTypes {
 		public boolean bRight_Bump;
 	
 		BumpsWheeldrops(int i_nVal) {
-			bCaster_Wheeldrop 	= IsBitSet(i_nVal, CASTER_WHEELDROP);
-			bLeft_Wheeldrop		= IsBitSet(i_nVal, LEFT_WHEELDROP);
-			bRight_Wheeldrop	= IsBitSet(i_nVal, RIGHT_WHEELDROP);
-			bLeft_Bump			= IsBitSet(i_nVal, LEFT_BUMP);
-			bRight_Bump			= IsBitSet(i_nVal, RIGHT_BUMP);
+			bCaster_Wheeldrop 	= Utils.IsBitSet(i_nVal, CASTER_WHEELDROP);
+			bLeft_Wheeldrop		= Utils.IsBitSet(i_nVal, LEFT_WHEELDROP);
+			bRight_Wheeldrop	= Utils.IsBitSet(i_nVal, RIGHT_WHEELDROP);
+			bLeft_Bump			= Utils.IsBitSet(i_nVal, LEFT_BUMP);
+			bRight_Bump			= Utils.IsBitSet(i_nVal, RIGHT_BUMP);
 		}
 
 		public String toString() {
@@ -144,11 +156,11 @@ public class RoombaTypes {
 		public boolean bSideBrush;
 		
 		MotorOvercurrents(int i_nVal) {
-			bDriveLeft	= IsBitSet(i_nVal, DRIVE_LEFT);
-			bDriveRight	= IsBitSet(i_nVal, DRIVE_RIGHT);
-			bMainBrush	= IsBitSet(i_nVal, MAIN_BRUSH);
-			bVacuum		= IsBitSet(i_nVal, VACUUM);
-			bSideBrush	= IsBitSet(i_nVal, SIDE_BRUSH);
+			bDriveLeft	= Utils.IsBitSet(i_nVal, DRIVE_LEFT);
+			bDriveRight	= Utils.IsBitSet(i_nVal, DRIVE_RIGHT);
+			bMainBrush	= Utils.IsBitSet(i_nVal, MAIN_BRUSH);
+			bVacuum		= Utils.IsBitSet(i_nVal, VACUUM);
+			bSideBrush	= Utils.IsBitSet(i_nVal, SIDE_BRUSH);
 		}
 
 		public String toString() {
@@ -172,10 +184,10 @@ public class RoombaTypes {
 		public boolean bMax;
 		
 		ButtonsPressed(int i_nVal) {
-			bPower	= IsBitSet(i_nVal, POWER);
-			bSpot	= IsBitSet(i_nVal, SPOT);
-			bClean	= IsBitSet(i_nVal, CLEAN);
-			bMax	= IsBitSet(i_nVal, MAX);
+			bPower	= Utils.IsBitSet(i_nVal, POWER);
+			bSpot	= Utils.IsBitSet(i_nVal, SPOT);
+			bClean	= Utils.IsBitSet(i_nVal, CLEAN);
+			bMax	= Utils.IsBitSet(i_nVal, MAX);
 		}
 		
 		public String toString() {
@@ -192,7 +204,8 @@ public class RoombaTypes {
 		chg_charging("Charging"),
 		chg_trickleCharging("Trickle Charging"),
 		chg_Waiting("Waiting"),
-		chg_ChargingError("Charging Error");
+		chg_ChargingError("Charging Error"),
+		chg_Unknown("Unknown");
 		private String strName;
 		
 		EChargingState(String i_strName) {
@@ -200,7 +213,11 @@ public class RoombaTypes {
 		}
 		
 		public static EChargingState OrdToEnum(int i_nVal) {
-			return EChargingState.values()[i_nVal];
+			try {
+				return EChargingState.values()[i_nVal];
+			} catch (ArrayIndexOutOfBoundsException e) {
+				return chg_Unknown;
+			}
 		}
 		
 		public String toString() {
@@ -242,22 +259,22 @@ public class RoombaTypes {
 						oBumpsWheeldrops = new BumpsWheeldrops(i_rgbyValues[i]);
 						break;
 					case IDX_WALL:
-						bWall = IsBitSet(i_rgbyValues[i], 0);
+						bWall = Utils.IsBitSet(i_rgbyValues[i], 0);
 						break;
 					case IDX_CLIFFLEFT:
-						bCliffLeft = IsBitSet(i_rgbyValues[i], 0);
+						bCliffLeft = Utils.IsBitSet(i_rgbyValues[i], 0);
 						break;
 					case IDX_CLIFFFRONTLEFT:
-						bCliffFrontLeft = IsBitSet(i_rgbyValues[i], 0);
+						bCliffFrontLeft = Utils.IsBitSet(i_rgbyValues[i], 0);
 						break;
 					case IDX_CLIFFFRONTRIGHT:
-						bCliffFrontRight = IsBitSet(i_rgbyValues[i], 0);
+						bCliffFrontRight = Utils.IsBitSet(i_rgbyValues[i], 0);
 						break;
 					case IDX_CLIFFRIGHT:
-						bCliffRight = IsBitSet(i_rgbyValues[i], 0);
+						bCliffRight = Utils.IsBitSet(i_rgbyValues[i], 0);
 						break;
 					case IDX_VIRTUALWALL:
-						bVirtualWall = IsBitSet(i_rgbyValues[i], 0);
+						bVirtualWall = Utils.IsBitSet(i_rgbyValues[i], 0);
 						break;
 					case IDX_MOTOROVERCURRENTS:
 						oMotorOvercurrents = new MotorOvercurrents(i_rgbyValues[i]);
@@ -309,12 +326,12 @@ public class RoombaTypes {
 						oButtonsPressed = new ButtonsPressed(i_rgbyValues[i]);
 						break;
 					case IDX_DISTANCE:
-						sDistance = HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
+						sDistance = Utils.HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
 						break;
 					case IDX_DISTANCE+1:
 						break;
 					case IDX_ANGLE:
-						sAngle = HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
+						sAngle = Utils.HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
 					case IDX_ANGLE+1:
 						break;
 					default:
@@ -353,12 +370,12 @@ public class RoombaTypes {
 						eChargingState = EChargingState.OrdToEnum(i_rgbyValues[i]);
 						break;
 					case IDX_VOLTAGE:
-						sVoltage = HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
+						sVoltage = Utils.HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
 						break;
 					case IDX_VOLTAGE+1:
 						break;
 					case IDX_CURRENT:
-						sCurrent = HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
+						sCurrent = Utils.HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
 						break;
 					case IDX_CURRENT+1:
 						break;
@@ -366,12 +383,12 @@ public class RoombaTypes {
 						byTemperature = i_rgbyValues[i];
 						break;
 					case IDX_CHARGE:
-						sCharge = HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
+						sCharge = Utils.HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
 						break;
 					case IDX_CHARGE+1:
 						break;
 					case IDX_CAPACITY:
-						sCapacity = HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
+						sCapacity = Utils.HighLowByteToShort(i_rgbyValues[i], i_rgbyValues[i+1]);
 						break;
 					case IDX_CAPACITY+1:
 						break;
@@ -420,8 +437,8 @@ public class RoombaTypes {
 	public static SensorPackage assembleSensorPackage(ERoombaSensorPackages i_ePackage, byte[] i_bySensorData) {
 		RoombaTypes oRoombaTypes = new RoombaTypes();
 		switch (i_ePackage) {
-			case sensPkg_All:
-				return oRoombaTypes.new SensorPackageAll(i_bySensorData);
+//			case sensPkg_All:
+//				return oRoombaTypes.new SensorPackageAll(i_bySensorData);
 			case sensPkg_1:
 				return oRoombaTypes.new SensorPackage1(i_bySensorData);
 			case sensPkg_2:
@@ -436,13 +453,5 @@ public class RoombaTypes {
 	/////////////////////////////////////////////////////////////////////////
 	/// Private Functions
 	/////////////////////////////////////////////////////////////////////////
-	
-	private boolean IsBitSet(int i_nVal, int i_nBit) {
-		return ((i_nVal >> i_nBit) & 1) == 1;
-	}
-	
-	private short HighLowByteToShort(byte i_byHighByte, byte i_byLowByte) {
-		return (short)(((i_byHighByte & 0xFF) << 8) | (i_byLowByte & 0xFF));
-	}
 
 }

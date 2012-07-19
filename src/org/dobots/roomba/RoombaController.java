@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
 
+import org.dobots.utility.Utils;
+
 import android.bluetooth.BluetoothSocket;
 
 public class RoombaController {
@@ -377,6 +379,76 @@ public class RoombaController {
 	public void dock() {
 		executeCommand(143);
 	}
+	
+	/*
+	 * The power on command is not documented in the roomba sci manual
+	 * but depends on the RooTooth in use. With our current version
+	 * the procedure is like this. with an older version the procedure
+	 * is different.
+	 */
+	public boolean powerOn() {
+		
+		try {
+			if (m_oConnection != null) {
+				
+				// we need to enter the command mode of the RooTooth
+				if (!sendCmdAndCheckReply("$$$", "CMD")) {
+					return false;
+				}
+				
+				try {
+					// set GPIO 7 as output (GPIO7 is connected to the 
+					// DeviceDetect Line of the Roomba's SCI)
+					if (!sendCmdAndCheckReply("S@,8080\n", "AOK")) {
+						return false;
+					}
+	
+					// set GPIO 7 low for 0.5 seconds
+					if (!sendCmdAndCheckReply("S&,8000\n", "AOK")) {
+						return false;
+					}
+					Thread.sleep(500);
+					
+					// set GPIO 7 high
+					if (!sendCmdAndCheckReply("S&,8080\n", "AOK")) {
+						return false;
+					}
+				} finally {
+
+					// exit command mode again
+					if (!sendCmdAndCheckReply("---\n", "END")) {
+						return false;
+					}
+					
+				}
+	
+				return true;
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} 
+
+		return false;
+	}
+	
+
+	private boolean sendCmdAndCheckReply(String i_strCmd, String i_strReply) {
+		byte[] reply;
+			
+		try {
+			m_oConnection.send(Utils.stringToByteArray(i_strCmd));
+			
+			// check reply, should be the same as i_strReply
+			reply = m_oConnection.read();
+			return Utils.byteArrayToString(reply) != i_strReply;
+					
+		}
+		catch (TimeoutException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
+	};
 	
 	/////////////////////////////////////////////////////////////////////////
 	/// Private Functions
