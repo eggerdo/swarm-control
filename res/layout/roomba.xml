@@ -713,15 +713,24 @@
                 android:layout_weight="1" >
             </LinearLayout>
 
-            <Button
+            <ToggleButton
                 android:id="@+id/btnAccelerometer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Accelerometer" />
+                android:layout_weight="2"
+                android:textOff="Acceleration OFF"
+                android:textOn="Acceleration ON" />
+
+            <ToggleButton
+                android:id="@+id/btnMove"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:textOff="Move OFF"
+                android:textOn="Move ON" />
 
             <LinearLayout
-                android:id="@+id/LinearLayout02"
+                android:id="@+id/LinearLayout03"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" >

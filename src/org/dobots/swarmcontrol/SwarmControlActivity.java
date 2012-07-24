@@ -124,9 +124,6 @@ public class SwarmControlActivity extends Activity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (m_oRobot != null) {
-			m_oRobot.close();
-		}
 	}
 
 }

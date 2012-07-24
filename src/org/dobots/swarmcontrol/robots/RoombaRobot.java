@@ -78,10 +78,13 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 	private ProgressDlg progress;
 
 	// Sensitivity towards acceleration
-	private int speed_sensitivity = 19;
-	private int radius_sensitivity = 380;
+	private int speed_sensitivity = 5;
+	private int radius_sensitivity = 100;
 	
 	private boolean m_bAccelerometer = false;
+	private boolean m_bSetAccelerometerBase = false;
+	
+	private float m_fXBase, m_fYBase, m_fZBase = 0;
 
 	private static final UUID ROOMBA_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	
@@ -100,15 +103,15 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
     	updateButtons(false);
     	updateControlButtons(false);
     	
-		try {
-			// if bluetooth is not yet enabled, initBluetooth will return false
-			// and the device selection will be called in the onActivityResult
-			if (initBluetooth())
-				selectRoomba();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			// if bluetooth is not yet enabled, initBluetooth will return false
+//			// and the device selection will be called in the onActivityResult
+//			if (initBluetooth())
+//				selectRoomba();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
     }
     
@@ -171,39 +174,66 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 	@Override
 	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
 		if (tx && m_bAccelerometer) {
-			// convert to [-100,100]
-			int speed = (int) (y * (50.0F / 9.9F));
+			
+			if (m_bSetAccelerometerBase) {
+				m_fXBase = x;
+				m_fYBase = y;
+				m_fZBase = z;
+				
+				m_bSetAccelerometerBase = false;
+			}
+			
+			float speed_off = 0.0F;
+			
+			// calculate speed, we use the angle between the start position
+			// (the position in which the phone was when the acceleration was
+			// turned on) and the current position. 
+			// to make it react faster the factor 2 is added.
+			if (z > 0) {
+				speed_off = (y - m_fYBase);
+				
+			} else {
+				speed_off = ((9.9F + 9.9F - y) - m_fYBase);
+			}
+
+			// speed has to be inverted. moving the phone "away" results in a
+			// negative y but should be interpreted as a positive speed
+			int speed = (int) (-speed_off * (100.0F / 9.9F));
+
+			// cap the speed to [-100,100]
+			speed = Math.max(speed, -100);
+			speed = Math.min(speed, 100);
 
 			// convert to [-2000,2000]
-			int offset = (int) (x * (2000.0F / 9.9F));
+			int radius = (int) (x * (2000.0F / 9.9F));
 
-			Log.i("Speeds", "speed=" + speed + ", offset=" + offset); 
+			Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
 
-//			if (speed < -speed_sensitivity) {
-//				if (offset > radius_sensitivity) {
-////					Drive(1, 0);
-//					oRoomba.driveForward(speed, offset);
-//				} else if (offset < -radius_sensitivity) {
-////					Drive(2, 0);
-//					oRoomba.driveForward(speed, offset);
-//				} else {
-////					Drive(3, 0);
-//					oRoomba.driveForward(50);
-//				}
-//			}
-//
-//			if (speed > speed_sensitivity) {
-//				if (offset > radius_sensitivity) {
-////					Drive(0, 1);
-//					oRoomba.driveBackward(50, offset);
-//				} else if (offset < -radius_sensitivity) {
-////					Drive(0, 2);
-//					oRoomba.driveBackward(50, offset);
-//				} else {
-////					Drive(0, 3);
-//					oRoomba.driveBackward(50);
-//				}
-//			}
+			if (speed < -speed_sensitivity) {
+				if (radius > radius_sensitivity) {
+//					Drive(1, 0);
+					oRoomba.driveForward(speed, radius);
+				} else if (radius < -radius_sensitivity) {
+//					Drive(2, 0);
+					oRoomba.driveForward(speed, radius);
+				} else {
+//					Drive(3, 0);
+					oRoomba.driveForward(50);
+				}
+			}
+
+			if (speed > speed_sensitivity) {
+				if (radius > radius_sensitivity) {
+//					Drive(0, 1);
+					oRoomba.driveBackward(speed, radius);
+				} else if (radius < -radius_sensitivity) {
+//					Drive(0, 2);
+					oRoomba.driveBackward(speed, radius);
+				} else {
+//					Drive(0, 3);
+					oRoomba.driveBackward(50);
+				}
+			}
 		}
 	}
 	
@@ -247,6 +277,14 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.tblControlButtons);
 			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams(0, 0));
 		}
+	}
+	
+	public void updateArrowButtons(boolean enabled) {
+		m_oActivity.findViewById(R.id.btnLeft).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.btnRight).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.btnFwd).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.btnBwd).setEnabled(enabled);
+		
 	}
 	
 	public void updateButtons(boolean enabled) {
@@ -498,6 +536,24 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 			@Override
 			public void onClick(View v) {
 				m_bAccelerometer = !m_bAccelerometer;
+
+				if (m_bAccelerometer) {
+					m_bSetAccelerometerBase = true;
+					
+				}
+
+				updateArrowButtons(!m_bAccelerometer);
+			}
+		});
+		
+		Button btnMove = (Button) m_oActivity.findViewById(R.id.btnMove);
+		btnAccelerometer.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				m_bMove = !m_bMove;
+				
+				if 
 			}
 		});
 		
