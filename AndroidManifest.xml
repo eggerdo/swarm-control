@@ -34,8 +34,10 @@
 			android:screenOrientation="portrait" 
             android:keepScreenOn="true" ></activity>
 		<activity android:name="org.dobots.swarmcontrol.robots.FinchRobot"
+			android:screenOrientation="portrait" 
             android:keepScreenOn="true" ></activity>
 		<activity android:name="org.dobots.swarmcontrol.robots.NXTRobot"
+			android:screenOrientation="portrait" 
             android:keepScreenOn="true" ></activity>
     </application>
 

@@ -203,9 +203,14 @@ public class Roomba {
 		m_eMode = ERoombaModes.mod_Passive;
 	}
 	
-	private void capSpeed(double io_dblSpeed) {
+	private double capSpeed(double io_dblSpeed) {
+		// if a negative value was provided as speed
+		// use the absolute value of it.
+		io_dblSpeed = Math.abs(io_dblSpeed);
 		io_dblSpeed = Math.min(io_dblSpeed, 100);
 		io_dblSpeed = Math.max(io_dblSpeed, 0);
+		
+		return io_dblSpeed;
 	}
 	
 	private void capRadius(int io_nRadius) {
@@ -231,14 +236,14 @@ public class Roomba {
 	}
 	
 	public void driveForward(double i_dblSpeed) {
-		capSpeed(i_dblSpeed);
+		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.STRAIGHT);
 	}
 	
 	public void driveForward(double i_dblSpeed, int i_nRadius) {
-		capSpeed(i_dblSpeed);
+		i_dblSpeed = capSpeed(i_dblSpeed);
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
@@ -246,14 +251,14 @@ public class Roomba {
 	}
 	
 	public void driveBackward(double i_dblSpeed) {
-		capSpeed(i_dblSpeed);
+		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(-nVelocity, RoombaTypes.STRAIGHT);
 	}
 
 	public void driveBackward(double i_dblSpeed, int i_nRadius) {
-		capSpeed(i_dblSpeed);
+		i_dblSpeed = capSpeed(i_dblSpeed);
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
@@ -261,14 +266,14 @@ public class Roomba {
 	}
 	
 	public void rotateClockwise(double i_dblSpeed) {
-		capSpeed(i_dblSpeed);
+		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.CLOCKWISE);
 	}
 	
 	public void rotateCounterClockwise(double i_dblSpeed) {
-		capSpeed(i_dblSpeed);
+		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.COUNTER_CLOCKWISE);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+import org.dobots.nxt.NXTTypes;
 import org.dobots.roomba.Roomba;
 import org.dobots.roomba.RoombaBluetooth;
 import org.dobots.roomba.RoombaTypes;
@@ -47,18 +48,10 @@ import android.widget.Toast;
 
 public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 	
-	private static final String TAG = "Roomba";
-	
-	private static final int REQUEST_ENABLE_BT = 1;
-	
-	private static final int CONNECT_ROOMBA = 100;
-	private static final int SELECT_ROOMBA = 101;
+	private static String TAG = "Roomba";
 	
 	private Roomba oRoomba;
 
-	private BluetoothAdapter m_oBTAdapter;
-	private BluetoothSocket m_oSocket;
-	
 	private RoombaSensorGatherer oSensorGatherer;
 	
 	private boolean m_bControl = false;
@@ -66,24 +59,20 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 	private boolean m_bSideBrushEnabled = false;
 	private boolean m_bVacuumEnabled = false;
 
-	private boolean m_bBTOnByUs = false;
-	
 	private Button m_btnFwd;
 	private Button m_btnBwd;
 	private Button m_btnLeft;
 	private Button m_btnRight;
 	
-	public Intent serverIntent;
-	
-	private ProgressDlg progress;
-
 	// Sensitivity towards acceleration
-	private int speed_sensitivity = 5;
-	private int radius_sensitivity = 100;
+	private int speed_sensitivity = 20;
+	private int radius_sensitivity = 200;
 	
 	private boolean m_bAccelerometer = false;
 	private boolean m_bSetAccelerometerBase = false;
-	
+
+	private boolean m_bMove = false;
+
 	private float m_fXBase, m_fYBase, m_fZBase = 0;
 
 	private static final UUID ROOMBA_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -95,23 +84,23 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	
-		m_oActivity = this;
-
 		oRoomba = new Roomba();
 		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, oRoomba);
 
     	updateButtons(false);
     	updateControlButtons(false);
     	
-//		try {
-//			// if bluetooth is not yet enabled, initBluetooth will return false
-//			// and the device selection will be called in the onActivityResult
-//			if (initBluetooth())
-//				selectRoomba();
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+    	m_strRobotMacFilter = RoombaTypes.MAC_FILTER;
+    
+		try {
+			// if bluetooth is not yet enabled, initBluetooth will return false
+			// and the device selection will be called in the onActivityResult
+			if (initBluetooth())
+				selectRobot();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
     }
     
@@ -141,37 +130,6 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case REQUEST_CONNECT_DEVICE:
-
-			Log.i(TAG, "DeviceListActivity returns with device to connect");
-			// When DeviceListActivity returns with a device to connect
-			if (resultCode == Activity.RESULT_OK) {
-				// Get the device MAC address and start a new bt communicator thread
-				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-//				pairing = data.getExtras().getBoolean(DeviceListActivity.PAIRING);
-
-				progress = ProgressDlg.show(this, "Connecting...", "");
-				
-		        Bundle myBundle = new Bundle();
-		        myBundle.putInt("message", CONNECT_ROOMBA);
-		        myBundle.putString("address", address);
-		        sendBundle(myBundle);
-		        
-			}
-
-			break;
-		}
-		
-		if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
-	        Bundle myBundle = new Bundle();
-	        myBundle.putInt("message", SELECT_ROOMBA);
-	        sendBundle(myBundle);
-		}
-	}
-
-	@Override
 	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
 		if (tx && m_bAccelerometer) {
 			
@@ -188,7 +146,6 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 			// calculate speed, we use the angle between the start position
 			// (the position in which the phone was when the acceleration was
 			// turned on) and the current position. 
-			// to make it react faster the factor 2 is added.
 			if (z > 0) {
 				speed_off = (y - m_fYBase);
 				
@@ -196,9 +153,11 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 				speed_off = ((9.9F + 9.9F - y) - m_fYBase);
 			}
 
-			// speed has to be inverted. moving the phone "away" results in a
-			// negative y but should be interpreted as a positive speed
-			int speed = (int) (-speed_off * (100.0F / 9.9F));
+			// instead of mapping the speed to the range 0..100 we add the speed 
+			// sensitivity so that speeds between 0..speed_sensitivity are ignored
+			// before giving the speed as parameter to the drive function we need
+			// to get rid of the speed_sensitivity again.
+			int speed = (int) (speed_off * ((100.0F + speed_sensitivity) / 9.9F));
 
 			// cap the speed to [-100,100]
 			speed = Math.max(speed, -100);
@@ -209,60 +168,46 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 
 			Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
 
+			// if speed is negative the roomba should drive forward
+			// if it is positive it should drive backward
 			if (speed < -speed_sensitivity) {
+				// remove the speed sensitivity again
+				speed -= speed_sensitivity; 
 				if (radius > radius_sensitivity) {
-//					Drive(1, 0);
 					oRoomba.driveForward(speed, radius);
 				} else if (radius < -radius_sensitivity) {
-//					Drive(2, 0);
 					oRoomba.driveForward(speed, radius);
 				} else {
-//					Drive(3, 0);
-					oRoomba.driveForward(50);
+					oRoomba.driveForward(speed);
 				}
-			}
-
-			if (speed > speed_sensitivity) {
+			} else if (speed > speed_sensitivity) {
+				// remove the speed_sensitivity again
+				speed -= speed_sensitivity;
 				if (radius > radius_sensitivity) {
-//					Drive(0, 1);
+					// 
 					oRoomba.driveBackward(speed, radius);
 				} else if (radius < -radius_sensitivity) {
-//					Drive(0, 2);
 					oRoomba.driveBackward(speed, radius);
 				} else {
-//					Drive(0, 3);
-					oRoomba.driveBackward(50);
+					oRoomba.driveBackward(speed);
 				}
+			} else {
+				if (radius > radius_sensitivity) {
+					// if speed is small we remap the radius to 
+					// speed and let it rotate on the spot 
+					speed = (int) (radius / 2000.0 * 100.0);
+					oRoomba.rotateCounterClockwise(speed);
+				} else if (radius < -radius_sensitivity) {
+					// if speed is small we remap the radius to 
+					// speed and let it rotate on the spot 
+					speed = (int) (radius / 2000.0 * 100.0);
+					oRoomba.rotateClockwise(speed);
+				} else {
+					oRoomba.stop();
+				}
+				
 			}
 		}
-	}
-	
-	final Handler uiHandler = new Handler() {
-		@Override
-		public void handleMessage(Message myMessage) {
-			switch (myMessage.getData().getInt("message")) {
-			case CONNECT_ROOMBA: 
-				connectToDevice(myMessage.getData().getString("address"));
-				break;
-			case SELECT_ROOMBA:
-				selectRoomba();
-				break;
-			}
-		}
-	};
-
-    private void sendBundle(Bundle myBundle) {
-        Message myMessage = new Message();
-        myMessage.setData(myBundle);
-        uiHandler.sendMessage(myMessage);
-    }
-
-	private void selectRoomba() {
-		serverIntent = new Intent(m_oActivity, DeviceListActivity.class);
-		Bundle oParam = new Bundle();
-		oParam.putString(MAC_FILTER, RoombaTypes.MAC_FILTER);
-		serverIntent.putExtras(oParam);
-		m_oActivity.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
 	}
 
 	public void updateControlButtons(boolean visible) {
@@ -296,37 +241,18 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 		m_oActivity.findViewById(R.id.spSensors).setEnabled(enabled);
 	}
 
-	public boolean initBluetooth() throws Exception {
-		m_oBTAdapter = BluetoothAdapter.getDefaultAdapter();
-		if (m_oBTAdapter == null) {
-			throw new Exception("Roomba Connection not possible without Bluetooth!");
-		}
-		
-		if (!m_oBTAdapter.isEnabled()) {
-			m_bBTOnByUs = true;
-			Intent oEnableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			m_oActivity.startActivityForResult(oEnableBTIntent, REQUEST_ENABLE_BT);
-			return false;
-		} else
-			return true;
-	}
-	
-	public boolean disableBluetooth() {
-		if (m_oBTAdapter != null) {
-			// requires BLUETOOTH_ADMIN permission and is discouraged in the API Doc
-//			m_oBTAdapter.disable();
-			return true;
-		}
-		return false;
-	}
-	
-	private void connectToDevice(String i_strAddr) {
+	@Override
+	protected void connectToRobot(String i_strAddr) {
 		BluetoothDevice oDevice = m_oBTAdapter.getRemoteDevice(i_strAddr);
-		connectToDevice(oDevice);
+		connectToRoomba(oDevice);
 	}
 	
-	private void connectToDevice(BluetoothDevice i_oDevice) {
+	private void connectToRoomba(BluetoothDevice i_oDevice) {
 		final BluetoothDevice oDevice = i_oDevice;
+
+		if (progress == null) {
+			progress = ProgressDlg.show(this, "Connecting...", "");
+		}
 
 		try {
 			m_oSocket = oDevice.createRfcommSocketToServiceRecord(ROOMBA_UUID);
@@ -359,6 +285,7 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 			}
 			
 			progress.dismiss();
+			progress = null;
 			
 			updateButtons(true);
 		} catch (IOException e) {
@@ -377,7 +304,7 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					connectToDevice(oDevice);
+					connectToRoomba(oDevice);
 				}
 			});
 			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -539,21 +466,30 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 
 				if (m_bAccelerometer) {
 					m_bSetAccelerometerBase = true;
-					
+				} else {
+					oRoomba.stop();
 				}
-
-				updateArrowButtons(!m_bAccelerometer);
+				
+				if (m_bAccelerometer && m_bMove) {
+					((Button) m_oActivity.findViewById(R.id.btnMove)).performClick();
+				} else {
+					updateArrowButtons(!m_bAccelerometer);
+				}
 			}
 		});
 		
 		Button btnMove = (Button) m_oActivity.findViewById(R.id.btnMove);
-		btnAccelerometer.setOnClickListener(new OnClickListener() {
+		btnMove.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				m_bMove = !m_bMove;
 				
-				if 
+				if (m_bMove && m_bAccelerometer) {
+					((Button) m_oActivity.findViewById(R.id.btnAccelerometer)).performClick();
+				} else {
+					updateArrowButtons(!m_bMove);
+				}
 			}
 		});
 		

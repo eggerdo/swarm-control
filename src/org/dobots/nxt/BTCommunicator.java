@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+import org.dobots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.swarmcontrol.R;
 
 /**
@@ -56,7 +57,6 @@ public class BTCommunicator extends Thread {
     public static final int DISPLAY_TOAST = 1000;
     public static final int STATE_CONNECTED = 1001;
     public static final int STATE_CONNECTERROR = 1002;
-    public static final int STATE_CONNECTERROR_PAIRING = 1022;
     public static final int MOTOR_STATE = 1003;
     public static final int STATE_RECEIVEERROR = 1004;
     public static final int STATE_SENDERROR = 1005;
@@ -66,6 +66,19 @@ public class BTCommunicator extends Thread {
     public static final int STOP_PROGRAM = 1009;
     public static final int GET_PROGRAM_NAME = 1010;
     public static final int PROGRAM_NAME = 1011;
+    public static final int SET_INPUT_MODE = 1012;
+    public static final int GET_INPUT_VALUES = 1013;
+    public static final int SET_OUTPUT_STATE = 1014;
+    public static final int GET_OUTPUT_STATE = 1015;
+    public static final int RESET_MOTOR_POSITION = 1016;
+    public static final int GET_BATTERY_LEVEL = 1017;
+    public static final int RESET_INPUT_SCALED = 1018;
+    public static final int LS_GET_STATUS = 1019;
+    public static final int LS_READ = 1020;
+    public static final int LS_WRITE = 1021;
+    public static final int STATE_CONNECTERROR_PAIRING = 1022;
+    public static final int GET_DISTANCE = 1023;
+    
     public static final int SAY_TEXT = 1030;
     public static final int VIBRATE_PHONE = 1031;
 
@@ -89,6 +102,10 @@ public class BTCommunicator extends Thread {
     private BTConnectable myOwner;
 
     private byte[] returnMessage;
+
+	private int m_nWaitID;
+	private Object receiveEvent = this;
+	private boolean m_bMessageReceived = false;
 
     public BTCommunicator(BTConnectable myOwner, Handler uiHandler, BluetoothAdapter btAdapter, Resources resources) {
         this.myOwner = myOwner;
@@ -285,6 +302,13 @@ public class BTCommunicator extends Thread {
     }
 
     private void dispatchMessage(byte[] message) {
+		if (message[1] == m_nWaitID) {
+			m_bMessageReceived = true;
+			synchronized(receiveEvent) {
+				receiveEvent.notify();
+			}
+		}
+		
         switch (message[1]) {
 
             case LCPMessage.GET_OUTPUT_STATE:
@@ -329,7 +353,23 @@ public class BTCommunicator extends Thread {
             case LCPMessage.VIBRATE_PHONE:
                 if (message.length == 3) {
                     sendState(VIBRATE_PHONE);
-                }                                
+                }               
+                
+            case LCPMessage.GET_INPUT_VALUES:
+            	if (message.length == 16) {
+            		sendState(GET_INPUT_VALUES);
+            	}
+//            	
+//            case LCPMessage.LS_GET_STATUS:
+//            	if (message.length == 4) {
+//            		sendState(LS_GET_STATUS);
+//            	}
+//            	
+//            case LCPMessage.LS_READ:
+//            	if (message.length == 20) {
+//            		sendState(LS_READ);
+//            	}
+//            
         }
     }
 
@@ -394,7 +434,88 @@ public class BTCommunicator extends Thread {
         byte[] message = LCPMessage.getFindFilesMessage(findFirst, handle, "*.*");
         sendMessageAndState(message);
     }
+    
+    private void setInputMode(int port, byte sensorType, byte sensorMode) {
+    	byte[] message = LCPMessage.getInputModeMessage(port, sensorType, sensorMode);
+    	sendMessageAndState(message);
+    }
+    
+    private void getInputValues(int port) {
+    	byte[] message = LCPMessage.getInputValuesMessage(port);
+    	sendMessageAndState(message);
+    }
+    
+    public void LSWrite(int port, byte[] data, int expectedBytes) {
+    	byte[] message = LCPMessage.getLSWriteMessage(port, expectedBytes, data.length, data);
+    	sendMessageAndState(message);
+    }
+    
+    public void LSGetStatus(int port) {
+    	byte[] message = LCPMessage.getLSGetStatusMessage(port);
+    	sendMessageAndState(message);
+    }
+    
+    public void LSRead(int port) {
+    	byte[] message = LCPMessage.getLSReadMessage(port);
+    	sendMessageAndState(message);
+    }
+    
+    private void resetInputScale(int port) {
+    	byte[] message = LCPMessage.getResetInputScaledValueMessage(port);
+    	sendMessageAndState(message);
+    }
+    
+    private void resetMotorPosition(int motor) {
+    	byte[] message = LCPMessage.getResetMessage(motor);
+    	sendMessageAndState(message);
+    }
+    
+    private void getBatteryLevel() {
+    	byte[] message = LCPMessage.getBatteryLevelMessage();
+    	sendMessageAndState(message);
+    }
 
+	private synchronized void getDistanceSensorData(int port) {
+
+		try {
+			byte[] data = new byte[] { 0x02, 0x42 };
+			LSWrite(port, data, 1);
+			
+			sleep(100);
+			
+			for (int i = 0; i < 3; i++) {
+				LSGetStatus(port);
+				waitAnswer(LCPMessage.LS_GET_STATUS, 500);
+				
+				if (returnMessage[2] != LCPMessage.SUCCESS) {
+					Thread.sleep(500);
+				} else {
+					break;
+				}
+			};
+			
+			LSRead(port);
+			waitAnswer(LCPMessage.LS_READ, 500);
+
+	        Bundle myBundle = new Bundle();
+	        myBundle.putInt("message", BTCommunicator.GET_DISTANCE);
+	        myBundle.putInt("value", port);
+	        sendBundle(myBundle);
+
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void waitAnswer(int id, long timeout) throws InterruptedException {
+		m_nWaitID = id;
+		m_bMessageReceived = false;
+		receiveEvent.wait(timeout);
+		m_nWaitID = -1;
+	}
+	
     private void waitSomeTime(int millis) {
         try {
             Thread.sleep(millis);
@@ -465,6 +586,18 @@ public class BTCommunicator extends Thread {
                 case FIND_FILES:
                     findFiles(myMessage.getData().getInt("value1") == 0, myMessage.getData().getInt("value2"));
                     break;
+                case SET_INPUT_MODE:
+                	setInputMode(myMessage.getData().getInt("value1"), myMessage.getData().getByte("value2"), myMessage.getData().getByte("value3"));
+                	break;
+                case GET_INPUT_VALUES:
+                	getInputValues(myMessage.getData().getInt("value1"));
+                	break;
+                case GET_BATTERY_LEVEL:
+                	getBatteryLevel();
+                	break;
+                case GET_DISTANCE:
+                	getDistanceSensorData(myMessage.getData().getInt("value1"));
+                	break;
                 case DISCONNECT:
                     // send stop messages before closing
                     changeMotorSpeed(MOTOR_A, 0);

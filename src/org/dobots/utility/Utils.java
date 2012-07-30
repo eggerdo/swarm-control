@@ -9,6 +9,14 @@ public class Utils {
 	public static short HighLowByteToShort(byte i_byHighByte, byte i_byLowByte) {
 		return (short)(((i_byHighByte & 0xFF) << 8) | (i_byLowByte & 0xFF));
 	}
+	
+	public static short LittleEndianToBigEndian(short i_sValue) {
+		return (short)(((i_sValue >> 8) & 0xFF) | ((i_sValue & 0xFF) << 8));
+	}
+
+	public static short LittleEndianToBigEndian(int i_sValue) {
+		return (short)(((i_sValue >> 8) & 0xFF) | ((i_sValue & 0xFF) << 8));
+	}
 
 	public static int byteToInt(byte byteValue) {
 		int intValue = (byteValue & (byte) 0x7f);

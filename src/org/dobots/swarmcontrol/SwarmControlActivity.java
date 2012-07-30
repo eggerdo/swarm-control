@@ -1,6 +1,7 @@
 package org.dobots.swarmcontrol;
 
 import org.dobots.swarmcontrol.About;
+import org.dobots.swarmcontrol.robots.NXTRobot;
 import org.dobots.swarmcontrol.robots.RobotDevice;
 import org.dobots.swarmcontrol.robots.RobotDeviceFactory;
 import org.dobots.swarmcontrol.robots.RobotType;
@@ -51,9 +52,9 @@ public class SwarmControlActivity extends Activity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         
-        m_oRobot = new RoombaRobot();
-		Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(RobotType.RBT_ROOMBA));
-		intent.putExtra("RobotType", RobotType.RBT_ROOMBA);
+        m_oRobot = new NXTRobot();
+		Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(RobotType.RBT_NXT));
+		intent.putExtra("RobotType", RobotType.RBT_NXT);
 		startActivity(intent);
 
     }

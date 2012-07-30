@@ -137,6 +137,15 @@
     <string name="roomba_btn_mainbrush">Main Brush</string>    
     <string name="roomba_btn_sidebrush">Side Brush</string>    
     <string name="roomba_btn_vacuum">Vacuum</string>    
-    <string name="roomba_btn_power">Power OFF</string>
+    <string name="roomba_btn_power">Power OFF</string>    
+    <string name="nxt_sensor_1_cb">Sensor 1</string>    
+    <string name="nxt_value">Value:</string>    
+    <string name="nxt_sensor_2_cb">Sensor 2</string>    
+    <string name="nxt_sensor_3_cb">Sensor 3</string>    
+    <string name="nxt_sensor_4_cb">Sensor 4</string>    
+    <string name="nxt_rawvalue">Raw Value:</string>    
+    <string name="nxt_normvalue">Normalized Value:</string>    
+    <string name="nxt_scalevalue">Scaled Value:</string>    
+    <string name="nxt_calibvalue">Calibrated Value:</string>
     
 </resources>

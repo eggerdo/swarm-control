@@ -92,7 +92,35 @@ public class LCPMessage {
     public static final byte NXJ_FIND_NEXT = (byte)0xB7;
     public static final byte NXJ_PACKET_MODE = (byte)0xff;
     
+    // Sensor Type
+    public static final byte NO_SENSOR = (byte)0x00;
+    public static final byte SWITCH = (byte)0x01;
+    public static final byte TEMPERATURE = (byte)0x02;
+    public static final byte REFLECTION = (byte)0x03;
+    public static final byte ANGLE = (byte)0x04;
+    public static final byte LIGHT_ACTIVE = (byte)0x05;
+    public static final byte LIGHT_INACTIVE = (byte)0x06;
+    public static final byte SOUND_DB = (byte)0x07;
+    public static final byte SOUND_DBA = (byte)0x08;
+    public static final byte CUSTOM = (byte)0x09;
+    public static final byte LOWSPEED = (byte)0x0A;
+    public static final byte LOWSPEED_9V = (byte)0x0B;
+    public static final byte NO_OF_SENSOR_TYPES = (byte)0x0C;
+    
+    // Sensore Mode
+    public static final byte RAWMODE = (byte)0x00;
+    public static final byte BOOLEANMODE = (byte)0x20;
+    public static final byte TRANSITIONCNTMODE = (byte)0x40;
+    public static final byte PERIODCOUNTERMODE = (byte)0x60;
+    public static final byte PCTFULLSCALEMODE = (byte)0x80;
+    public static final byte CELSIUSMODE = (byte)0xA0;
+    public static final byte FAHRENHEITMODE = (byte)0xC0;
+    public static final byte ANGLESTEPSMODE = (byte)0xE0;
+    public static final byte SLOPEMASK = (byte)0x1F;
+    public static final byte MODEMASK = (byte)0xE0;
+    
     // Error codes    
+    public static final byte SUCCESS = (byte)0x00;
     public static final byte TRANSACTION_IN_PROGRESS = (byte)0x20;
     public static final byte MAILBOX_EMPTY = (byte)0x40;
     public static final byte FILE_NOT_FOUND = (byte)0x86;
@@ -261,7 +289,7 @@ public class LCPMessage {
     	message[1] = GET_INPUT_VALUES;
     	
     	// input port
-    	message[3] = (byte) port;
+    	message[2] = (byte) port;
     	
     	return message;
     }
