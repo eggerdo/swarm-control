@@ -6,6 +6,7 @@ import org.dobots.utility.DeviceListActivity;
 import org.dobots.utility.ProgressDlg;
 
 import android.app.Activity;
+import android.app.TabActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;

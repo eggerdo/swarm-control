@@ -1,5 +1,13 @@
 package org.dobots.utility;
 
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+
 public class Utils {
 	
 	public static boolean IsBitSet(int i_nVal, int i_nBit) {
@@ -14,8 +22,11 @@ public class Utils {
 		return (short)(((i_sValue >> 8) & 0xFF) | ((i_sValue & 0xFF) << 8));
 	}
 
-	public static short LittleEndianToBigEndian(int i_sValue) {
-		return (short)(((i_sValue >> 8) & 0xFF) | ((i_sValue & 0xFF) << 8));
+	public static int LittleEndianToBigEndian(int i_nValue) {
+		return (int) (((i_nValue >> 24) & 0xFF) |
+					  ((i_nValue >> 8) & 0xFF00) |
+					  ((i_nValue & 0xFF00) << 8) |
+					  ((i_nValue & 0xFF) << 24));
 	}
 
 	public static int byteToInt(byte byteValue) {
@@ -48,4 +59,35 @@ public class Utils {
 		return result;
 	}
 
+    public static void waitSomeTime(int millis) {
+        try {
+            Thread.sleep(millis);
+
+        } catch (InterruptedException e) {
+        	e.printStackTrace();
+        }
+    }
+    
+    public static void sendBundle(Handler target, Bundle bundle) {
+        Message myMessage = Message.obtain();
+        myMessage.setData(bundle);
+        target.sendMessage(myMessage);
+    }
+    
+    public static void sendDataBundle(Handler target, Bundle bundle, Object data) {
+        Message myMessage = Message.obtain();
+        myMessage.setData(bundle);
+        myMessage.obj = data;
+        target.sendMessage(myMessage);
+    }
+    
+	public static void showLayout(LinearLayout i_oLayout, boolean i_bShow) {
+    	if (i_bShow) {
+    		i_oLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+    	} else {
+    		i_oLayout.setLayoutParams(new LinearLayout.LayoutParams(0,0));
+    	}
+	}
+
+	
 }

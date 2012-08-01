@@ -38,6 +38,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -216,10 +217,10 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 		m_oActivity.findViewById(R.id.btnVacuum).setEnabled(visible);
 		
 		if (visible) {
-			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.tblControlButtons);
+			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layControlButtons);
 			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams());
 		} else {
-			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.tblControlButtons);
+			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layControlButtons);
 			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams(0, 0));
 		}
 	}

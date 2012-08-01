@@ -3,17 +3,68 @@ package org.dobots.nxt;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.UUID;
 
 import org.dobots.nxt.LCPMessage;
 import org.dobots.nxt.NXTTypes.DistanceData;
 import org.dobots.utility.Utils;
 
 public class NXTTypes {
+	public static final int MOTOR_A = 0;
+    public static final int MOTOR_B = 1;
+    public static final int MOTOR_C = 2;
+    public static final int MOTOR_B_ACTION = 40;
+    public static final int MOTOR_RESET = 10;
+    public static final int DO_BEEP = 51;
+    public static final int DO_ACTION = 52;    
+    public static final int READ_MOTOR_STATE = 60;
+    public static final int GET_FIRMWARE_VERSION = 70;
+    public static final int DISCONNECT = 99;
 
+    public static final int DISPLAY_TOAST = 1000;
+    public static final int STATE_CONNECTED = 1001;
+    public static final int STATE_CONNECTERROR = 1002;
+    public static final int MOTOR_STATE = 1003;
+    public static final int STATE_RECEIVEERROR = 1004;
+    public static final int STATE_SENDERROR = 1005;
+    public static final int FIRMWARE_VERSION = 1006;
+    public static final int FIND_FILES = 1007;
+    public static final int START_PROGRAM = 1008;
+    public static final int STOP_PROGRAM = 1009;
+    public static final int GET_PROGRAM_NAME = 1010;
+    public static final int PROGRAM_NAME = 1011;
+    public static final int SET_INPUT_MODE = 1012;
+    public static final int GET_INPUT_VALUES = 1013;
+    public static final int SET_OUTPUT_STATE = 1014;
+    public static final int GET_OUTPUT_STATE = 1015;
+    public static final int RESET_MOTOR_POSITION = 1016;
+    public static final int GET_BATTERY_LEVEL = 1017;
+    public static final int RESET_INPUT_SCALED = 1018;
+    public static final int LS_GET_STATUS = 1019;
+    public static final int LS_READ = 1020;
+    public static final int LS_WRITE = 1021;
+    public static final int STATE_CONNECTERROR_PAIRING = 1022;
+    public static final int GET_DISTANCE = 1023;
+    public static final int KEEP_ALIVE = 1024;
+    
+    public static final int SAY_TEXT = 1030;
+    public static final int VIBRATE_PHONE = 1031;
+
+    public static final int NO_DELAY = 0;
+
+    public static final int DESTROY = 9999;
+    
 	public static String MAC_FILTER = "00:16:53";
 	
-	public static final int SENSOR_DATA_RECEIVED = 1000;
-	public static final int DISTANCE_DATA_RECEIVED = 1001;
+	public static final int SENSOR_DATA_RECEIVED 	= 1000;
+	public static final int DISTANCE_DATA_RECEIVED 	= 1001;
+	public static final int MOTOR_DATA_RECEIVED 	= 1002;
+
+	public static final UUID SERIAL_PORT_SERVICE_CLASS_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    // this is the only OUI registered by LEGO, see http://standards.ieee.org/regauth/oui/index.shtml
+    public static final String OUI_LEGO = "00:16:53";
 	
 	public enum ENXTSensorType {
 		sensType_None("None",						LCPMessage.NO_SENSOR,		LCPMessage.RAWMODE),
@@ -54,10 +105,7 @@ public class NXTTypes {
 		sens_sensor1("Sensor 1", 0),
 		sens_sensor2("Sensor 2", 1),
 		sens_sensor3("Sensor 3", 2),
-		sens_sensor4("Sensor 4", 3),
-		sens_motor1("Motor 1", 0),
-		sens_motor2("Motor 2", 1),
-		sens_motor3("Motor 3", 2);
+		sens_sensor4("Sensor 4", 3);
 		private String strName;
 		private int nValue;
 		
@@ -73,14 +121,43 @@ public class NXTTypes {
 		public int getValue() {
 			return nValue;
 		}
+
+	}
+	
+	public enum ENXTMotorID {
+		motor_unknown("Unknown", -1),
+		motor_1("Motor 1", 0),
+		motor_2("Motor 2", 1),
+		motor_3("Motor 3", 2);
+		private String strName;
+		private int nValue;
 		
-		public static ENXTSensorID fromValue(int id) {
-			for (ENXTSensorID sensor : ENXTSensorID.values()) {
-				if (sensor.getValue() == id) {
-					return sensor;
-				}
-			}
-			return sens_unknown;
+		private ENXTMotorID(String name, int id) {
+			this.strName = name;
+			this.nValue = id;
+		}
+		
+		public String toString() {
+			return strName;
+		}
+		
+		public int getValue() {
+			return nValue;
+		}
+		
+	}
+	
+	public enum ENXTMotorSensorType {
+		motor_degreee("Degree"),
+		motor_rotation("Rotation");
+		private String strName;
+		
+		private ENXTMotorSensorType(String name) {
+			this.strName = name;
+		}
+		
+		public String toString() {
+			return strName;
 		}
 	}
 	
@@ -155,4 +232,47 @@ public class NXTTypes {
 		return types.new DistanceData(port, rgbyData);
 	}
 	
+	public class MotorData {
+		public int nTelegramType;
+		public int nCommand;
+		public int nStatus;
+		public int nOutputPort;
+		public int nPowerSetpoint;
+		public int nMode;
+		public int nRegulationMode;
+		public int nTurnRatio;
+		public int nRunState;
+		public long lTachoLimit;
+		public int nTachoCount;
+		public int nBlockTachoCount;
+		public int nRotationCount;
+		
+		public MotorData(byte[] rgbyData) {
+			ByteArrayInputStream byte_in = new ByteArrayInputStream(rgbyData);
+			DataInputStream data_in = new DataInputStream(byte_in);
+			try {
+				nTelegramType		= data_in.readUnsignedByte();
+				nCommand			= data_in.readUnsignedByte();
+				nStatus				= data_in.readUnsignedByte();
+				nOutputPort			= data_in.readUnsignedByte();
+				nPowerSetpoint		= data_in.readByte();
+				nMode				= data_in.readUnsignedByte();
+				nRegulationMode		= data_in.readUnsignedByte();
+				nTurnRatio			= data_in.readByte();
+				nRunState			= data_in.readUnsignedByte();
+				lTachoLimit			= Utils.LittleEndianToBigEndian(data_in.readInt());
+				nTachoCount			= Utils.LittleEndianToBigEndian(data_in.readInt());
+				nBlockTachoCount	= Utils.LittleEndianToBigEndian(data_in.readInt());
+				nRotationCount		= Utils.LittleEndianToBigEndian(data_in.readInt());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static MotorData assembleMotorData(byte[] i_rgbyData) {
+		NXTTypes types = new NXTTypes();
+		return types.new MotorData(i_rgbyData);
+	}
+
 }

@@ -322,7 +322,7 @@ public class LCPMessage {
     	return message;
     }
 
-    public static byte[] getResetMessage(int motor) {
+    public static byte[] getResetMessage(int motor, boolean relative) {
         byte[] message = new byte[4];
 
         message[0] = DIRECT_COMMAND_NOREPLY;
@@ -330,7 +330,7 @@ public class LCPMessage {
         // Output port
         message[2] = (byte) motor;
         // absolute position
-        message[3] = 0;
+        message[3] = relative ? (byte) 1 : 0;
 
         return message;
     }
@@ -356,7 +356,7 @@ public class LCPMessage {
     public static byte[] getKeepAliveMessage() {
     	byte[] message = new byte[2];
     	
-    	message[0] = DIRECT_COMMAND_REPLY;
+    	message[0] = DIRECT_COMMAND_NOREPLY;
     	message[1] = KEEP_ALIVE;
     	
     	return message;
