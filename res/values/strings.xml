@@ -58,7 +58,8 @@
         <item>Find exit</item>
     </string-array>
     <string name="robotdevice_title">This is the robot name</string>
-    <string name="robotdevice_sensorselection">Choose one of the following sensors to display it\'s data</string>
+    <string name="robotdevice_sensorselection">Choose one of the following sensors to display its data</string>
+    <string name="robotdevice_motorselection">Choose one of the following motors to display its data</string>
     <string name="roomba_title">Roomba</string>
     <string name="txtChargingState"></string>
     <string name="chargingstate">Charging State:</string>
@@ -146,6 +147,18 @@
     <string name="nxt_rawvalue">Raw Value:</string>    
     <string name="nxt_normvalue">Normalized Value:</string>    
     <string name="nxt_scalevalue">Scaled Value:</string>    
-    <string name="nxt_calibvalue">Calibrated Value:</string>
+    <string name="nxt_calibvalue">Calibrated Value:</string>    
+    <string name="btn_control_fwd">Fwd</string>    
+    <string name="btn_control_left">Left</string>    
+    <string name="btn_control_bwd">Bwd</string>    
+    <string name="btn_control_right">Right</string> 
+    <string name="nxt_motor_1_cb">Motor 1</string>     
+    <string name="nxt_motor_2_cb">Motor 2</string>     
+    <string name="nxt_motor_3_cb">Motor 3</string>     
+    <string name="btn_motor_reset">Reset</string>     
+    <string name="btn_nxt_rest">Reset</string>     
+    <string name="nxt_powersetpoint">Power Setpoint:</string>     
+    <string name="nxt_tachocount">Tacho Count:</string>     
+    <string name="nxt_rotationcount">Rotation Count:</string>    
     
 </resources>

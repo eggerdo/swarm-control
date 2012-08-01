@@ -1,808 +1,707 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="fill"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/lblRobot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/roomba_title"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <TextView
-        android:id="@+id/TextView01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/roomba_commands" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="bottom|fill" >
-
-        <Button
-            android:id="@+id/btnPower"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_btn_power" />
-
-        <Button
-            android:id="@+id/btnClean"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_btn_clean" />
-
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_btn_stop" />
-
-        <Button
-            android:id="@+id/btnDock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_btn_dock" />
-
-        <Button
-            android:id="@+id/btnCtrl"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_lbl_control" />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/TextView02"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/roomba_brushcontrol" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="bottom|fill" >
-
-        <Button
-            android:id="@+id/btnMainBrush"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_btn_mainbrush" />
-
-        <Button
-            android:id="@+id/btnSideBrush"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_btn_sidebrush" />
-
-        <Button
-            android:id="@+id/btnVacuum"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/roomba_btn_vacuum" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/lblSensorSelection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/robotdevice_sensorselection" />
-
-    <Spinner
-        android:id="@+id/spSensors"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:prompt="@string/choose_roomba_sensor" />
-
-    <TableLayout
-        android:id="@+id/tblSensorData1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="visible" >
-
-        <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
-
-        <TableRow
-            android:id="@+id/tableRow11"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblCasterWD"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_casterwd" />
-
-            <TextView
-                android:id="@+id/lblLeftWD"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_leftwd" />
-
-            <TextView
-                android:id="@+id/lblRightWD"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_rightwd" />
-
-            <TextView
-                android:id="@+id/lblBumpLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_BumpLeft" />
-
-            <TextView
-                android:id="@+id/lblBumpRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_bumpright" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow12"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/txtCasterWD"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtLeftWD"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtRightWD"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtBumpLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtBumpRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow13"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblWall"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_wall" />
-
-            <TextView
-                android:id="@+id/lblVirtualWall"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_virtualwall" />
-
-            <TextView
-                android:id="@+id/lblDirtLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_dirtleft" />
-
-            <TextView
-                android:id="@+id/lblDirtRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_dirtright" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow14"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/txtWall"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtVirtualWall"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtDirtLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtDirtRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow15"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblCliffSensors"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_cliffsensors" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow16"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblCliffLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_cliffleft" />
-
-            <TextView
-                android:id="@+id/lblCliffFrontLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_clifffrontleft" />
-
-            <TextView
-                android:id="@+id/lblCliffFrontRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_clifffrontright" />
-
-            <TextView
-                android:id="@+id/lblCliffRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_cliffright" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow17"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/txtCliffLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtCliffFrontLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtCliffFrontRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtCliffRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow18"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblMotorOvercurrents"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_motorovercurrents" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow19"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblDriveLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_driveleft" />
-
-            <TextView
-                android:id="@+id/lblDriveRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_driveright" />
-
-            <TextView
-                android:id="@+id/lblMainBrush"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_mainbrush" />
-
-            <TextView
-                android:id="@+id/lblVacuum"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_vacuum" />
-
-            <TextView
-                android:id="@+id/lblSideBrush"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_sidebrush" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow110"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/txtDriveLeft"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtDriveRight"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtMainBrush"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtVacuum"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtSideBrush"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </TableRow>
-
-        <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
-    </TableLayout>
-
-    <TableLayout
-        android:id="@+id/tblSensorData2"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:visibility="visible" >
-
-        <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
-
-        <TableRow
-            android:id="@+id/tableRow21"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblRemoteOpCode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:text="@string/roomba_lbl_remoteopcode" />
-
-            <TextView
-                android:id="@+id/txtRemoteOpCode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow22"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblButtons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/roomba_lbl_buttons" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow23"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblPowerBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_Power" />
-
-            <TextView
-                android:id="@+id/lblSpotBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_spot" />
-
-            <TextView
-                android:id="@+id/lblCleanBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_Clean" />
-
-            <TextView
-                android:id="@+id/lblMaxBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/roomba_lbl_max" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow24"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/txtPowerBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/txtSpotBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/txtCleanBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/txtMaxBtn"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow25"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblDistance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/roomba_lbl_distance" />
-
-            <TextView
-                android:id="@+id/txtDistance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow26"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblAngle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/roomba_lbl_angle" />
-
-            <TextView
-                android:id="@+id/txtAngle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="" />
-        </TableRow>
-
-        <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
-    </TableLayout>
-
-    <TableLayout
-        android:id="@+id/tblSensorData3"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="visible" >
-
-        <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
-
-        <TableRow
-            android:id="@+id/tableRow31"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblChargingState"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:text="@string/chargingstate" />
-
-            <TextView
-                android:id="@+id/txtChargingState"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow32"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblCharge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/charge" />
-
-            <TextView
-                android:id="@+id/txtCharge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow33"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblTemperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/temperature" />
-
-            <TextView
-                android:id="@+id/txtTemperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-        </TableRow>
-
-        <View android:layout_height="10dip" />
-
-        <TableRow
-            android:id="@+id/tableRow34"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lblPower"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/power" />
-
-            <TextView
-                android:id="@+id/txtPower"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-        </TableRow>
-
-        <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
-    </TableLayout>
-
-    <TableLayout
-        android:id="@+id/tblControlButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <View
-            android:layout_height="0dip"
-            android:layout_weight="1" />
-
-        <TableRow
-            android:id="@+id/TableRow01"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <LinearLayout
-                android:id="@+id/LinearLayout02"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" >
-            </LinearLayout>
-
-            <ToggleButton
-                android:id="@+id/btnAccelerometer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:textOff="Acceleration OFF"
-                android:textOn="Acceleration ON" />
-
-            <ToggleButton
-                android:id="@+id/btnMove"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:textOff="Move OFF"
-                android:textOn="Move ON" />
-
-            <LinearLayout
-                android:id="@+id/LinearLayout03"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" >
-            </LinearLayout>
-        </TableRow>
-        
-        <View
-            android:layout_height="0dip"
-            android:layout_weight="1" />
-        
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <LinearLayout
-                android:id="@+id/LinearLayout01"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" >
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btnFwd"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Fwd" >
-            </Button>
-
-            <LinearLayout
-                android:id="@+id/LinearLayout01"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" >
-            </LinearLayout>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <Button
-                android:id="@+id/btnLeft"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Left" >
-            </Button>
-
-            <Button
-                android:id="@+id/btnBwd"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Bwd" >
-            </Button>
-
-            <Button
-                android:id="@+id/btnRight"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Right" >
-            </Button>
-        </TableRow>
-        
-        <View
-            android:layout_height="0dip"
-            android:layout_weight="1" />
-        
-    </TableLayout>
-
-</LinearLayout>
+    android:layout_height="match_parent" >
+	
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="fill"
+	    android:orientation="vertical" >
+	
+	    <TextView
+	        android:id="@+id/lblRobot"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/roomba_title"
+	        android:textAppearance="?android:attr/textAppearanceLarge" />
+	
+	    <TextView
+	        android:id="@+id/TextView01"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/roomba_commands" />
+	
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:gravity="bottom|fill" >
+	
+	        <Button
+	            android:id="@+id/btnPower"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_power" />
+	
+	        <Button
+	            android:id="@+id/btnClean"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_clean" />
+	
+	        <Button
+	            android:id="@+id/btnStop"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_stop" />
+	
+	        <Button
+	            android:id="@+id/btnDock"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_dock" />
+	
+	        <Button
+	            android:id="@+id/btnCtrl"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_lbl_control" />
+	
+	    </LinearLayout>
+	
+	    <TextView
+	        android:id="@+id/TextView02"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/roomba_brushcontrol" />
+	
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:gravity="bottom|fill" >
+	
+	        <Button
+	            android:id="@+id/btnMainBrush"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_mainbrush" />
+	
+	        <Button
+	            android:id="@+id/btnSideBrush"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_sidebrush" />
+	
+	        <Button
+	            android:id="@+id/btnVacuum"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_vacuum" />
+	    </LinearLayout>
+	
+	    <TextView
+	        android:id="@+id/lblSensorSelection"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/robotdevice_sensorselection" />
+	
+	    <Spinner
+	        android:id="@+id/spSensors"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:prompt="@string/choose_roomba_sensor" />
+	
+	    <TableLayout
+	        android:id="@+id/tblSensorData1"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dp"
+	        android:visibility="visible" >
+	
+	        <View
+	            android:layout_height="2dip"
+	            android:background="#FF909090" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow11"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblCasterWD"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_casterwd" />
+	
+	            <TextView
+	                android:id="@+id/lblLeftWD"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_leftwd" />
+	
+	            <TextView
+	                android:id="@+id/lblRightWD"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_rightwd" />
+	
+	            <TextView
+	                android:id="@+id/lblBumpLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_BumpLeft" />
+	
+	            <TextView
+	                android:id="@+id/lblBumpRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_bumpright" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow12"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/txtCasterWD"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtLeftWD"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtRightWD"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtBumpLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtBumpRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow13"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblWall"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_wall" />
+	
+	            <TextView
+	                android:id="@+id/lblVirtualWall"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_virtualwall" />
+	
+	            <TextView
+	                android:id="@+id/lblDirtLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_dirtleft" />
+	
+	            <TextView
+	                android:id="@+id/lblDirtRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_dirtright" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow14"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/txtWall"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtVirtualWall"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtDirtLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtDirtRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow15"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblCliffSensors"
+	                android:layout_width="0dip"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_cliffsensors" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow16"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblCliffLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_cliffleft" />
+	
+	            <TextView
+	                android:id="@+id/lblCliffFrontLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_clifffrontleft" />
+	
+	            <TextView
+	                android:id="@+id/lblCliffFrontRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_clifffrontright" />
+	
+	            <TextView
+	                android:id="@+id/lblCliffRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_cliffright" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow17"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/txtCliffLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtCliffFrontLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtCliffFrontRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtCliffRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow18"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblMotorOvercurrents"
+	                android:layout_width="0dip"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_motorovercurrents" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow19"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblDriveLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_driveleft" />
+	
+	            <TextView
+	                android:id="@+id/lblDriveRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_driveright" />
+	
+	            <TextView
+	                android:id="@+id/lblMainBrush"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_mainbrush" />
+	
+	            <TextView
+	                android:id="@+id/lblVacuum"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_vacuum" />
+	
+	            <TextView
+	                android:id="@+id/lblSideBrush"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_margin="2dp"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_sidebrush" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow110"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/txtDriveLeft"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtDriveRight"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtMainBrush"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtVacuum"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	
+	            <TextView
+	                android:id="@+id/txtSideBrush"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1" />
+	        </TableRow>
+	
+	        <View
+	            android:layout_height="2dip"
+	            android:background="#FF909090" />
+	    </TableLayout>
+	
+	    <TableLayout
+	        android:id="@+id/tblSensorData2"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dip"
+	        android:visibility="visible" >
+	
+	        <View
+	            android:layout_height="2dip"
+	            android:background="#FF909090" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow21"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblRemoteOpCode"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_marginRight="10dp"
+	                android:text="@string/roomba_lbl_remoteopcode" />
+	
+	            <TextView
+	                android:id="@+id/txtRemoteOpCode"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow22"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblButtons"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roomba_lbl_buttons" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow23"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblPowerBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_Power" />
+	
+	            <TextView
+	                android:id="@+id/lblSpotBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_spot" />
+	
+	            <TextView
+	                android:id="@+id/lblCleanBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_Clean" />
+	
+	            <TextView
+	                android:id="@+id/lblMaxBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="@string/roomba_lbl_max" />
+	        </TableRow>
+	
+	        <TableRow
+	            android:id="@+id/tableRow24"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/txtPowerBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="" />
+	
+	            <TextView
+	                android:id="@+id/txtSpotBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="" />
+	
+	            <TextView
+	                android:id="@+id/txtCleanBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="" />
+	
+	            <TextView
+	                android:id="@+id/txtMaxBtn"
+	                android:layout_width="0dip"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:text="" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow25"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblDistance"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roomba_lbl_distance" />
+	
+	            <TextView
+	                android:id="@+id/txtDistance"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow26"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblAngle"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roomba_lbl_angle" />
+	
+	            <TextView
+	                android:id="@+id/txtAngle"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="" />
+	        </TableRow>
+	
+	        <View
+	            android:layout_height="2dip"
+	            android:background="#FF909090" />
+	    </TableLayout>
+	
+	    <TableLayout
+	        android:id="@+id/tblSensorData3"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dp"
+	        android:visibility="visible" >
+	
+	        <View
+	            android:layout_height="2dip"
+	            android:background="#FF909090" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow31"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblChargingState"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_marginRight="10dp"
+	                android:text="@string/chargingstate" />
+	
+	            <TextView
+	                android:id="@+id/txtChargingState"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="TextView" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow32"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblCharge"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/charge" />
+	
+	            <TextView
+	                android:id="@+id/txtCharge"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="TextView" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow33"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblTemperature"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/temperature" />
+	
+	            <TextView
+	                android:id="@+id/txtTemperature"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="TextView" />
+	        </TableRow>
+	
+	        <View android:layout_height="10dip" />
+	
+	        <TableRow
+	            android:id="@+id/tableRow34"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/lblPower"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/power" />
+	
+	            <TextView
+	                android:id="@+id/txtPower"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="TextView" />
+	        </TableRow>
+	
+	        <View
+	            android:layout_height="2dip"
+	            android:background="#FF909090" />
+	    </TableLayout>
+	
+	    
+        <include 
+            android:id="@+id/layControlButtons"
+            layout="@layout/remote_control"
+            />
+	    
+	</LinearLayout>
+
+</ScrollView>
