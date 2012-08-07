@@ -18,6 +18,7 @@ import org.dobots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.roomba.RoombaBluetooth;
 import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.R;
+import org.dobots.utility.AccelerometerListener;
 import org.dobots.utility.AccelerometerManager;
 import org.dobots.utility.DeviceListActivity;
 import org.dobots.utility.ProgressDlg;
@@ -65,7 +66,8 @@ public class NXTRobot extends RobotDevice {
 
 	private static String TAG = "NXT";
 	
-	private static final int DEBUG_ID = Menu.FIRST;
+	private static final int CONNECT_ID = Menu.FIRST;
+	private static final int DEBUG_ID = CONNECT_ID + 1;
 	private static final int INVERT_ID = DEBUG_ID + 1;
 
 	private ProgressDialog connectingProgressDialog;
@@ -87,7 +89,7 @@ public class NXTRobot extends RobotDevice {
 	private Button m_btnBwd;
 	private Button m_btnLeft;
 	private Button m_btnRight;
-	
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -100,6 +102,8 @@ public class NXTRobot extends RobotDevice {
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
 		
         setDebug(false);
+        updateButtons(false);
+        updateControlButtons(false);
 		
 		try {
 			// if bluetooth is not yet enabled, initBluetooth will return false
@@ -118,20 +122,31 @@ public class NXTRobot extends RobotDevice {
 
     	if (m_oNxt.isConnected()) {
     		m_oNxt.disconnect();
+    		m_oNxt.destroy();
     	}
+
+    	m_oSensorGatherer.stopThread();
     }
 
-	@Override
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, DEBUG_ID, 1, "Debug ON");
-		menu.add(0, INVERT_ID, 2, "Invert Driving (ON)");
+		menu.add(0, CONNECT_ID, 1, "Connect");
+		menu.add(0, DEBUG_ID, 2, "Debug ON");
+		menu.add(0, INVERT_ID, 3, "Invert Driving (ON)");
 		return true;
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
+		case CONNECT_ID:
+			m_oNxt.disconnect();
+			m_oSensorGatherer.initialize();
+			resetLayout();
+			updateButtons(false);
+			selectRobot();
+			return true;
 		case DEBUG_ID:
 			setDebug(!m_bDebug);
 			item.setTitle("Debug " + (m_bDebug ? "OFF" : "ON"));
@@ -149,6 +164,58 @@ public class NXTRobot extends RobotDevice {
 	protected void connectToRobot(String i_strAddr) {
 		connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
 		m_oNxt.startBTCommunicator(i_strAddr);
+	}
+
+	@Override
+	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
+		super.onAccelerationChanged(x, y, z, tx);
+		
+		if (tx && m_bAccelerometer) {
+			int speed = getSpeedFromAcceleration(x, y, z, NXTTypes.MAX_SPEED);
+			int radius = getRadiusFromAcceleration(x, y, z, NXTTypes.MAX_RADIUS);
+			
+			Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
+
+			// if speed is negative the roomba should drive forward
+			// if it is positive it should drive backward
+			if (speed < -SPEED_SENSITIVITY) {
+				// remove the speed sensitivity again
+				speed -= SPEED_SENSITIVITY; 
+				if (radius > RADIUS_SENSITIVITY) {
+//					m_oNxt.driveForward(speed, radius);
+				} else if (radius < -RADIUS_SENSITIVITY) {
+//					m_oNxt.driveForward(speed, radius);
+				} else {
+					m_oNxt.driveForward(speed);
+				}
+			} else if (speed > SPEED_SENSITIVITY) {
+				// remove the speed_sensitivity again
+				speed -= SPEED_SENSITIVITY;
+				if (radius > RADIUS_SENSITIVITY) {
+					// 
+//					m_oNxt.driveBackward(speed, radius);
+				} else if (radius < -RADIUS_SENSITIVITY) {
+//					m_oNxt.driveBackward(speed, radius);
+				} else {
+					m_oNxt.driveBackward(speed);
+				}
+			} else {
+				if (radius > RADIUS_SENSITIVITY) {
+					// if speed is small we remap the radius to 
+					// speed and let it rotate on the spot 
+					speed = (int) (radius / NXTTypes.MAX_RADIUS * NXTTypes.MAX_SPEED);
+					m_oNxt.rotateCounterClockwise(speed);
+				} else if (radius < -RADIUS_SENSITIVITY) {
+					// if speed is small we remap the radius to 
+					// speed and let it rotate on the spot 
+					speed = (int) (radius / NXTTypes.MAX_RADIUS * NXTTypes.MAX_SPEED);
+					m_oNxt.rotateClockwise(speed);
+				} else {
+					m_oNxt.stop();
+				}
+				
+			}
+		}
 	}
 
 	/**
@@ -178,14 +245,15 @@ public class NXTRobot extends RobotDevice {
 	 */
 	final Handler uiHandler = new Handler() {
 		@Override
-		public void handleMessage(Message myMessage) {
-			switch (myMessage.getData().getInt("message")) {
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
 			case NXTTypes.DISPLAY_TOAST:
-				showToast(myMessage.getData().getString("toastText"), Toast.LENGTH_SHORT);
+				showToast((String)msg.obj, Toast.LENGTH_SHORT);
 				break;
 			case NXTTypes.STATE_CONNECTED:
 				connected = true;
 				connectingProgressDialog.dismiss();
+				updateButtons(true);
 //				updateButtonsAndMenu();
 				break;
 
@@ -218,61 +286,17 @@ public class NXTRobot extends RobotDevice {
 				break;
 				
 			case NXTTypes.GET_INPUT_VALUES:
-				m_oSensorGatherer.sendMessage(NXTTypes.SENSOR_DATA_RECEIVED, myMessage.obj);
+				m_oSensorGatherer.sendMessage(NXTTypes.SENSOR_DATA_RECEIVED, msg.obj);
 				break;
 				
 			case NXTTypes.GET_DISTANCE:
-				m_oSensorGatherer.sendMessage(NXTTypes.DISTANCE_DATA_RECEIVED, myMessage.obj);
+				m_oSensorGatherer.sendMessage(NXTTypes.DISTANCE_DATA_RECEIVED, msg.obj);
 				break;
 				
 			case NXTTypes.MOTOR_STATE:
-				m_oSensorGatherer.sendMessage(NXTTypes.MOTOR_DATA_RECEIVED, myMessage.obj);
+				m_oSensorGatherer.sendMessage(NXTTypes.MOTOR_DATA_RECEIVED, msg.obj);
 				break;
-				
-//			case NXTTypes.SAY_TEXT:
-//				if (myBTCommunicator != null) {
-//					byte[] textMessage = myBTCommunicator.getReturnMessage();
-//					// evaluate control byte 
-//					byte controlByte = textMessage[2];
-//					// BIT7: Language
-//					if ((controlByte & 0x80) == 0x00) 
-//						mTts.setLanguage(Locale.US);
-//					else
-//						mTts.setLanguage(Locale.getDefault());
-//					// BIT6: Pitch
-//					if ((controlByte & 0x40) == 0x00)
-//						mTts.setPitch(1.0f);
-//					else
-//						mTts.setPitch(0.75f);
-//					// BIT0-3: Speech Rate    
-//					switch (controlByte & 0x0f) {
-//					case 0x01: 
-//						mTts.setSpeechRate(1.5f);
-//						break;                                 
-//					case 0x02: 
-//						mTts.setSpeechRate(0.75f);
-//						break;
-//
-//					default: mTts.setSpeechRate(1.0f);
-//					break;
-//					}
-//
-//					String ttsText = new String(textMessage, 3, 19);
-//					ttsText = ttsText.replaceAll("\0","");
-////					showToast(ttsText, Toast.LENGTH_SHORT);
-//					mTts.speak(ttsText, TextToSpeech.QUEUE_FLUSH, null);
-//				}
-//
-//				break;                    
-//
-//			case NXTTypes.VIBRATE_PHONE:
-//				if (myBTCommunicator != null) {
-//					byte[] vibrateMessage = myBTCommunicator.getReturnMessage();
-//					Vibrator myVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-//					myVibrator.vibrate(vibrateMessage[2]*10);
-//				}
-//
-//				break;
+			
 			}
 		}
 	};
@@ -281,13 +305,6 @@ public class NXTRobot extends RobotDevice {
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.nxt);
-        
-//        TabHost mTabHost = getTabHost();
-//        mTabHost.addTab(mTabHost.newTabSpec("sensor_tab").setIndicator("Sensors").setContent(R.id.sensors_tab));
-//        mTabHost.getTabWidget().getChildAt(0).getLayoutParams().height = 45;
-//        mTabHost.addTab(mTabHost.newTabSpec("motor_tab").setIndicator("Motors").setContent(R.id.motors_tab));
-//        mTabHost.getTabWidget().getChildAt(1).getLayoutParams().height = 45;
-//        mTabHost.setCurrentTab(0);
         
         // adapter is the same, for each sensor we can choose the same types
 		final ArrayAdapter<ENXTSensorType> oSensorTypeAdapter = new ArrayAdapter<ENXTSensorType>(m_oActivity, 
@@ -441,21 +458,21 @@ public class NXTRobot extends RobotDevice {
 			}
 		});
 
-        Button test = (Button) m_oActivity.findViewById(R.id.button1);
-        test.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-//				m_oNxt.setSensorType(ENXTSensorID.sens_sensor1, ENXTSensorType.sensType_Distance);
-//				try {
-//					Thread.sleep(500);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-				m_oNxt.requestMotorData(ENXTMotorID.motor_1);
-			}
-		});
+//        Button test = (Button) m_oActivity.findViewById(R.id.button1);
+//        test.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+////				m_oNxt.setSensorType(ENXTSensorID.sens_sensor1, ENXTSensorType.sensType_Distance);
+////				try {
+////					Thread.sleep(500);
+////				} catch (InterruptedException e) {
+////					// TODO Auto-generated catch block
+////					e.printStackTrace();
+////				}
+//				m_oNxt.requestMotorData(ENXTMotorID.motor_1);
+//			}
+//		});
 		
 		m_btnFwd = (Button) m_oActivity.findViewById(R.id.btnFwd);
 		m_btnLeft = (Button) m_oActivity.findViewById(R.id.btnLeft);
@@ -558,13 +575,6 @@ public class NXTRobot extends RobotDevice {
 
 	public void updateControlButtons(boolean visible) {
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
-//		if (visible) {
-//			LinearLayout tblControlButtons = (LinearLayout) m_oActivity.findViewById(R.id.layRemoteControl);
-//			tblControlButtons.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-//		} else {
-//			LinearLayout tblControlButtons = (LinearLayout) m_oActivity.findViewById(R.id.layRemoteControl);
-//			tblControlButtons.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
-//		}
 	}
 	
 	public void updateArrowButtons(boolean enabled) {
@@ -573,6 +583,52 @@ public class NXTRobot extends RobotDevice {
 		m_oActivity.findViewById(R.id.btnFwd).setEnabled(enabled);
 		m_oActivity.findViewById(R.id.btnBwd).setEnabled(enabled);
 		
+	}
+
+	public void updateButtons(boolean enabled) {
+		m_oActivity.findViewById(R.id.btnCtrl).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.cbSensor1).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.spSensor1Type).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.cbSensor2).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.spSensor2Type).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.cbSensor3).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.spSensor3Type).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.cbSensor4).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.spSensor4Type).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.cbMotor1).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.spMotor1Type).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.btnMotor1Reset).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.cbMotor2).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.spMotor2Type).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.btnMotor2Reset).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.cbMotor3).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.spMotor3Type).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.btnMotor3Reset).setEnabled(enabled);
+	}
+	
+	public void resetLayout() {
+		updateControlButtons(false);
+		
+		((CheckBox)m_oActivity.findViewById(R.id.cbSensor1)).setChecked(false);
+		((Spinner)m_oActivity.findViewById(R.id.spSensor1Type)).setSelection(0);
+		
+		((CheckBox)m_oActivity.findViewById(R.id.cbSensor2)).setChecked(false);
+		((Spinner)m_oActivity.findViewById(R.id.spSensor2Type)).setSelection(0);
+		
+		((CheckBox)m_oActivity.findViewById(R.id.cbSensor3)).setChecked(false);
+		((Spinner)m_oActivity.findViewById(R.id.spSensor3Type)).setSelection(0);
+		
+		((CheckBox)m_oActivity.findViewById(R.id.cbSensor4)).setChecked(false);
+		((Spinner)m_oActivity.findViewById(R.id.spSensor4Type)).setSelection(0);
+		
+		((CheckBox)m_oActivity.findViewById(R.id.cbMotor1)).setChecked(false);
+		((Spinner)m_oActivity.findViewById(R.id.spMotor1Type)).setSelection(0);
+		
+		((CheckBox)m_oActivity.findViewById(R.id.cbMotor2)).setChecked(false);
+		((Spinner)m_oActivity.findViewById(R.id.spMotor2Type)).setSelection(0);
+		
+		((CheckBox)m_oActivity.findViewById(R.id.cbMotor3)).setChecked(false);
+		((Spinner)m_oActivity.findViewById(R.id.spMotor3Type)).setSelection(0);
 	}
 
 	public void setDebug(boolean i_bDebug) {

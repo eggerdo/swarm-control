@@ -1,12 +1,17 @@
 package org.dobots.roomba;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.dobots.utility.Utils;
 
 public class RoombaTypes {
+
+	public static final UUID ROOMBA_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	
 	public static String MAC_FILTER = "00:06:66";
+
+    public static int MAX_SPEED = 100;
 	
 	public static int MAX_VELOCITY = 500; // -500 - 500 mm/s
 	public static int MAX_RADIUS = 2000;  // -2000 - 2000 mm/s

@@ -17,6 +17,7 @@ import org.dobots.utility.AccelerometerListener;
 import org.dobots.utility.AccelerometerManager;
 import org.dobots.utility.DeviceListActivity;
 import org.dobots.utility.ProgressDlg;
+import org.dobots.utility.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,6 +35,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,14 +45,17 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-public class RoombaRobot extends RobotDevice implements AccelerometerListener {
+public class RoombaRobot extends RobotDevice {
 	
 	private static String TAG = "Roomba";
+
+	private static final int CONNECT_ID = Menu.FIRST;
 	
 	private Roomba oRoomba;
 
@@ -64,11 +70,7 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 	private Button m_btnBwd;
 	private Button m_btnLeft;
 	private Button m_btnRight;
-	
-	// Sensitivity towards acceleration
-	private int speed_sensitivity = 20;
-	private int radius_sensitivity = 200;
-	
+
 	private boolean m_bAccelerometer = false;
 	private boolean m_bSetAccelerometerBase = false;
 
@@ -76,11 +78,6 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 
 	private float m_fXBase, m_fYBase, m_fZBase = 0;
 
-	private static final UUID ROOMBA_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-	
-//	@Override
-//	public void show(Activity i_oActivity, RobotType i_eRobot) {
-//		super.show(i_oActivity, i_eRobot);
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -104,105 +101,79 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 		}
 
     }
-    
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(0, CONNECT_ID, 1, "Connect");
+		return true;
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case CONNECT_ID:
+			close();
+			selectRobot();
+			return true;
+		}
+
+		return super.onMenuItemSelected(featureId, item);
+	}
+
     public void onDestroy() {
     	super.onDestroy();
-    	
-		if (AccelerometerManager.isListening()) {
-			AccelerometerManager.stopListening();
-		}
     	
     	if (oRoomba.isConnected()) {
     		close();
     	}
     }
     
-    @Override
-    public void onStart() {
-    	super.onStart();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (AccelerometerManager.isSupported()) {
-			AccelerometerManager.startListening(this);
-		}
-	}
-
 	@Override
 	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
+		super.onAccelerationChanged(x, y, z, tx);
+		
 		if (tx && m_bAccelerometer) {
 			
-			if (m_bSetAccelerometerBase) {
-				m_fXBase = x;
-				m_fYBase = y;
-				m_fZBase = z;
-				
-				m_bSetAccelerometerBase = false;
-			}
+			int nSpeed = getSpeedFromAcceleration(x, y, z, RoombaTypes.MAX_SPEED);
+			int nRadius = getRadiusFromAcceleration(x, y, z, RoombaTypes.MAX_RADIUS);
 			
-			float speed_off = 0.0F;
-			
-			// calculate speed, we use the angle between the start position
-			// (the position in which the phone was when the acceleration was
-			// turned on) and the current position. 
-			if (z > 0) {
-				speed_off = (y - m_fYBase);
-				
-			} else {
-				speed_off = ((9.9F + 9.9F - y) - m_fYBase);
-			}
-
-			// instead of mapping the speed to the range 0..100 we add the speed 
-			// sensitivity so that speeds between 0..speed_sensitivity are ignored
-			// before giving the speed as parameter to the drive function we need
-			// to get rid of the speed_sensitivity again.
-			int speed = (int) (speed_off * ((100.0F + speed_sensitivity) / 9.9F));
-
-			// cap the speed to [-100,100]
-			speed = Math.max(speed, -100);
-			speed = Math.min(speed, 100);
-
-			// convert to [-2000,2000]
-			int radius = (int) (x * (2000.0F / 9.9F));
-
-			Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
+			Log.i("Speeds", "speed=" + nSpeed + ", radius=" + nRadius); 
 
 			// if speed is negative the roomba should drive forward
 			// if it is positive it should drive backward
-			if (speed < -speed_sensitivity) {
+			if (nSpeed < -SPEED_SENSITIVITY) {
 				// remove the speed sensitivity again
-				speed -= speed_sensitivity; 
-				if (radius > radius_sensitivity) {
-					oRoomba.driveForward(speed, radius);
-				} else if (radius < -radius_sensitivity) {
-					oRoomba.driveForward(speed, radius);
+				nSpeed -= SPEED_SENSITIVITY; 
+				if (nRadius > RADIUS_SENSITIVITY) {
+					oRoomba.driveForward(nSpeed, nRadius);
+				} else if (nRadius < -RADIUS_SENSITIVITY) {
+					oRoomba.driveForward(nSpeed, nRadius);
 				} else {
-					oRoomba.driveForward(speed);
+					oRoomba.driveForward(nSpeed);
 				}
-			} else if (speed > speed_sensitivity) {
+			} else if (nSpeed > SPEED_SENSITIVITY) {
 				// remove the speed_sensitivity again
-				speed -= speed_sensitivity;
-				if (radius > radius_sensitivity) {
+				nSpeed -= SPEED_SENSITIVITY;
+				if (nRadius > RADIUS_SENSITIVITY) {
 					// 
-					oRoomba.driveBackward(speed, radius);
-				} else if (radius < -radius_sensitivity) {
-					oRoomba.driveBackward(speed, radius);
+					oRoomba.driveBackward(nSpeed, nRadius);
+				} else if (nRadius < -RADIUS_SENSITIVITY) {
+					oRoomba.driveBackward(nSpeed, nRadius);
 				} else {
-					oRoomba.driveBackward(speed);
+					oRoomba.driveBackward(nSpeed);
 				}
 			} else {
-				if (radius > radius_sensitivity) {
+				if (nRadius > RADIUS_SENSITIVITY) {
 					// if speed is small we remap the radius to 
 					// speed and let it rotate on the spot 
-					speed = (int) (radius / 2000.0 * 100.0);
-					oRoomba.rotateCounterClockwise(speed);
-				} else if (radius < -radius_sensitivity) {
+					nSpeed = (int) (nRadius / RoombaTypes.MAX_RADIUS * RoombaTypes.MAX_SPEED);
+					oRoomba.rotateCounterClockwise(nSpeed);
+				} else if (nRadius < -RADIUS_SENSITIVITY) {
 					// if speed is small we remap the radius to 
 					// speed and let it rotate on the spot 
-					speed = (int) (radius / 2000.0 * 100.0);
-					oRoomba.rotateClockwise(speed);
+					nSpeed = (int) (nRadius / RoombaTypes.MAX_RADIUS * RoombaTypes.MAX_SPEED);
+					oRoomba.rotateClockwise(nSpeed);
 				} else {
 					oRoomba.stop();
 				}
@@ -216,13 +187,16 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 		m_oActivity.findViewById(R.id.btnSideBrush).setEnabled(visible);
 		m_oActivity.findViewById(R.id.btnVacuum).setEnabled(visible);
 		
-		if (visible) {
-			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layControlButtons);
-			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams());
-		} else {
-			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layControlButtons);
-			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams(0, 0));
-		}
+		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
+		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.accelerometer), visible);
+		
+//		if (visible) {
+//			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layRemoteControl);
+//			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams());
+//		} else {
+//			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layRemoteControl);
+//			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams(0, 0));
+//		}
 	}
 	
 	public void updateArrowButtons(boolean enabled) {
@@ -256,7 +230,7 @@ public class RoombaRobot extends RobotDevice implements AccelerometerListener {
 		}
 
 		try {
-			m_oSocket = oDevice.createRfcommSocketToServiceRecord(ROOMBA_UUID);
+			m_oSocket = oDevice.createRfcommSocketToServiceRecord(RoombaTypes.ROOMBA_UUID);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

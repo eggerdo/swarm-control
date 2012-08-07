@@ -15,11 +15,11 @@ public class NXTTypes {
 	public static final int MOTOR_A = 0;
     public static final int MOTOR_B = 1;
     public static final int MOTOR_C = 2;
-    public static final int MOTOR_B_ACTION = 40;
-    public static final int MOTOR_RESET = 10;
+//    public static final int MOTOR_B_ACTION = 40;
+//    public static final int MOTOR_RESET = 10;
     public static final int DO_BEEP = 51;
     public static final int DO_ACTION = 52;    
-    public static final int READ_MOTOR_STATE = 60;
+//    public static final int READ_MOTOR_STATE = 60;
     public static final int GET_FIRMWARE_VERSION = 70;
     public static final int DISCONNECT = 99;
 
@@ -65,6 +65,9 @@ public class NXTTypes {
 	public static final UUID SERIAL_PORT_SERVICE_CLASS_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     // this is the only OUI registered by LEGO, see http://standards.ieee.org/regauth/oui/index.shtml
     public static final String OUI_LEGO = "00:16:53";
+    
+    public static int MAX_SPEED = 100;
+    public static int MAX_RADIUS = 1;
 	
 	public enum ENXTSensorType {
 		sensType_None("None",						LCPMessage.NO_SENSOR,		LCPMessage.RAWMODE),

@@ -5,6 +5,8 @@ import android.os.Handler;
 
 public class SensorGatherer extends Thread {
 
+	private volatile boolean m_bStopped = false;
+	
 	protected Handler m_oHandler;
 	protected Runnable m_oGUIUpdater;
 	protected Activity m_oActivity;
@@ -21,11 +23,15 @@ public class SensorGatherer extends Thread {
 		m_oHandler = new Handler();
 	}
 	
+	public void stopThread() {
+		m_bStopped = true;
+		interrupt();
+	}
 
 	@Override
 	public void run() {
 		
-		while (true) {
+		while (!m_bStopped) {
 			execute();
 		
 			try {

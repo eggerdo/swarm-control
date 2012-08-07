@@ -2,6 +2,8 @@ package org.dobots.swarmcontrol.robots;
 
 import org.dobots.roomba.RoombaTypes;
 import org.dobots.swarmcontrol.R;
+import org.dobots.utility.AccelerometerListener;
+import org.dobots.utility.AccelerometerManager;
 import org.dobots.utility.DeviceListActivity;
 import org.dobots.utility.ProgressDlg;
 
@@ -19,7 +21,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class RobotDevice extends Activity {
+public class RobotDevice extends Activity implements AccelerometerListener {
 	
 	protected static String TAG = "RobotDevice";
 	
@@ -43,6 +45,15 @@ public class RobotDevice extends Activity {
 	
 	protected Intent serverIntent;
 	
+	// Sensitivity towards acceleration
+	protected static int SPEED_SENSITIVITY = 20;
+	protected static int RADIUS_SENSITIVITY = 200;
+	
+	protected boolean m_bAccelerometer = false;
+	protected boolean m_bSetAccelerometerBase = false;
+
+	protected float m_fXBase, m_fYBase, m_fZBase = 0;
+
 	final Handler connectionHandler	= new Handler() {
 		@Override
 		public void handleMessage(Message myMessage) {
@@ -71,7 +82,72 @@ public class RobotDevice extends Activity {
 		
         setProperties(m_eRobot);
 	}
-   
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	
+		if (AccelerometerManager.isListening()) {
+			AccelerometerManager.stopListening();
+		}
+    }
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (AccelerometerManager.isSupported()) {
+			AccelerometerManager.startListening(this);
+		}
+	}
+
+	@Override
+	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
+		if (tx && m_bAccelerometer) {
+			
+			if (m_bSetAccelerometerBase) {
+				m_fXBase = x;
+				m_fYBase = y;
+				m_fZBase = z;
+				
+				m_bSetAccelerometerBase = false;
+			}
+		}
+	}
+
+    protected int getSpeedFromAcceleration(float x, float y, float z, float i_fMaxSpeed) {
+		
+		float speed_off = 0.0F;
+		
+		// calculate speed, we use the angle between the start position
+		// (the position in which the phone was when the acceleration was
+		// turned on) and the current position. 
+		if (z > 0) {
+			speed_off = (y - m_fYBase);
+			
+		} else {
+			speed_off = ((9.9F + 9.9F - y) - m_fYBase);
+		}
+
+		// instead of mapping the speed to the range 0..i_nMaxSpeed we add the speed 
+		// sensitivity so that speeds between 0..speed_sensitivity are ignored
+		// before giving the speed as parameter to the drive function we need
+		// to get rid of the speed_sensitivity again.
+		int speed = (int) (speed_off * ((i_fMaxSpeed + SPEED_SENSITIVITY) / 9.9F));
+
+		// cap the speed to [-i_nMaxSpeed,i_nMaxSpeed]
+		speed = Math.max(speed, -(int)i_fMaxSpeed);
+		speed = Math.min(speed, (int)i_fMaxSpeed);
+
+		return speed;
+    }
+    
+    protected int getRadiusFromAcceleration(float x, float y, float z, float i_fMaxRadius) {
+
+		// convert to [-i_nMaxRadius,i_nMaxRadius]
+		return (int) (x * (i_fMaxRadius / 9.9F));
+
+    }
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case REQUEST_CONNECT_ROBOT:

@@ -56,6 +56,13 @@ public class NXTSensorGatherer extends SensorGatherer {
 		m_oMotorSensorTypes = new EnumMap<NXTTypes.ENXTMotorID, NXTTypes.ENXTMotorSensorType>(ENXTMotorID.class);
 		
 		// set up the maps
+		initialize();
+		
+		start();
+	}
+	
+	public void initialize() {
+		// set up the maps
 		for (ENXTSensorID sensor : ENXTSensorID.values()) {
 			m_oSensorTypes.put(sensor, ENXTSensorType.sensType_None);
 			m_oSensorEnabled.put(sensor, false);
@@ -67,8 +74,6 @@ public class NXTSensorGatherer extends SensorGatherer {
 			m_oMotorRequestActive.put(motor, false);
 			m_oMotorSensorTypes.put(motor, ENXTMotorSensorType.motor_degreee);
 		}
-		
-		start();
 	}
 	
 	@Override
@@ -94,9 +99,7 @@ public class NXTSensorGatherer extends SensorGatherer {
 	}
 	
 	public void sendMessage(int message, Object data) {
-        Bundle myBundle = new Bundle();
-        myBundle.putInt("message", message);
-        Utils.sendDataBundle(uiHandler, myBundle, data);
+		Utils.sendMessage(m_oSensorDataUiUpdater, message, data);
 	}
 
 	public void setSensorType(ENXTSensorID i_eSensor, ENXTSensorType i_eSensorType) {
@@ -124,10 +127,10 @@ public class NXTSensorGatherer extends SensorGatherer {
 	/**
 	 * Receive messages from the BTCommunicator
 	 */
-	final Handler uiHandler = new Handler() {
+	final Handler m_oSensorDataUiUpdater = new Handler() {
 		@Override
 		public void handleMessage(Message myMessage) {
-			switch(myMessage.getData().getInt("message")) {
+			switch(myMessage.what) {
 			case NXTTypes.SENSOR_DATA_RECEIVED:
 //				SensorData oSensorData = m_oNxt.getReceivedSensorData();
 				SensorData oSensorData = (SensorData) myMessage.obj;

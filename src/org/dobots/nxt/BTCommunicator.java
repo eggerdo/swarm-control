@@ -19,24 +19,20 @@
 
 package org.dobots.nxt;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.UUID;
 
-import org.dobots.nxt.NXTTypes.ENXTSensorID;
-import org.dobots.nxt.msg.RawDataMsg;
+import org.dobots.nxt.msg.MsgTypes;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.Utils;
+
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.res.Resources;
+import android.os.Handler;
 
 /**
  * This class is for talking to a LEGO NXT robot via bluetooth.
@@ -420,22 +416,14 @@ public class BTCommunicator extends Thread {
     }
 
     private void sendToast(String toastText) {
-        Bundle myBundle = new Bundle();
-        myBundle.putInt("message", NXTTypes.DISPLAY_TOAST);
-        myBundle.putString("toastText", toastText);
-        Utils.sendBundle(receiveHandler, myBundle);
+    	Utils.sendMessage(receiveHandler, NXTTypes.DISPLAY_TOAST, toastText);
     }
 
-    private void sendStateAndData(int message, byte[] data) {
-        Bundle myBundle = new Bundle();
-        myBundle.putInt("message", message);
-        RawDataMsg msgData = new RawDataMsg(data);
-        Utils.sendDataBundle(receiveHandler, myBundle, msgData);
+    private void sendStateAndData(int i_nCmd, byte[] i_rgbyData) {
+    	Utils.sendMessage(receiveHandler, i_nCmd, MsgTypes.assembleRawDataMsg(i_rgbyData));
     }
 
-    private void sendState(int message) {
-        Bundle myBundle = new Bundle();
-        myBundle.putInt("message", message);
-        Utils.sendBundle(receiveHandler, myBundle);
+    private void sendState(int i_nCmd) {
+    	Utils.sendMessage(receiveHandler, i_nCmd, null);
     }
 }

@@ -67,19 +67,26 @@ public class Utils {
         	e.printStackTrace();
         }
     }
-    
-    public static void sendBundle(Handler target, Bundle bundle) {
-        Message myMessage = Message.obtain();
-        myMessage.setData(bundle);
-        target.sendMessage(myMessage);
-    }
-    
-    public static void sendDataBundle(Handler target, Bundle bundle, Object data) {
-        Message myMessage = Message.obtain();
-        myMessage.setData(bundle);
-        myMessage.obj = data;
-        target.sendMessage(myMessage);
-    }
+
+	public static void sendMessage(Handler i_oTarget, int i_nMsgID, Object i_oData) {
+		Message msg = Message.obtain();
+		msg.what = i_nMsgID;
+		msg.obj = i_oData;
+		i_oTarget.sendMessage(msg);
+	}
+	
+//    public static void sendBundle(Handler target, Bundle bundle) {
+//        Message myMessage = Message.obtain();
+//        myMessage.setData(bundle);
+//        target.sendMessage(myMessage);
+//    }
+//    
+//    public static void sendDataBundle(Handler target, Bundle bundle, Object data) {
+//        Message myMessage = Message.obtain();
+//        myMessage.setData(bundle);
+//        myMessage.obj = data;
+//        target.sendMessage(myMessage);
+//    }
     
 	public static void showLayout(LinearLayout i_oLayout, boolean i_bShow) {
     	if (i_bShow) {

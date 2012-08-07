@@ -696,11 +696,9 @@
 	            android:background="#FF909090" />
 	    </TableLayout>
 	
-	    
-        <include 
-            android:id="@+id/layControlButtons"
-            layout="@layout/remote_control"
-            />
+        <include
+            android:id="@+id/layRemoteControl"
+            layout="@layout/remote_control" />
 	    
 	</LinearLayout>
 

@@ -52,11 +52,7 @@ public class SwarmControlActivity extends Activity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         
-        m_oRobot = new NXTRobot();
-		Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(RobotType.RBT_NXT));
-		intent.putExtra("RobotType", RobotType.RBT_NXT);
-		startActivity(intent);
-
+//        showRobot(RobotType.RBT_NXT);
     }
 
 	@Override
@@ -111,15 +107,18 @@ public class SwarmControlActivity extends Activity {
 			
 			public void onClick(DialogInterface dialog, int which) {
 				RobotType eRobot = adapter.getItem(which);
-				m_oRobot = RobotDeviceFactory.getRobotDevice(eRobot);
 				dialog.dismiss();
-				Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(eRobot));
-				intent.putExtra("RobotType", eRobot);
-				startActivity(intent);
-//				m_oRobot.show(SwarmControlActivity.this, eRobot);
+				showRobot(eRobot);
 			}
 		});
 		return builder.create();
+	}
+	
+	private void showRobot(RobotType i_eRobot) {
+		m_oRobot = RobotDeviceFactory.getRobotDevice(i_eRobot);
+		Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(i_eRobot));
+		intent.putExtra("RobotType", i_eRobot);
+		startActivity(intent);
 	}
 	
 	@Override
