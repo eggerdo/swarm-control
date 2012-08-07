@@ -121,11 +121,11 @@ public class RobotDevice extends Activity implements AccelerometerListener {
 		// calculate speed, we use the angle between the start position
 		// (the position in which the phone was when the acceleration was
 		// turned on) and the current position. 
-		if (z > 0) {
-			speed_off = (y - m_fYBase);
+		if (x + y > 0) {
+			speed_off = (z - m_fZBase);
 			
 		} else {
-			speed_off = ((9.9F + 9.9F - y) - m_fYBase);
+			speed_off = ((9.9F + 9.9F - z) - m_fZBase);
 		}
 
 		// instead of mapping the speed to the range 0..i_nMaxSpeed we add the speed 
@@ -135,16 +135,25 @@ public class RobotDevice extends Activity implements AccelerometerListener {
 		int speed = (int) (speed_off * ((i_fMaxSpeed + SPEED_SENSITIVITY) / 9.9F));
 
 		// cap the speed to [-i_nMaxSpeed,i_nMaxSpeed]
-		speed = Math.max(speed, -(int)i_fMaxSpeed);
-		speed = Math.min(speed, (int)i_fMaxSpeed);
+		speed = Math.max(speed, -(int)i_fMaxSpeed - SPEED_SENSITIVITY);
+		speed = Math.min(speed, (int)i_fMaxSpeed + SPEED_SENSITIVITY);
 
 		return speed;
     }
     
     protected int getRadiusFromAcceleration(float x, float y, float z, float i_fMaxRadius) {
 
+    	float radius_off;
+    	
 		// convert to [-i_nMaxRadius,i_nMaxRadius]
-		return (int) (x * (i_fMaxRadius / 9.9F));
+    	if (z + y > 0) {
+    		radius_off = (x - m_fXBase);
+			
+		} else {
+			radius_off = ((9.9F + 9.9F - x) - m_fXBase);
+		}
+
+		return (int) (radius_off * (i_fMaxRadius / 9.9F));
 
     }
 

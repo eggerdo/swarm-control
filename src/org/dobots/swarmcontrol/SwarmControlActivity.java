@@ -21,10 +21,22 @@ import android.view.MenuItem;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class SwarmControlActivity extends Activity {
 	
 	private static final String TAG = "MAIN_ACTIVITY";
+	
+	private static final String CHANGELOG = "ChangeLog:\n" +
+											"\n" +
+											"  Version 1.0\n" +
+											"    - IRobot Roomba added\n" +
+											"       - Sensor Information Display\n" +
+											"       - Remote Control (Arrows and Accelerometer)\n" +
+											"    - Mindstorms NXT added\n" +
+											"       - Sensor Information Display\n" +
+											"       - Sensor Type Selection\n" +
+											"       - Remote Control (Arrows and Accelerometer)\n";
 
 	// The different menu options
 	private static final int CONNECT_ID = Menu.FIRST;
@@ -32,9 +44,9 @@ public class SwarmControlActivity extends Activity {
 	private static final int ABOUT_ID = Menu.FIRST + 2;
 	private static final int EXIT_ID = Menu.FIRST + 3;
 
-	private RobotDevice m_oRobot;
-	
 	private static Context CONTEXT;
+
+	private RobotDevice m_oRobot;
 	
     /** Called when the activity is first created. */
     @Override
@@ -51,6 +63,9 @@ public class SwarmControlActivity extends Activity {
                 this, R.array.swarm_action, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        
+        TextView changelog = (TextView) findViewById(R.id.lblChangeLog);
+        changelog.setText(CHANGELOG);
         
 //        showRobot(RobotType.RBT_NXT);
     }

@@ -34,59 +34,76 @@
 	            android:text="@string/roomba_btn_power" />
 	
 	        <Button
-	            android:id="@+id/btnClean"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_btn_clean" />
-	
-	        <Button
-	            android:id="@+id/btnStop"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_btn_stop" />
-	
-	        <Button
-	            android:id="@+id/btnDock"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_btn_dock" />
-	
-	        <Button
 	            android:id="@+id/btnCtrl"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/roomba_lbl_control" />
 	
 	    </LinearLayout>
-	
-	    <TextView
-	        android:id="@+id/TextView02"
+
+	    <View
 	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/roomba_brushcontrol" />
-	
+	        android:layout_height="10dp" />
+
 	    <LinearLayout
+	        android:id="@+id/layControls"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" >
+
+	        <Button
+	            android:id="@+id/btnClean"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_clean" />
+
+	        <Button
+	            android:id="@+id/btnStop"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_stop" />
+
+	        <Button
+	            android:id="@+id/btnDock"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/roomba_btn_dock" />
+	    </LinearLayout>
+
+	    <LinearLayout
+	        android:id="@+id/layBrushes"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:gravity="bottom|fill" >
-	
-	        <Button
-	            android:id="@+id/btnMainBrush"
+	        android:orientation="vertical" >
+
+	        <TextView
+	            android:id="@+id/TextView02"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_btn_mainbrush" />
-	
-	        <Button
-	            android:id="@+id/btnSideBrush"
-	            android:layout_width="wrap_content"
+	            android:text="@string/roomba_brushcontrol" />
+
+	        <LinearLayout
+	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_btn_sidebrush" />
-	
-	        <Button
-	            android:id="@+id/btnVacuum"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_btn_vacuum" />
+	            android:gravity="bottom|fill" >
+
+	            <Button
+	                android:id="@+id/btnMainBrush"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roomba_btn_mainbrush" />
+
+	            <Button
+	                android:id="@+id/btnSideBrush"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roomba_btn_sidebrush" />
+
+	            <Button
+	                android:id="@+id/btnVacuum"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roomba_btn_vacuum" />
+	        </LinearLayout>
 	    </LinearLayout>
 	
 	    <TextView

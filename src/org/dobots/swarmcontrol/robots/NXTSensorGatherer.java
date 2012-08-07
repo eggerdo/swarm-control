@@ -185,17 +185,16 @@ public class NXTSensorGatherer extends SensorGatherer {
     	TextView txtPowerSetpoint = (TextView) m_oActivity.findViewById(nResPowerSetpointID);
     	txtPowerSetpoint.setText(String.valueOf(i_oMotorData.nPowerSetpoint));
 
-    	TextView txtTachoCount = (TextView) m_oActivity.findViewById(nResTachoCountID);
-    	txtTachoCount.setText(String.valueOf(i_oMotorData.nTachoCount));
-
-//    	TextView txtBlockTachoCount = (TextView) m_oActivity.findViewById(nResBlockTachoCountID);
-//    	txtBlockTachoCount.setText(String.valueOf(i_oMotorData.nBlockTachoCount));
-
     	TextView txtRotationCount = (TextView) m_oActivity.findViewById(nResRotationCountID);
     	if (m_oMotorSensorTypes.get(eMotor) == ENXTMotorSensorType.motor_degreee) {
 	    	txtRotationCount.setText(String.valueOf(i_oMotorData.nRotationCount));
     	} else {
 	    	txtRotationCount.setText(String.format("%.2f", i_oMotorData.nRotationCount / 360.0));
+    	}
+
+    	if (m_bDebug) {
+	    	TextView txtTachoCount = (TextView) m_oActivity.findViewById(nResTachoCountID);
+	    	txtTachoCount.setText(String.valueOf(i_oMotorData.nTachoCount));
     	}
 
 		m_oMotorRequestActive.put(eMotor, false);

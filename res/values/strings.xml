@@ -103,7 +103,7 @@
     <string name="roomba_lbl_max">Max</string>
     <string name="roomba_lbl_distance">Distance:</string>
     <string name="roomba_lbl_angle">Angle:</string>
-    <string name="roomba_lbl_control">Control</string>
+    <string name="roomba_lbl_control">Control ON</string>
     <string name="nxt_title">Mindstorm NXT</string>
     <string name="nxt_commands">NXT Commands</string>
     <string name="nxt_lbl_colour">Colour:</string>
@@ -159,6 +159,7 @@
     <string name="btn_nxt_rest">Reset</string>     
     <string name="nxt_powersetpoint">Power Setpoint:</string>     
     <string name="nxt_tachocount">Tacho Count:</string>     
-    <string name="nxt_rotationcount">Rotation Count:</string>    
+    <string name="nxt_rotationcount">Rotation Count:</string>     
+    <string name="change_log">Change Log:</string>    
     
 </resources>

@@ -56,8 +56,9 @@ public class RoombaRobot extends RobotDevice {
 	private static String TAG = "Roomba";
 
 	private static final int CONNECT_ID = Menu.FIRST;
+	private static final int ACCEL_ID = CONNECT_ID + 1;
 	
-	private Roomba oRoomba;
+	private Roomba m_oRoomba;
 
 	private RoombaSensorGatherer oSensorGatherer;
 	
@@ -70,20 +71,15 @@ public class RoombaRobot extends RobotDevice {
 	private Button m_btnBwd;
 	private Button m_btnLeft;
 	private Button m_btnRight;
-
-	private boolean m_bAccelerometer = false;
-	private boolean m_bSetAccelerometerBase = false;
-
-	private boolean m_bMove = false;
-
-	private float m_fXBase, m_fYBase, m_fZBase = 0;
+	
+	private boolean m_bMove;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	
-		oRoomba = new Roomba();
-		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, oRoomba);
+		m_oRoomba = new Roomba();
+		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 
     	updateButtons(false);
     	updateControlButtons(false);
@@ -108,6 +104,19 @@ public class RoombaRobot extends RobotDevice {
 		menu.add(0, CONNECT_ID, 1, "Connect");
 		return true;
 	}
+	   
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	if (m_bControl) {
+    		if (menu.findItem(ACCEL_ID) == null) {
+				menu.add(0, ACCEL_ID, 2, "Accelerometer (ON)");
+    		}
+		} else
+			if (menu.findItem(ACCEL_ID) != null) {
+				menu.removeItem(ACCEL_ID);
+			}
+		return true;
+    }
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -116,6 +125,15 @@ public class RoombaRobot extends RobotDevice {
 			close();
 			selectRobot();
 			return true;
+		case ACCEL_ID:
+			m_bAccelerometer = !m_bAccelerometer;
+			item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
+
+			if (m_bAccelerometer) {
+				m_bSetAccelerometerBase = true;
+			} else {
+				m_oRoomba.stop();
+			}
 		}
 
 		return super.onMenuItemSelected(featureId, item);
@@ -124,7 +142,7 @@ public class RoombaRobot extends RobotDevice {
     public void onDestroy() {
     	super.onDestroy();
     	
-    	if (oRoomba.isConnected()) {
+    	if (m_oRoomba.isConnected()) {
     		close();
     	}
     }
@@ -134,69 +152,69 @@ public class RoombaRobot extends RobotDevice {
 		super.onAccelerationChanged(x, y, z, tx);
 		
 		if (tx && m_bAccelerometer) {
+			Log.i("Accel", "x=" + x + ", y=" + y + ", z=" + z); 
 			
 			int nSpeed = getSpeedFromAcceleration(x, y, z, RoombaTypes.MAX_SPEED);
 			int nRadius = getRadiusFromAcceleration(x, y, z, RoombaTypes.MAX_RADIUS);
-			
-			Log.i("Speeds", "speed=" + nSpeed + ", radius=" + nRadius); 
 
 			// if speed is negative the roomba should drive forward
 			// if it is positive it should drive backward
-			if (nSpeed < -SPEED_SENSITIVITY) {
+			if (nSpeed > SPEED_SENSITIVITY) {
 				// remove the speed sensitivity again
 				nSpeed -= SPEED_SENSITIVITY; 
+
+				Log.i("Speeds", "speed=" + nSpeed + ", radius=" + nRadius); 
+
 				if (nRadius > RADIUS_SENSITIVITY) {
-					oRoomba.driveForward(nSpeed, nRadius);
+					m_oRoomba.driveForward(nSpeed, nRadius);
 				} else if (nRadius < -RADIUS_SENSITIVITY) {
-					oRoomba.driveForward(nSpeed, nRadius);
+					m_oRoomba.driveForward(nSpeed, nRadius);
 				} else {
-					oRoomba.driveForward(nSpeed);
+					m_oRoomba.driveForward(nSpeed);
 				}
-			} else if (nSpeed > SPEED_SENSITIVITY) {
+			} else if (nSpeed < -SPEED_SENSITIVITY) {
 				// remove the speed_sensitivity again
-				nSpeed -= SPEED_SENSITIVITY;
+				nSpeed += SPEED_SENSITIVITY;
+
+				Log.i("Speeds", "speed=" + nSpeed + ", radius=" + nRadius); 
+
 				if (nRadius > RADIUS_SENSITIVITY) {
 					// 
-					oRoomba.driveBackward(nSpeed, nRadius);
+					m_oRoomba.driveBackward(nSpeed, nRadius);
 				} else if (nRadius < -RADIUS_SENSITIVITY) {
-					oRoomba.driveBackward(nSpeed, nRadius);
+					m_oRoomba.driveBackward(nSpeed, nRadius);
 				} else {
-					oRoomba.driveBackward(nSpeed);
+					m_oRoomba.driveBackward(nSpeed);
 				}
 			} else {
+				
+				Log.i("Speeds", "speed=~0" + ", radius=" + nRadius); 
+
 				if (nRadius > RADIUS_SENSITIVITY) {
 					// if speed is small we remap the radius to 
 					// speed and let it rotate on the spot 
 					nSpeed = (int) (nRadius / RoombaTypes.MAX_RADIUS * RoombaTypes.MAX_SPEED);
-					oRoomba.rotateCounterClockwise(nSpeed);
+					m_oRoomba.rotateCounterClockwise(nSpeed);
 				} else if (nRadius < -RADIUS_SENSITIVITY) {
 					// if speed is small we remap the radius to 
 					// speed and let it rotate on the spot 
 					nSpeed = (int) (nRadius / RoombaTypes.MAX_RADIUS * RoombaTypes.MAX_SPEED);
-					oRoomba.rotateClockwise(nSpeed);
+					m_oRoomba.rotateClockwise(nSpeed);
 				} else {
-					oRoomba.stop();
+					m_oRoomba.stop();
 				}
-				
+
 			}
 		}
 	}
 
 	public void updateControlButtons(boolean visible) {
-		m_oActivity.findViewById(R.id.btnMainBrush).setEnabled(visible);
-		m_oActivity.findViewById(R.id.btnSideBrush).setEnabled(visible);
-		m_oActivity.findViewById(R.id.btnVacuum).setEnabled(visible);
+//		m_oActivity.findViewById(R.id.btnMainBrush).setEnabled(visible);
+//		m_oActivity.findViewById(R.id.btnSideBrush).setEnabled(visible);
+//		m_oActivity.findViewById(R.id.btnVacuum).setEnabled(visible);
+		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layBrushes), visible);
 		
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
-		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.accelerometer), visible);
-		
-//		if (visible) {
-//			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layRemoteControl);
-//			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams());
-//		} else {
-//			TableLayout tblControlButtons = (TableLayout) m_oActivity.findViewById(R.id.layRemoteControl);
-//			tblControlButtons.setLayoutParams(new TableLayout.LayoutParams(0, 0));
-//		}
 	}
 	
 	public void updateArrowButtons(boolean enabled) {
@@ -225,9 +243,9 @@ public class RoombaRobot extends RobotDevice {
 	private void connectToRoomba(BluetoothDevice i_oDevice) {
 		final BluetoothDevice oDevice = i_oDevice;
 
-		if (progress == null) {
-			progress = ProgressDlg.show(this, "Connecting...", "");
-		}
+//		if (progress == null) {
+//			progress = ProgressDlg.show(this, "Connecting...", "");
+//		}
 
 		try {
 			m_oSocket = oDevice.createRfcommSocketToServiceRecord(RoombaTypes.ROOMBA_UUID);
@@ -245,22 +263,22 @@ public class RoombaRobot extends RobotDevice {
 			
 			RoombaBluetooth m_oConnection = new RoombaBluetooth(m_oSocket); 
 			
-			oRoomba.setConnection(m_oConnection);
+			m_oRoomba.setConnection(m_oConnection);
 			
 			Toast.makeText(this, "Connection OK", Toast.LENGTH_SHORT).show();
 			
 			// initalize the robot
-			if (!oRoomba.init()) {
+			if (!m_oRoomba.init()) {
 			
 				// if the init failed it might be because the robot is not powered on
 				// in which case we try to power it on now
-				if (!oRoomba.isPowerOn()) {
-					oRoomba.powerOn();
+				if (!m_oRoomba.isPowerOn()) {
+					m_oRoomba.powerOn();
 				}
 			}
-			
-			progress.dismiss();
-			progress = null;
+//			
+//			progress.dismiss();
+//			progress = null;
 			
 			updateButtons(true);
 		} catch (IOException e) {
@@ -305,7 +323,7 @@ public class RoombaRobot extends RobotDevice {
 				
 				// before closing the connection we set the roomba to passive mode
 				// which consumes less power
-				oRoomba.setPassiveMode();
+				m_oRoomba.setPassiveMode();
 			
 				m_oSocket.close();
 				m_oSocket = null;
@@ -350,7 +368,7 @@ public class RoombaRobot extends RobotDevice {
 			
 			@Override
 			public void onClick(View v) {
-				oRoomba.startCleanMode();
+				m_oRoomba.startCleanMode();
 			}
 		});
 		
@@ -360,7 +378,7 @@ public class RoombaRobot extends RobotDevice {
 			@Override
 			public void onClick(View v) {
 				// we can stop any active action by setting the roomba to safe mode
-				oRoomba.setSafeMode();
+				m_oRoomba.setSafeMode();
 			}
 		});
 		
@@ -369,7 +387,7 @@ public class RoombaRobot extends RobotDevice {
 			
 			@Override
 			public void onClick(View v) {
-				oRoomba.seekDocking();
+				m_oRoomba.seekDocking();
 			}
 		});
 
@@ -381,10 +399,11 @@ public class RoombaRobot extends RobotDevice {
 				m_bControl = !m_bControl;
 				updateControlButtons(m_bControl);
 				if (m_bControl) {
-					oRoomba.setSafeMode();
+					m_oRoomba.setSafeMode();
 				} else {
-					oRoomba.setPassiveMode();
+					m_oRoomba.setPassiveMode();
 				}
+				((Button)v).setText("Control " + (m_bControl ? "OFF" : "ON"));
 			}
 		});
 
@@ -394,7 +413,7 @@ public class RoombaRobot extends RobotDevice {
 			@Override
 			public void onClick(View v) {
 				m_bMainBrushEnabled = !m_bMainBrushEnabled;
-				oRoomba.setMainBrush(m_bMainBrushEnabled);
+				m_oRoomba.setMainBrush(m_bMainBrushEnabled);
 			}
 		});
 
@@ -404,7 +423,7 @@ public class RoombaRobot extends RobotDevice {
 			@Override
 			public void onClick(View v) {
 				m_bSideBrushEnabled = !m_bSideBrushEnabled;
-				oRoomba.setSideBrush(m_bSideBrushEnabled);
+				m_oRoomba.setSideBrush(m_bSideBrushEnabled);
 			}
 		});
 
@@ -414,7 +433,7 @@ public class RoombaRobot extends RobotDevice {
 			@Override
 			public void onClick(View v) {
 				m_bVacuumEnabled = !m_bVacuumEnabled;
-				oRoomba.setVacuum(m_bVacuumEnabled);
+				m_oRoomba.setVacuum(m_bVacuumEnabled);
 			}
 		});
 		
@@ -423,12 +442,12 @@ public class RoombaRobot extends RobotDevice {
 			
 			@Override
 			public void onClick(View v) {
-				if (oRoomba.isPowerOn()) {
-					oRoomba.powerOff();
+				if (m_oRoomba.isPowerOn()) {
+					m_oRoomba.powerOff();
 				} else {
-					oRoomba.powerOn();
+					m_oRoomba.powerOn();
 				}
-				((Button)v).setText("Power " + (oRoomba.isPowerOn() ? "OFF" : "ON"));
+				((Button)v).setText("Power " + (m_oRoomba.isPowerOn() ? "OFF" : "ON"));
 			}
 		});
 		
@@ -442,7 +461,7 @@ public class RoombaRobot extends RobotDevice {
 				if (m_bAccelerometer) {
 					m_bSetAccelerometerBase = true;
 				} else {
-					oRoomba.stop();
+					m_oRoomba.stop();
 				}
 				
 				if (m_bAccelerometer && m_bMove) {
@@ -481,12 +500,12 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					oRoomba.stop();
+					m_oRoomba.stop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					oRoomba.driveForward(50);
+					m_oRoomba.driveForward(50);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -504,12 +523,12 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					oRoomba.stop();
+					m_oRoomba.stop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					oRoomba.driveBackward(50);
+					m_oRoomba.driveBackward(50);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -527,12 +546,12 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					oRoomba.stop();
+					m_oRoomba.stop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					oRoomba.rotateCounterClockwise(50);
+					m_oRoomba.rotateCounterClockwise(50);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -550,12 +569,12 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					oRoomba.stop();
+					m_oRoomba.stop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					oRoomba.rotateClockwise(50);
+					m_oRoomba.rotateClockwise(50);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					

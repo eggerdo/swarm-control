@@ -33,6 +33,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -54,6 +55,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TableLayout;
@@ -69,6 +71,7 @@ public class NXTRobot extends RobotDevice {
 	private static final int CONNECT_ID = Menu.FIRST;
 	private static final int DEBUG_ID = CONNECT_ID + 1;
 	private static final int INVERT_ID = DEBUG_ID + 1;
+	private static final int ACCEL_ID = INVERT_ID + 1;
 
 	private ProgressDialog connectingProgressDialog;
 	
@@ -133,9 +136,23 @@ public class NXTRobot extends RobotDevice {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, CONNECT_ID, 1, "Connect");
 		menu.add(0, DEBUG_ID, 2, "Debug ON");
-		menu.add(0, INVERT_ID, 3, "Invert Driving (ON)");
 		return true;
 	}
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	if (m_bControl) {
+    		if (menu.findItem(INVERT_ID) == null) {
+				menu.add(0, INVERT_ID, 3, "Invert Driving (ON)");
+				menu.add(0, ACCEL_ID, 3, "Accelerometer (ON)");
+    		}
+		} else
+			if (menu.findItem(INVERT_ID) != null) {
+				menu.removeItem(INVERT_ID);
+				menu.removeItem(ACCEL_ID);
+			}
+		return true;
+    }
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -155,7 +172,17 @@ public class NXTRobot extends RobotDevice {
 			m_oNxt.setInverted();
 			item.setTitle("Invert Driving " + (m_oNxt.isInverted() ? "(OFF)" : "(ON)"));
 			return true;
+		case ACCEL_ID:
+			m_bAccelerometer = !m_bAccelerometer;
+			item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
+
+			if (m_bAccelerometer) {
+				m_bSetAccelerometerBase = true;
+			} else {
+				m_oNxt.stop();
+			}
 		}
+			
 
 		return super.onMenuItemSelected(featureId, item);
 	}
@@ -174,13 +201,14 @@ public class NXTRobot extends RobotDevice {
 			int speed = getSpeedFromAcceleration(x, y, z, NXTTypes.MAX_SPEED);
 			int radius = getRadiusFromAcceleration(x, y, z, NXTTypes.MAX_RADIUS);
 			
-			Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
-
 			// if speed is negative the roomba should drive forward
 			// if it is positive it should drive backward
-			if (speed < -SPEED_SENSITIVITY) {
+			if (speed > SPEED_SENSITIVITY) {
 				// remove the speed sensitivity again
 				speed -= SPEED_SENSITIVITY; 
+
+				Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
+
 				if (radius > RADIUS_SENSITIVITY) {
 //					m_oNxt.driveForward(speed, radius);
 				} else if (radius < -RADIUS_SENSITIVITY) {
@@ -190,7 +218,10 @@ public class NXTRobot extends RobotDevice {
 				}
 			} else if (speed > SPEED_SENSITIVITY) {
 				// remove the speed_sensitivity again
-				speed -= SPEED_SENSITIVITY;
+				speed += SPEED_SENSITIVITY;
+
+				Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
+
 				if (radius > RADIUS_SENSITIVITY) {
 					// 
 //					m_oNxt.driveBackward(speed, radius);
@@ -200,6 +231,9 @@ public class NXTRobot extends RobotDevice {
 					m_oNxt.driveBackward(speed);
 				}
 			} else {
+
+				Log.i("Speeds", "speed=~0" + ", radius=" + radius); 
+
 				if (radius > RADIUS_SENSITIVITY) {
 					// if speed is small we remap the radius to 
 					// speed and let it rotate on the spot 
@@ -455,6 +489,23 @@ public class NXTRobot extends RobotDevice {
 			public void onClick(View v) {
 				m_bControl = !m_bControl;
 				updateControlButtons(m_bControl);
+				((Button)v).setText("Control " + (m_bControl ? "OFF" : "ON"));
+				if (m_bControl) {
+//					Rect r = new Rect();
+////					 ((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl)).getDrawingRect(r);
+////					 ((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl)).requestRectangleOnScreen(r);
+//					ScrollView sview = (ScrollView)m_oActivity.findViewById(R.id.nxt);
+////					sview.scrollTo(0, m_oActivity.findViewById(R.id.layRemoteControl).getBottom());
+//					View ctrl = m_oActivity.findViewById(R.id.layRemoteControl);
+//					sview.recomputeViewAttributes(ctrl);
+//					sview.refreshDrawableState();
+//					ctrl.setFocusable(true);
+//					ctrl.requestFocus();
+//					ctrl.getLocalVisibleRect(r);
+//					ctrl.getDrawingRect(r);
+//					ctrl.getGlobalVisibleRect(r);
+//					ctrl.requestRectangleOnScreen(r);
+				}
 			}
 		});
 
@@ -723,6 +774,61 @@ public class NXTRobot extends RobotDevice {
     			// remove the normalised value row from the layout
     			tblrwRow = (TableRow) m_oActivity.findViewById(nNormValueResId);
     			tblData.removeView(tblrwRow);
+    			
+        	}
+		}
+
+		for (ENXTMotorID eMotorID : ENXTMotorID.values()) {
+
+        	int nDataResId, nTachoCountResId;
+        	
+        	// get resource ids based on sensor id
+        	switch (eMotorID) {
+        	case motor_1:
+        		nDataResId = R.id.tblMotor1_data;
+        		nTachoCountResId = R.id.tblrMotor1_TachoCount;
+        		break;
+        	case motor_2:
+        		nDataResId = R.id.tblMotor2_data;
+        		nTachoCountResId = R.id.tblrMotor2_TachoCount;
+        		break;
+        	case motor_3:
+        		nDataResId = R.id.tblMotor3_data;
+        		nTachoCountResId = R.id.tblrMotor3_TachoCount;
+        		break;
+    		default:
+    			continue;
+        	}
+        	
+
+        	TableLayout tblData = (TableLayout) m_oActivity.findViewById(nDataResId);
+        	
+        	if (i_bDebug) {
+
+        		// if the table row for the raw value already exists in the current layout
+        		// then continue with the next sensor
+        		if (m_oActivity.findViewById(nTachoCountResId) != null)
+        			continue;
+        		
+        		// get the table row for the raw value from the temp layout
+        		TableRow tblrwRow = (TableRow) oTempView.findViewById(nTachoCountResId);
+        		// remove it from the temp layout
+        		((TableLayout)tblrwRow.getParent()).removeView(tblrwRow);
+        		// add it to the current layout
+        		tblData.addView(tblrwRow);
+
+        	} else {
+
+        		TableRow tblrwRow = (TableRow) m_oActivity.findViewById(nTachoCountResId);
+
+        		// if the table row for the raw value doesn't exist in the current layout
+        		// continue with the next sensor        		
+        		if (tblData.indexOfChild(tblrwRow) == -1) {
+        			continue;
+        		} else {
+        			// otherwise remove it from the layout
+        			tblData.removeView(tblrwRow);
+        		}
     			
         	}
 		}
