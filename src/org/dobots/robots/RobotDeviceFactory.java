@@ -1,7 +1,7 @@
 package org.dobots.robots;
 
-import org.dobots.nxt.NXT;
-import org.dobots.roomba.Roomba;
+import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.roomba.Roomba;
 import org.dobots.swarmcontrol.robots.RobotType;
 
 public class RobotDeviceFactory {
