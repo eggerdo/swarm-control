@@ -1,4 +1,4 @@
-package org.dobots.swarmcontrol.robots;
+package org.dobots.swarmcontrol.robots.nxt;
 
 import java.io.IOException;
 
@@ -6,17 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.dobots.nxt.BTCommunicator;
-import org.dobots.nxt.BTConnectable;
-import org.dobots.nxt.LCPMessage;
-import org.dobots.nxt.NXT;
-import org.dobots.nxt.NXTTypes;
-import org.dobots.nxt.NXTTypes.ENXTMotorID;
-import org.dobots.nxt.NXTTypes.ENXTMotorSensorType;
-import org.dobots.nxt.NXTTypes.ENXTSensorID;
-import org.dobots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.roomba.RoombaBluetooth;
-import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.robots.nxt.LCPMessage;
+import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
+import org.dobots.robots.roomba.RoombaBluetooth;
+import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;

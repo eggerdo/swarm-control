@@ -1,10 +1,12 @@
-package org.dobots.swarmcontrol.robots;
+package org.dobots.swarmcontrol.robots.finch;
 
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.RobotView;
 
 import edu.cmu.ri.createlab.terk.robot.finch.Finch;
 

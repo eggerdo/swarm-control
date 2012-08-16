@@ -1,4 +1,4 @@
-package org.dobots.nxt;
+package org.dobots.robots.nxt;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -7,8 +7,8 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.UUID;
 
-import org.dobots.nxt.LCPMessage;
-import org.dobots.nxt.NXTTypes.DistanceData;
+import org.dobots.robots.nxt.LCPMessage;
+import org.dobots.robots.nxt.NXTTypes.DistanceData;
 import org.dobots.utility.Utils;
 
 public class NXTTypes {

@@ -1,8 +1,8 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.swarmcontrol.robots.FinchRobot;
-import org.dobots.swarmcontrol.robots.NXTRobot;
-import org.dobots.swarmcontrol.robots.RoombaRobot;
+import org.dobots.swarmcontrol.robots.finch.FinchRobot;
+import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
+import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 
 
 public class RobotViewFactory {

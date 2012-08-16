@@ -1,12 +1,12 @@
-package org.dobots.roomba;
+package org.dobots.robots.roomba;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 import org.dobots.robots.RobotDevice;
-import org.dobots.roomba.RoombaTypes.ERoombaModes;
-import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
-import org.dobots.roomba.RoombaTypes.SensorPackage;
+import org.dobots.robots.roomba.RoombaTypes.ERoombaModes;
+import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
 
 public class Roomba implements RobotDevice {
 	

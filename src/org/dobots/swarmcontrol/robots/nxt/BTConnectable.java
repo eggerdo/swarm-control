@@ -17,7 +17,7 @@
  *   along with MINDdroid.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-package org.dobots.nxt;
+package org.dobots.swarmcontrol.robots.nxt;
 
 public interface BTConnectable {
 

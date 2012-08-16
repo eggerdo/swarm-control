@@ -1,11 +1,11 @@
-package org.dobots.swarmcontrol.robots;
+package org.dobots.swarmcontrol.robots.roomba;
 
-import org.dobots.roomba.Roomba;
-import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
-import org.dobots.roomba.RoombaTypes.SensorPackage;
-import org.dobots.roomba.RoombaTypes.SensorPackage1;
-import org.dobots.roomba.RoombaTypes.SensorPackage2;
-import org.dobots.roomba.RoombaTypes.SensorPackage3;
+import org.dobots.robots.roomba.Roomba;
+import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
+import org.dobots.robots.roomba.RoombaTypes.SensorPackage1;
+import org.dobots.robots.roomba.RoombaTypes.SensorPackage2;
+import org.dobots.robots.roomba.RoombaTypes.SensorPackage3;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 

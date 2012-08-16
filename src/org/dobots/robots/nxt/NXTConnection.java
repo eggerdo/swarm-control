@@ -1,4 +1,4 @@
-package org.dobots.nxt;
+package org.dobots.robots.nxt;
 
 public class NXTConnection {
 

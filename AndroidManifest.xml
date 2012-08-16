@@ -30,13 +30,13 @@
 		<activity android:name="org.dobots.swarmcontrol.robots.RobotDevice"
 			android:screenOrientation="portrait" 
             android:keepScreenOn="true" ></activity>
-		<activity android:name="org.dobots.swarmcontrol.robots.RoombaRobot"
+		<activity android:name=".robots.roomba.RoombaRobot"
 			android:screenOrientation="portrait" 
             android:keepScreenOn="true" ></activity>
-		<activity android:name="org.dobots.swarmcontrol.robots.FinchRobot"
+		<activity android:name=".robots.finch.FinchRobot"
 			android:screenOrientation="portrait" 
             android:keepScreenOn="true" ></activity>
-		<activity android:name="org.dobots.swarmcontrol.robots.NXTRobot"
+		<activity android:name=".robots.nxt.NXTRobot"
 			android:screenOrientation="portrait" 
             android:keepScreenOn="true" ></activity>
     </application>

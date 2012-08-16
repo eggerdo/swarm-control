@@ -1,11 +1,11 @@
-package org.dobots.swarmcontrol.robots;
+package org.dobots.swarmcontrol.robots.roomba;
 
 import java.io.IOException;
 
-import org.dobots.roomba.Roomba;
-import org.dobots.roomba.RoombaBluetooth;
-import org.dobots.roomba.RoombaTypes;
-import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.robots.roomba.Roomba;
+import org.dobots.robots.roomba.RoombaBluetooth;
+import org.dobots.robots.roomba.RoombaTypes;
+import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;

@@ -17,17 +17,16 @@
  *   along with MINDdroid.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-package org.dobots.nxt;
+package org.dobots.swarmcontrol.robots.nxt;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 
-import org.dobots.nxt.BTConnectable;
-import org.dobots.nxt.LCPMessage;
-import org.dobots.nxt.NXTTypes;
-import org.dobots.nxt.msg.MsgTypes;
+import org.dobots.robots.nxt.LCPMessage;
+import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.robots.nxt.msg.MsgTypes;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.Utils;
 

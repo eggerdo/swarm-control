@@ -1,8 +1,8 @@
-package org.dobots.nxt;
+package org.dobots.robots.nxt;
 
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.roomba.RoombaConnection;
+import org.dobots.robots.roomba.RoombaConnection;
 
 public class NXTBluetooth implements RoombaConnection {
 

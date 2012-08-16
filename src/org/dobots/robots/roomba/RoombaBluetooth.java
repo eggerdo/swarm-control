@@ -1,4 +1,4 @@
-package org.dobots.roomba;
+package org.dobots.robots.roomba;
 
 import java.io.IOException;
 import java.io.InputStream;

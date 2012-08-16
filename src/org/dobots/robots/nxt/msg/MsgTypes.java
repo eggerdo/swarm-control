@@ -1,10 +1,10 @@
-package org.dobots.nxt.msg;
+package org.dobots.robots.nxt.msg;
 
 import java.util.Arrays;
 
-import org.dobots.nxt.NXTTypes.ENXTMotorID;
-import org.dobots.nxt.NXTTypes.ENXTSensorID;
-import org.dobots.nxt.NXTTypes.ENXTSensorType;
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 
 public class MsgTypes {
 	

@@ -1,18 +1,18 @@
-package org.dobots.swarmcontrol.robots;
+package org.dobots.swarmcontrol.robots.nxt;
 
 import java.util.EnumMap;
 
-import org.dobots.nxt.LCPMessage;
-import org.dobots.nxt.NXT;
-import org.dobots.nxt.NXTTypes;
-import org.dobots.nxt.NXTTypes.DistanceData;
-import org.dobots.nxt.NXTTypes.ENXTMotorID;
-import org.dobots.nxt.NXTTypes.ENXTMotorSensorType;
-import org.dobots.nxt.NXTTypes.ENXTSensorID;
-import org.dobots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.nxt.NXTTypes.MotorData;
-import org.dobots.nxt.NXTTypes.SensorData;
-import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.robots.nxt.LCPMessage;
+import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.robots.nxt.NXTTypes.DistanceData;
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
+import org.dobots.robots.nxt.NXTTypes.MotorData;
+import org.dobots.robots.nxt.NXTTypes.SensorData;
+import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.Utils;

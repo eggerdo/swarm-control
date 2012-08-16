@@ -1,4 +1,4 @@
-package org.dobots.nxt.msg;
+package org.dobots.robots.nxt.msg;
 
 public class MotorDataMsg {
 	

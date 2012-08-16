@@ -1,4 +1,4 @@
-package org.dobots.nxt;
+package org.dobots.robots.nxt;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,17 +7,18 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.dobots.robots.RobotDevice;
-import org.dobots.nxt.NXTTypes.ENXTMotorID;
-import org.dobots.nxt.NXTTypes.ENXTSensorID;
-import org.dobots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.nxt.msg.MsgTypes;
-import org.dobots.nxt.msg.MsgTypes.MotorDataRequestMsg;
-import org.dobots.nxt.msg.MsgTypes.MotorSpeedMsg;
-import org.dobots.nxt.msg.MsgTypes.RawDataMsg;
-import org.dobots.nxt.msg.MsgTypes.ResetMotorPositionMsg;
-import org.dobots.nxt.msg.MsgTypes.SensorDataRequestMsg;
-import org.dobots.nxt.msg.MsgTypes.SensorTypeMsg;
-import org.dobots.nxt.BTCommunicator;
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
+import org.dobots.robots.nxt.msg.MsgTypes;
+import org.dobots.robots.nxt.msg.MsgTypes.MotorDataRequestMsg;
+import org.dobots.robots.nxt.msg.MsgTypes.MotorSpeedMsg;
+import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
+import org.dobots.robots.nxt.msg.MsgTypes.ResetMotorPositionMsg;
+import org.dobots.robots.nxt.msg.MsgTypes.SensorDataRequestMsg;
+import org.dobots.robots.nxt.msg.MsgTypes.SensorTypeMsg;
+import org.dobots.swarmcontrol.robots.nxt.BTCommunicator;
+import org.dobots.swarmcontrol.robots.nxt.BTConnectable;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothAdapter;
