@@ -9,7 +9,7 @@
     <string name="disconnect">Disconnect</string>
     <string name="quit">Quit</string>    
     
-    <string name="intro">SwarmControl is developed at Distributed Organisms, DO bots. It
+    <string name="intro">Swarm Control is developed at Distributed Organisms, DO bots. It
         is meant to showcase remote control of many different robots, and in due time,
         group functionality.</string>
 
@@ -18,7 +18,7 @@
     
     <!-- About Dialog -->
     <string name="about_general">  
-        SwarmControl is developed at Distributed Organisms or DO bots. DO researches,
+        Swarm Control is developed at Distributed Organisms or DO bots. DO researches,
         develops, and maintains robotic swarms. DO is a daughter company of the Dutch 
         research company Almende B.V. 
         
@@ -31,7 +31,7 @@
         to find fire for the fire brigade.
     </string>    
     <string name="about_license_gpl">
-        SwarmControl is released under GPLv3 license, http://gplv3.fsf.org/
+        Swarm Control is released under GPLv3 license, http://gplv3.fsf.org/
     </string>    
     <string name="about_ok">OK</string>
         
@@ -160,6 +160,10 @@
     <string name="nxt_powersetpoint">Power Setpoint:</string>     
     <string name="nxt_tachocount">Tacho Count:</string>     
     <string name="nxt_rotationcount">Rotation Count:</string>     
-    <string name="change_log">Change Log:</string>    
+    <string name="change_log">Change Log:</string>     
+    <string name="lblDancing_Description">Here we show a way to connect to a set of multiple robots which can be chosen from the available robots. Once the robots are paired together, they can be simultaneously controlled. This can be done by manual control or by choosing a set of dancing patterns and letting the robots execute them.</string>     
+    <string name="lblDancing_Add">Add Robot...</string>     
+    <string name="btnDancing_Control">Enable Remote Control</string>     
+    <string name="lblDancing_Title">Dancing</string>    
     
 </resources>
