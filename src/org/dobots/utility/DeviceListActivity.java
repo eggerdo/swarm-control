@@ -24,8 +24,9 @@ package org.dobots.utility;
 
 import java.util.Set;
 
+import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.RobotDevice;
+import org.dobots.swarmcontrol.robots.RobotView;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -118,7 +119,7 @@ public class DeviceListActivity extends Activity {
         boolean bDevicesFound = false;
         
         Bundle oParam = this.getIntent().getExtras();
-        m_strMACFilter = oParam.getString(RobotDevice.MAC_FILTER);
+        m_strMACFilter = oParam.getString(BluetoothConnectionHelper.MAC_FILTER);
         
         if (pairedDevices.size() > 0) {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);

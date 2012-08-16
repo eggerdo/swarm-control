@@ -1,12 +1,14 @@
 package org.dobots.roomba;
 
+import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import org.dobots.robots.RobotDevice;
 import org.dobots.roomba.RoombaTypes.ERoombaModes;
 import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.roomba.RoombaTypes.SensorPackage;
 
-public class Roomba {
+public class Roomba implements RobotDevice {
 	
 	RoombaController oRoombaCtrl; 
 	
@@ -25,13 +27,34 @@ public class Roomba {
 		// create bluetooth connection object and add it to the controller
 		// oRoombaCtrl.setConnection(oConnection);
 	}
-	
+
+	@Override
+	public void setConnection() {
+		
+	}
+
 	public void setConnection(RoombaBluetooth i_oConnection) {
 		oRoombaCtrl.setConnection(i_oConnection);
 	}
 	
 	public boolean isConnected() {
 		return oRoombaCtrl.isConnected();
+	}
+
+	@Override
+	public void connect() throws IOException {
+		oRoombaCtrl.connect();
+	}
+
+	@Override
+	public void disconnect() {
+		// TODO Auto-generated method stub
+
+		// before closing the connection we set the roomba to passive mode
+		// which consumes less power
+		setPassiveMode();
+
+		oRoombaCtrl.disconnect();
 	}
 
 	/*
@@ -279,7 +302,7 @@ public class Roomba {
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.COUNTER_CLOCKWISE);
 	}
 	
-	public void stop() {
+	public void driveStop() {
 		oRoombaCtrl.drive(0, 0);
 	}
 	

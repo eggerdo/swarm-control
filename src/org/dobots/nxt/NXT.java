@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.dobots.robots.RobotDevice;
 import org.dobots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.nxt.NXTTypes.ENXTSensorType;
@@ -16,6 +17,7 @@ import org.dobots.nxt.msg.MsgTypes.RawDataMsg;
 import org.dobots.nxt.msg.MsgTypes.ResetMotorPositionMsg;
 import org.dobots.nxt.msg.MsgTypes.SensorDataRequestMsg;
 import org.dobots.nxt.msg.MsgTypes.SensorTypeMsg;
+import org.dobots.nxt.BTCommunicator;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothAdapter;
@@ -26,7 +28,7 @@ import android.os.Message;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-public class NXT implements BTConnectable {
+public class NXT implements RobotDevice, BTConnectable {
 
 	private static String TAG = "NXT";
 
@@ -35,16 +37,15 @@ public class NXT implements BTConnectable {
 	private boolean m_bPairing;
 
 	int motorLeft;
-	private int directionLeft; // +/- 1
+//	private int directionLeft; // +/- 1
 	int motorRight;
-	private boolean stopAlreadySent = false;
-	private int directionRight; // +/- 1
-	private int motorAction;
-	private int directionAction; // +/- 1
+//	private boolean stopAlreadySent = false;
+//	private int directionRight; // +/- 1
+//	private int motorAction;
+//	private int directionAction; // +/- 1
 	
-	private String programToStart;
+//	private String programToStart;
 
-	private Resources m_oResources;
 	private Handler m_oUiHandler;
 
 	private boolean connected = false;
@@ -58,7 +59,9 @@ public class NXT implements BTConnectable {
 
 	private Timer m_oKeepAliveTimer;
 	
-	private int m_nInvert = 1;	// normal = 1, inverted = -1
+	private int m_nInvertFactor = 1;	// normal = 1, inverted = -1
+	
+	private double m_dblAxleWidth = 160.0;
 	
 	private class NXTReceiver extends Thread {
 		
@@ -66,10 +69,6 @@ public class NXT implements BTConnectable {
 		
 		public Handler getHandler() {
 			return m_oHandler;
-		}
-		
-		public Looper getLooper() {
-			return Looper.myLooper();
 		}
 
 		@Override
@@ -92,14 +91,14 @@ public class NXT implements BTConnectable {
 					
 					switch (messageID) {
 					case NXTTypes.DESTROY:
-						destroyBTCommunicator();
+						m_oConnection = null;
 					case NXTTypes.STATE_CONNECTED:
 						connected = true;
 						getFirmwareVersion();
 						break;
 
 					case NXTTypes.STATE_CONNECTERROR_PAIRING:
-						destroyBTCommunicator();
+						m_oConnection = null;
 						break;
 
 					case NXTTypes.STATE_RECEIVEERROR:
@@ -112,17 +111,17 @@ public class NXT implements BTConnectable {
 						if (m_oConnection != null) {
 							byte[] firmwareMessage = ((RawDataMsg)msg.obj).rgbyRawData;
 							// check if we know the firmware
-							boolean isLejosMindDroid = true;
-							for (int pos=0; pos<4; pos++) {
-								if (firmwareMessage[pos + 3] != LCPMessage.FIRMWARE_VERSION_LEJOSMINDDROID[pos]) {
-									isLejosMindDroid = false;
-									break;
-								}
-							}
-							if (isLejosMindDroid) {
-								// mRobotType = R.id.robot_type_4;
-								setUpByType();
-							}
+//							boolean isLejosMindDroid = true;
+//							for (int pos=0; pos<4; pos++) {
+//								if (firmwareMessage[pos + 3] != LCPMessage.FIRMWARE_VERSION_LEJOSMINDDROID[pos]) {
+//									isLejosMindDroid = false;
+//									break;
+//								}
+//							}
+//							if (isLejosMindDroid) {
+//								// mRobotType = R.id.robot_type_4;
+//								setUpByType();
+//							}
 							
 						}
 
@@ -242,10 +241,7 @@ public class NXT implements BTConnectable {
 		
 	};
 
-	public NXT(Handler i_oHandler, Resources i_oResources) {
-		m_oUiHandler = i_oHandler;
-		m_oResources = i_oResources;
-		
+	public NXT() {
 		m_oReceiver = new NXTReceiver();
 		m_oReceiver.start();
 		
@@ -255,7 +251,7 @@ public class NXT implements BTConnectable {
 		m_oKeepAliveTimer = new Timer("KeepAliveTimer");
 		m_oKeepAliveTimer.schedule(m_oKeepAlive, 30000, 30000);
 		
-		setUpByType();
+//		setUpByType();
 	}
 	
 	public void destroy() {
@@ -263,7 +259,11 @@ public class NXT implements BTConnectable {
 //		m_oSender.getLooper().quit();
 		m_oKeepAliveTimer.cancel();
 	}
-    
+
+	public void setHandler(Handler i_oHandler) {
+		m_oUiHandler = i_oHandler;
+	}
+
 	/**
 	 * @return true, when currently pairing 
 	 */
@@ -272,12 +272,39 @@ public class NXT implements BTConnectable {
 		return m_bPairing;
 	}
 
+	@Override
 	public boolean isConnected() {
 		return connected;
 	}
 
+
+	@Override
+	public void setConnection() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void connect() {
+		connected = false;       
+		if (m_oConnection != null) {
+			m_oConnection.start();
+		}
+	}
+	
+	@Override
+	public void disconnect() {
+		connected = false;
+		sendCmdMessage(NXTTypes.DISCONNECT);
+	}
+	
 	public void setConnection(BTCommunicator i_oConnection) {
 		m_oConnection = i_oConnection;
+		m_oConnection.setReceiveHandler(m_oReceiver.getHandler());
+	}
+	
+	public BTCommunicator getConnection() {
+		return m_oConnection;
 	}
 	
 	private void sendCmdMessage(int i_nCmd) {
@@ -291,11 +318,7 @@ public class NXT implements BTConnectable {
 	private void sendResultMessage(int i_nCmd, Object i_oData) {
 		Utils.sendMessage(m_oUiHandler, i_nCmd, i_oData);
 	}
-	
-	public void disconnect() {
-		sendCmdMessage(NXTTypes.DISCONNECT);
-	}
-	
+
 	public void getFirmwareVersion() {
 		sendCmdMessage(NXTTypes.GET_FIRMWARE_VERSION);
 	}
@@ -334,137 +357,159 @@ public class NXT implements BTConnectable {
 		return io_dblSpeed;
 	}
 	
-//	private void capRadius(int io_nRadius) {
-//		io_nRadius = Math.min(io_nRadius, NXTTypes.MAX_RADIUS);
-//		io_nRadius = Math.max(io_nRadius, -NXTTypes.MAX_RADIUS);
-//		
-//		// exclude the special cases
-//		if (io_nRadius == 0) {
-//			io_nRadius = NXTTypes.STRAIGHT;
-//		}
-//		
-//		if (io_nRadius == -1) {
-//			io_nRadius = -2;
-//		}
-//		
-//		if (io_nRadius == 1) {
-//			io_nRadius = 2;
-//		}
-//	}
+	private int capRadius(int io_nRadius) {
+		io_nRadius = Math.min(io_nRadius, NXTTypes.MAX_RADIUS);
+		io_nRadius = Math.max(io_nRadius, -NXTTypes.MAX_RADIUS);
+
+		return io_nRadius;
+	}
 	
 	private int calculateVelocity(double i_dblSpeed) {
 		return (int) Math.round(i_dblSpeed);
 	}
+
+	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
+		int nBaseVelocity = calculateVelocity(i_dblSpeed);
+		int nVelocity1, nVelocity2;
+		
+		// a high radius value received means that the robot should make a small/short turn
+		// a low radius value received means that the robot should make a big/long turn
+		// that means that the actual radius from which we calculate the velocities has to be
+		// the opposite of the radius we receive
+		int nCorrectedRadius = NXTTypes.MAX_RADIUS - Math.abs(i_nRadius);
+		
+		if (i_nRadius == 0) {
+			io_rgnVelocity[0] = nBaseVelocity;
+			io_rgnVelocity[1] = nBaseVelocity;
+		} else {
+			nVelocity1 = (int) Math.round(nBaseVelocity * (nCorrectedRadius + m_dblAxleWidth) / (nCorrectedRadius + m_dblAxleWidth / 2.0));
+			nVelocity2 = (int) Math.round(nBaseVelocity * nCorrectedRadius / (nCorrectedRadius + m_dblAxleWidth / 2.0));
+			
+			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
+			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
+			// velocity would fall below 0 we set it to 0
+			int nOffset = nVelocity1 - NXTTypes.MAX_VELOCITY;
+			if (nOffset > 0) {
+				nVelocity1 = 100;
+				nVelocity2 = Math.max(nVelocity2 - nOffset, 0);
+			}
+			// for the same reason we have to make sure that the lower velocity of the two wheels cannot be less than 0. if the
+			// higher velocity would go above 100 we set it to 100
+			nOffset = -nVelocity2;
+			if (nOffset > 0) {
+				nVelocity1 = Math.min(nVelocity1 + nOffset, 100);
+				nVelocity2 = 0;
+			}
+			
+			if (i_nRadius > 0) {
+				io_rgnVelocity[0] = nVelocity2;
+				io_rgnVelocity[1] = nVelocity1;
+			} else if (i_nRadius < 0) {
+				io_rgnVelocity[0] = nVelocity1;
+				io_rgnVelocity[1] = nVelocity2;
+			}
+		}
+	}
+
+//	private int calculateLeftVelocity(double i_dblSpeed, int i_nRadius) {
+//		int nBaseVelocity = calculateVelocity(i_dblSpeed);
+//		int nLeftVelocity;
+//		if (i_nRadius > 0) { // we turn right
+//			nLeftVelocity = (int) Math.round(nBaseVelocity * (i_nRadius + m_dblAxleWidth) / (i_nRadius + m_dblAxleWidth / 2.0));
+//		} else { // we turn left
+//			nLeftVelocity = (int) Math.round(nBaseVelocity * i_nRadius / (i_nRadius + m_dblAxleWidth / 2.0));
+//		}
+//		return nLeftVelocity;
+//	}
+//	
+//	private int calculateRightVelocity(double i_dblSpeed, int i_nRadius) {
+//		// calculateRightVelocity is the inverse of calculateLeftVelocity, i.e. 
+//		// calculateRightVelocity(i_nRadius) = calculateLeftVelocity(-i_nRadius) and vice versa
+//		return calculateLeftVelocity(i_dblSpeed, -i_nRadius);
+//	}
+
+	private void setMotorSpeed(ENXTMotorID i_eMotor, int i_nVelocity) {
+		sendCmdMessage(NXTTypes.SET_OUTPUT_STATE, MsgTypes.assembleMotorSpeedMsg(i_eMotor, i_nVelocity * m_nInvertFactor));
+	}
 	
+	private void drive(int i_nLeftVelocity, int i_nRightVelocity) {
+		Log.d(TAG, "left=" + i_nLeftVelocity + ", right=" + i_nRightVelocity);
+		
+		setMotorSpeed(ENXTMotorID.motor_1, i_nLeftVelocity);
+		setMotorSpeed(ENXTMotorID.motor_2, i_nRightVelocity);
+	}
+	
+	@Override
 	public void driveForward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		setMotorSpeed(ENXTMotorID.motor_1, nVelocity);
-		setMotorSpeed(ENXTMotorID.motor_2, nVelocity);
+		drive(nVelocity, nVelocity);
 	}
-	
-	private void setMotorSpeed(ENXTMotorID i_eMotor, int i_nVelocity) {
-		sendCmdMessage(NXTTypes.SET_OUTPUT_STATE, MsgTypes.assembleMotorSpeedMsg(i_eMotor, i_nVelocity * m_nInvert));
+
+	@Override
+	public void driveForward(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		capRadius(i_nRadius);
+		
+		int velocity[] = {0, 0};
+		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
+		
+		drive(velocity[0], velocity[1]);
 	}
-	
-//	public void driveForward(double i_dblSpeed, int i_nRadius) {
-//		i_dblSpeed = capSpeed(i_dblSpeed);
-//		capRadius(i_nRadius);
-//		int nVelocity = calculateVelocity(i_dblSpeed);
-//		
-//		oRoombaCtrl.drive(nVelocity, i_nRadius);
-//	}
-	
+
+	@Override
 	public void driveBackward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
-		setMotorSpeed(ENXTMotorID.motor_1, -nVelocity);
-		setMotorSpeed(ENXTMotorID.motor_2, -nVelocity);
+		drive(-nVelocity, -nVelocity);
 	}
 
-//	public void driveBackward(double i_dblSpeed, int i_nRadius) {
-//		i_dblSpeed = capSpeed(i_dblSpeed);
-//		capRadius(i_nRadius);
-//		int nVelocity = calculateVelocity(i_dblSpeed);
-//		
-//		oRoombaCtrl.drive(-nVelocity, i_nRadius);
-//	}
-	
+	@Override
+	public void driveBackward(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		capRadius(i_nRadius);
+
+		int velocity[] = {0, 0};
+		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
+		
+		drive(-velocity[0], -velocity[1]);
+	}
+
+	@Override
 	public void rotateClockwise(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		setMotorSpeed(ENXTMotorID.motor_1, nVelocity);
-		setMotorSpeed(ENXTMotorID.motor_2, -nVelocity);
+		drive(nVelocity, -nVelocity);
 	}
-	
+
+	@Override
 	public void rotateCounterClockwise(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
-		setMotorSpeed(ENXTMotorID.motor_1, -nVelocity);
-		setMotorSpeed(ENXTMotorID.motor_2, nVelocity);
+		drive(-nVelocity, nVelocity);
 	}
 	
-	public void stop() {
-		setMotorSpeed(ENXTMotorID.motor_1, 0);
-		setMotorSpeed(ENXTMotorID.motor_2, 0);
+	@Override
+	public void driveStop() {
+		drive(0, 0);
 	}
 	
 	/**
 	 * Initialization of the motor commands for the different robot types.
 	 */
-	public void setUpByType() {
-		// default
-		motorLeft = NXTTypes.MOTOR_B;
-		directionLeft = 1;
-		motorRight = NXTTypes.MOTOR_C;
-		directionRight = 1;
-		motorAction = NXTTypes.MOTOR_A;
-		directionAction = 1;
-	}
-
-	/**
-	 * Creates a new object for communication to the NXT robot via bluetooth and fetches the corresponding handler.
-	 */
-	public void createBTCommunicator() {
-		Log.i(TAG, "BT Communicator created");
-		// interestingly BT adapter needs to be obtained by the UI thread - so we pass it in in the constructor
-		m_oConnection = new BTCommunicator(this, m_oReceiver.getHandler(), BluetoothAdapter.getDefaultAdapter(), m_oResources);
-	}
-
-	/**
-	 * Creates and starts the a thread for communication via bluetooth to the NXT robot.
-	 * @param mac_address The MAC address of the NXT robot.
-	 */
-	public void startBTCommunicator(String mac_address) {
-		connected = false;        
-		
-		if (m_oConnection != null) {
-			try {
-				m_oConnection.destroyNXTconnection();
-			}
-			catch (IOException e) { }
-		}
-		createBTCommunicator();
-		m_oConnection.setMACAddress(mac_address);
-		m_oConnection.start();
-	}
-
-	/**
-	 * Sends a message for disconnecting to the communication thread.
-	 */
-	public void destroyBTCommunicator() {
-
-		if (m_oConnection != null) {
-			disconnect();
-			m_oConnection = null;
-		}
-
-		connected = false;
-	}
+//	public void setUpByType() {
+//		// default
+//		motorLeft = NXTTypes.MOTOR_B;
+//		directionLeft = 1;
+//		motorRight = NXTTypes.MOTOR_C;
+//		directionRight = 1;
+//		motorAction = NXTTypes.MOTOR_A;
+//		directionAction = 1;
+//	}
 
     public synchronized void getDistanceSensorData(int port) {
 
@@ -472,14 +517,15 @@ public class NXT implements BTConnectable {
 			byte[] data = new byte[] { 0x02, 0x42 };
 			m_oConnection.LSWrite(port, data, 1);
 			
-			Thread.sleep(100);
+			Utils.waitSomeTime(100);
 			
 			for (int i = 0; i < 3; i++) {
 				m_oConnection.LSGetStatus(port);
 				waitAnswer(NXTTypes.LS_GET_STATUS, 200);
 				
-				if (m_oConnection.getReturnMessage()[2] != LCPMessage.SUCCESS) {
-					Thread.sleep(500);
+				byte[] reply = m_oConnection.getReturnMessage();
+				if (reply == null || reply[2] != LCPMessage.SUCCESS) {
+					Utils.waitSomeTime(500);
 				} else {
 					break;
 				}
@@ -490,18 +536,19 @@ public class NXT implements BTConnectable {
 			
 			sendResultMessage(NXTTypes.GET_DISTANCE, NXTTypes.assembleDistanceData(port, m_oConnection.getReturnMessage()));
 			
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
 
-	private void waitAnswer(int id, long timeout) throws InterruptedException {
+	private boolean waitAnswer(int id, long timeout) throws InterruptedException {
 		m_nWaitID = id;
 		m_bMessageReceived = false;
 		receiveEvent.wait(timeout);
 		m_nWaitID = -1;
+		return m_bMessageReceived;
 	}
 
 	public void shutDown() {
@@ -526,11 +573,11 @@ public class NXT implements BTConnectable {
 	}
 
 	public void setInverted() {
-		m_nInvert *= -1;
+		m_nInvertFactor *= -1;
 	}
 	
 	public boolean isInverted() {
-		return m_nInvert == -1;
+		return m_nInvertFactor == -1;
 	}
 
 }

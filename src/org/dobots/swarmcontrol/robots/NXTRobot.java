@@ -18,6 +18,8 @@ import org.dobots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.roomba.RoombaBluetooth;
 import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.utility.AccelerometerListener;
 import org.dobots.utility.AccelerometerManager;
 import org.dobots.utility.DeviceListActivity;
@@ -64,7 +66,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-public class NXTRobot extends RobotDevice {
+public class NXTRobot extends RobotView implements BTConnectable {
 
 	private static String TAG = "NXT";
 	
@@ -81,8 +83,6 @@ public class NXTRobot extends RobotDevice {
 
 	private boolean btErrorPending = false;
 
-	private Toast reusableToast;
-	
 	private NXTSensorGatherer m_oSensorGatherer;
 	
 	private boolean m_bDebug;
@@ -92,31 +92,25 @@ public class NXTRobot extends RobotDevice {
 	private Button m_btnBwd;
 	private Button m_btnLeft;
 	private Button m_btnRight;
+	
+	private String m_strMacAddress = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-    	
-		reusableToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
-		
 		m_strRobotMacFilter = NXTTypes.MAC_FILTER;
 		
-		m_oNxt = new NXT(uiHandler, getResources());
+    	super.onCreate(savedInstanceState);
+		
+		m_oNxt = new NXT();
+		m_oNxt.setHandler(uiHandler);
+		
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
 		
         setDebug(false);
-        updateButtons(false);
+        updateButtons(true);
         updateControlButtons(false);
 		
-		try {
-			// if bluetooth is not yet enabled, initBluetooth will return false
-			// and the device selection will be called in the onActivityResult
-			if (initBluetooth())
-				selectRobot();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        connectToRobot();
     }
     
     @Override
@@ -129,6 +123,35 @@ public class NXTRobot extends RobotDevice {
     	}
 
     	m_oSensorGatherer.stopThread();
+    }
+    
+    @Override
+    public void onStop() {
+    	super.onStop();
+    	
+//    	m_oSensorGatherer.pauseThread();
+    	
+    	if (m_oNxt.isConnected()) {
+    		m_oNxt.disconnect();
+    	}
+    }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+
+    	m_bAccelerometer = false;
+    }
+
+    @Override
+    public void onRestart() {
+    	super.onRestart();
+    	
+    	if (m_strMacAddress != "") {
+    		connectToRobot(m_strMacAddress);
+    	}
+
+//    	m_oSensorGatherer.resumeThread();
     }
 
     @Override
@@ -151,6 +174,11 @@ public class NXTRobot extends RobotDevice {
 				menu.removeItem(INVERT_ID);
 				menu.removeItem(ACCEL_ID);
 			}
+    	
+    	MenuItem item = menu.findItem(ACCEL_ID);
+    	if (item != null) {
+    		item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
+    	}
 		return true;
     }
 
@@ -162,7 +190,7 @@ public class NXTRobot extends RobotDevice {
 			m_oSensorGatherer.initialize();
 			resetLayout();
 			updateButtons(false);
-			selectRobot();
+			m_oBTHelper.selectRobot();
 			return true;
 		case DEBUG_ID:
 			setDebug(!m_bDebug);
@@ -174,59 +202,101 @@ public class NXTRobot extends RobotDevice {
 			return true;
 		case ACCEL_ID:
 			m_bAccelerometer = !m_bAccelerometer;
-			item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
 
 			if (m_bAccelerometer) {
 				m_bSetAccelerometerBase = true;
 			} else {
-				m_oNxt.stop();
+				m_oNxt.driveStop();
 			}
 		}
 			
 
 		return super.onMenuItemSelected(featureId, item);
 	}
-
+	
 	@Override
-	protected void connectToRobot(String i_strAddr) {
-		connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
-		m_oNxt.startBTCommunicator(i_strAddr);
+	protected void connectToRobot() {
+		// if bluetooth is not yet enabled, initBluetooth will return false
+		// and the device selection will be called in the onActivityResult
+		if (m_oBTHelper.initBluetooth())
+			m_oBTHelper.selectRobot();
+	}
+	
+	@Override
+	public void connectToRobot(String i_strAddr) {
+		if (m_oBTHelper.initBluetooth()) {
+			m_strMacAddress = i_strAddr;
+			connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
+			createBTCommunicator(i_strAddr);
+			m_oNxt.connect();
+		}
 	}
 
+	/**
+	 * Creates a new object for communication to the NXT robot via bluetooth and fetches the corresponding handler.
+	 */
+	public void createBTCommunicator(String i_strAddress) {
+		Log.i(TAG, "creating BT Communicator");
+		
+		BTCommunicator oBTCommunicator = m_oNxt.getConnection();
+		if (oBTCommunicator != null) {
+			try {
+				oBTCommunicator.destroyNXTconnection();
+			}
+			catch (IOException e) { }
+		}
+		// interestingly BT adapter needs to be obtained by the UI thread - so we pass it in in the constructor
+		oBTCommunicator = new BTCommunicator(this, BluetoothAdapter.getDefaultAdapter(), getResources());
+		oBTCommunicator.setMACAddress(i_strAddress);
+		m_oNxt.setConnection(oBTCommunicator);
+	}
+
+	/**
+	 * Sends a message for disconnecting to the communication thread.
+	 */
+	public void destroyBTCommunicator() {
+		
+		if (m_oNxt.getConnection() != null) {
+			m_oNxt.disconnect();
+			m_oNxt.setConnection(null);
+		}
+
+		connected = false;
+	}
+	
 	@Override
 	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
 		super.onAccelerationChanged(x, y, z, tx);
 		
 		if (tx && m_bAccelerometer) {
-			int speed = getSpeedFromAcceleration(x, y, z, NXTTypes.MAX_SPEED);
+			int speed = getSpeedFromAcceleration(x, y, z, NXTTypes.MAX_VELOCITY, false);
 			int radius = getRadiusFromAcceleration(x, y, z, NXTTypes.MAX_RADIUS);
 			
 			// if speed is negative the roomba should drive forward
 			// if it is positive it should drive backward
 			if (speed > SPEED_SENSITIVITY) {
 				// remove the speed sensitivity again
-				speed -= SPEED_SENSITIVITY; 
+//				speed -= SPEED_SENSITIVITY; 
 
 				Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
 
 				if (radius > RADIUS_SENSITIVITY) {
-//					m_oNxt.driveForward(speed, radius);
+					m_oNxt.driveForward(speed, radius);
 				} else if (radius < -RADIUS_SENSITIVITY) {
-//					m_oNxt.driveForward(speed, radius);
+					m_oNxt.driveForward(speed, radius);
 				} else {
 					m_oNxt.driveForward(speed);
 				}
-			} else if (speed > SPEED_SENSITIVITY) {
+			} else if (speed < -SPEED_SENSITIVITY) {
 				// remove the speed_sensitivity again
-				speed += SPEED_SENSITIVITY;
+//				speed += SPEED_SENSITIVITY;
 
 				Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
 
 				if (radius > RADIUS_SENSITIVITY) {
-					// 
-//					m_oNxt.driveBackward(speed, radius);
+					m_oNxt.driveBackward(speed, radius);
 				} else if (radius < -RADIUS_SENSITIVITY) {
-//					m_oNxt.driveBackward(speed, radius);
+					m_oNxt.driveBackward(speed, radius);
 				} else {
 					m_oNxt.driveBackward(speed);
 				}
@@ -237,41 +307,19 @@ public class NXTRobot extends RobotDevice {
 				if (radius > RADIUS_SENSITIVITY) {
 					// if speed is small we remap the radius to 
 					// speed and let it rotate on the spot 
-					speed = (int) (radius / NXTTypes.MAX_RADIUS * NXTTypes.MAX_SPEED);
+					speed = (int) (radius / (double)NXTTypes.MAX_RADIUS * NXTTypes.MAX_VELOCITY);
 					m_oNxt.rotateCounterClockwise(speed);
 				} else if (radius < -RADIUS_SENSITIVITY) {
 					// if speed is small we remap the radius to 
 					// speed and let it rotate on the spot 
-					speed = (int) (radius / NXTTypes.MAX_RADIUS * NXTTypes.MAX_SPEED);
+					speed = (int) (radius / (double)NXTTypes.MAX_RADIUS * NXTTypes.MAX_VELOCITY);
 					m_oNxt.rotateClockwise(speed);
 				} else {
-					m_oNxt.stop();
+					m_oNxt.driveStop();
 				}
 				
 			}
 		}
-	}
-
-	/**
-	 * Displays a message as a toast
-	 * @param textToShow the message
-	 * @param length the length of the toast to display
-	 */
-	private void showToast(String textToShow, int length) {
-		reusableToast.setText(textToShow);
-		reusableToast.setDuration(length);
-		reusableToast.show();
-	}
-
-	/**
-	 * Displays a message as a toast
-	 * @param nResID the resource ID to display
-	 * @param length the length of the toast to display
-	 */
-	private void showToast(int nResID, int length) {
-		reusableToast.setText(nResID);
-		reusableToast.setDuration(length);
-		reusableToast.show();
 	}
 
 	/**
@@ -311,7 +359,7 @@ public class NXTRobot extends RobotDevice {
 						public void onClick(DialogInterface dialog, int id) {
 							btErrorPending = false;
 							dialog.cancel();
-							selectRobot();
+							m_oBTHelper.selectRobot();
 						}
 					});
 					builder.create().show();
@@ -508,23 +556,7 @@ public class NXTRobot extends RobotDevice {
 				}
 			}
 		});
-
-//        Button test = (Button) m_oActivity.findViewById(R.id.button1);
-//        test.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-////				m_oNxt.setSensorType(ENXTSensorID.sens_sensor1, ENXTSensorType.sensType_Distance);
-////				try {
-////					Thread.sleep(500);
-////				} catch (InterruptedException e) {
-////					// TODO Auto-generated catch block
-////					e.printStackTrace();
-////				}
-//				m_oNxt.requestMotorData(ENXTMotorID.motor_1);
-//			}
-//		});
-		
+	
 		m_btnFwd = (Button) m_oActivity.findViewById(R.id.btnFwd);
 		m_btnLeft = (Button) m_oActivity.findViewById(R.id.btnLeft);
 		m_btnBwd = (Button) m_oActivity.findViewById(R.id.btnBwd);
@@ -537,7 +569,7 @@ public class NXTRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.stop();
+					m_oNxt.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -560,7 +592,7 @@ public class NXTRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.stop();
+					m_oNxt.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -583,7 +615,7 @@ public class NXTRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.stop();
+					m_oNxt.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -606,7 +638,7 @@ public class NXTRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.stop();
+					m_oNxt.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -832,5 +864,11 @@ public class NXTRobot extends RobotDevice {
     			
         	}
 		}
+	}
+
+	@Override
+	public boolean isPairing() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

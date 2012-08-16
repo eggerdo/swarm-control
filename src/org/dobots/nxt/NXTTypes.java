@@ -66,8 +66,11 @@ public class NXTTypes {
     // this is the only OUI registered by LEGO, see http://standards.ieee.org/regauth/oui/index.shtml
     public static final String OUI_LEGO = "00:16:53";
     
-    public static int MAX_SPEED = 100;
-    public static int MAX_RADIUS = 1;
+    public static int MAX_VELOCITY = 100;
+    public static int MAX_RADIUS = 2000;
+	public static int STRAIGHT = 32768;
+	public static int CLOCKWISE = -1;
+	public static int COUNTER_CLOCKWISE = 1;
 	
 	public enum ENXTSensorType {
 		sensType_None("None",						LCPMessage.NO_SENSOR,		LCPMessage.RAWMODE),

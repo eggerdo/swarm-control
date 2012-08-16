@@ -24,6 +24,15 @@ public class RoombaController {
 	public boolean isConnected() {
 		return m_oConnection != null;
 	}
+	
+	public void connect() throws IOException {
+		m_oConnection.open();
+	}
+	
+	public void disconnect() {
+		m_oConnection.close();
+		m_oConnection = null;
+	}
 		
 	/*
 	 * Command opcode: 128		Number of data bytes: 0

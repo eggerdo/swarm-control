@@ -20,7 +20,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-public class FinchRobot extends RobotDevice {
+public class FinchRobot extends RobotView {
 	
 	private Finch oFinch;
 	private FinchSensorData oData;
@@ -214,7 +214,7 @@ public class FinchRobot extends RobotDevice {
 	}
 
 	@Override
-	public void close() {
+	public void shutDown() {
 		// TODO Auto-generated method stub
 		
 	}

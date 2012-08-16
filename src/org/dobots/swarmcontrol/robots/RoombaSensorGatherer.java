@@ -7,6 +7,7 @@ import org.dobots.roomba.RoombaTypes.SensorPackage1;
 import org.dobots.roomba.RoombaTypes.SensorPackage2;
 import org.dobots.roomba.RoombaTypes.SensorPackage3;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 
 import android.app.Activity;
 import android.graphics.Color;

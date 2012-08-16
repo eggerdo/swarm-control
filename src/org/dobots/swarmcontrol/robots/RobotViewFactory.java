@@ -1,13 +1,13 @@
 package org.dobots.swarmcontrol.robots;
 
-import java.lang.reflect.Type;
-
 import org.dobots.swarmcontrol.robots.FinchRobot;
+import org.dobots.swarmcontrol.robots.NXTRobot;
+import org.dobots.swarmcontrol.robots.RoombaRobot;
 
 
-public class RobotDeviceFactory {
+public class RobotViewFactory {
 	
-	public static RobotDevice getRobotDevice(RobotType robot)
+	public static RobotView getRobotView(RobotType robot)
 	{
 		switch (robot) {
 			case RBT_FINCH: 
@@ -17,11 +17,11 @@ public class RobotDeviceFactory {
 			case RBT_NXT:
 				return new NXTRobot();
 			default: 		
-				return new RobotDevice();
+				return new RobotView();
 		}
 	}
 	
-	public static Class getRobotDeviceClass(RobotType robot) {
+	public static Class getRobotViewClass(RobotType robot) {
 		switch (robot) {
 //		case RBT_FINCH: 
 //			return FinchRobot.class;
@@ -30,7 +30,7 @@ public class RobotDeviceFactory {
 		case RBT_NXT:
 			return NXTRobot.class;
 		default:
-			return RobotDevice.class;
+			return RobotView.class;
 		}
 	}
 

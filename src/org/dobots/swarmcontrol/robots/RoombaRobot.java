@@ -1,39 +1,21 @@
 package org.dobots.swarmcontrol.robots;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
 
-import org.dobots.nxt.NXTTypes;
 import org.dobots.roomba.Roomba;
 import org.dobots.roomba.RoombaBluetooth;
 import org.dobots.roomba.RoombaTypes;
 import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
-import org.dobots.roomba.RoombaTypes.SensorPackage;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.SwarmControlActivity;
-import org.dobots.swarmcontrol.robots.FinchRobot.FinchSensorType;
-import org.dobots.utility.AccelerometerListener;
-import org.dobots.utility.AccelerometerManager;
-import org.dobots.utility.DeviceListActivity;
-import org.dobots.utility.ProgressDlg;
+import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,17 +23,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-public class RoombaRobot extends RobotDevice {
+public class RoombaRobot extends RobotView {
 	
 	private static String TAG = "Roomba";
 
@@ -61,6 +41,10 @@ public class RoombaRobot extends RobotDevice {
 	private Roomba m_oRoomba;
 
 	private RoombaSensorGatherer oSensorGatherer;
+
+	private ProgressDialog connectingProgressDialog;
+	
+	private String m_strMacAddress = "";
 	
 	private boolean m_bControl = false;
 	private boolean m_bMainBrushEnabled = false;
@@ -76,6 +60,8 @@ public class RoombaRobot extends RobotDevice {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	m_strRobotMacFilter = RoombaTypes.MAC_FILTER;
+        
     	super.onCreate(savedInstanceState);
     	
 		m_oRoomba = new Roomba();
@@ -84,17 +70,10 @@ public class RoombaRobot extends RobotDevice {
     	updateButtons(false);
     	updateControlButtons(false);
     	
-    	m_strRobotMacFilter = RoombaTypes.MAC_FILTER;
-    
-		try {
-			// if bluetooth is not yet enabled, initBluetooth will return false
-			// and the device selection will be called in the onActivityResult
-			if (initBluetooth())
-				selectRobot();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// if bluetooth is not yet enabled, initBluetooth will return false
+		// and the device selection will be called in the onActivityResult
+		if (m_oBTHelper.initBluetooth())
+			m_oBTHelper.selectRobot();
 
     }
 
@@ -115,6 +94,11 @@ public class RoombaRobot extends RobotDevice {
 			if (menu.findItem(ACCEL_ID) != null) {
 				menu.removeItem(ACCEL_ID);
 			}
+
+    	MenuItem item = menu.findItem(ACCEL_ID);
+    	if (item != null) {
+    		item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
+    	}
 		return true;
     }
 
@@ -122,8 +106,8 @@ public class RoombaRobot extends RobotDevice {
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case CONNECT_ID:
-			close();
-			selectRobot();
+			shutDown();
+			m_oBTHelper.selectRobot();
 			return true;
 		case ACCEL_ID:
 			m_bAccelerometer = !m_bAccelerometer;
@@ -132,7 +116,7 @@ public class RoombaRobot extends RobotDevice {
 			if (m_bAccelerometer) {
 				m_bSetAccelerometerBase = true;
 			} else {
-				m_oRoomba.stop();
+				m_oRoomba.driveStop();
 			}
 		}
 
@@ -143,7 +127,7 @@ public class RoombaRobot extends RobotDevice {
     	super.onDestroy();
     	
     	if (m_oRoomba.isConnected()) {
-    		close();
+    		shutDown();
     	}
     }
     
@@ -154,7 +138,7 @@ public class RoombaRobot extends RobotDevice {
 		if (tx && m_bAccelerometer) {
 			Log.i("Accel", "x=" + x + ", y=" + y + ", z=" + z); 
 			
-			int nSpeed = getSpeedFromAcceleration(x, y, z, RoombaTypes.MAX_SPEED);
+			int nSpeed = getSpeedFromAcceleration(x, y, z, RoombaTypes.MAX_SPEED, true);
 			int nRadius = getRadiusFromAcceleration(x, y, z, RoombaTypes.MAX_RADIUS);
 
 			// if speed is negative the roomba should drive forward
@@ -201,7 +185,7 @@ public class RoombaRobot extends RobotDevice {
 					nSpeed = (int) (nRadius / RoombaTypes.MAX_RADIUS * RoombaTypes.MAX_SPEED);
 					m_oRoomba.rotateClockwise(nSpeed);
 				} else {
-					m_oRoomba.stop();
+					m_oRoomba.driveStop();
 				}
 
 			}
@@ -235,8 +219,10 @@ public class RoombaRobot extends RobotDevice {
 	}
 
 	@Override
-	protected void connectToRobot(String i_strAddr) {
-		BluetoothDevice oDevice = m_oBTAdapter.getRemoteDevice(i_strAddr);
+	public void connectToRobot(String i_strAddr) {
+		m_strMacAddress = i_strAddr;
+		connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
+		BluetoothDevice oDevice = m_oBTHelper.getRemoteDevice(i_strAddr);
 		connectToRoomba(oDevice);
 	}
 	
@@ -254,16 +240,13 @@ public class RoombaRobot extends RobotDevice {
 			e.printStackTrace();
 		}
 
-		if (m_oBTAdapter.isDiscovering()) {
-			m_oBTAdapter.cancelDiscovery();
-		}
+		m_oBTHelper.cancelDiscovery();
 		
 		try {
-			m_oSocket.connect();
-			
 			RoombaBluetooth m_oConnection = new RoombaBluetooth(m_oSocket); 
 			
 			m_oRoomba.setConnection(m_oConnection);
+			m_oRoomba.connect();
 			
 			Toast.makeText(this, "Connection OK", Toast.LENGTH_SHORT).show();
 			
@@ -279,10 +262,12 @@ public class RoombaRobot extends RobotDevice {
 //			
 //			progress.dismiss();
 //			progress = null;
+			connectingProgressDialog.dismiss();
 			
 			updateButtons(true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			connectingProgressDialog.dismiss();
 			e.printStackTrace();
 			try {
 				m_oSocket.close();
@@ -312,30 +297,18 @@ public class RoombaRobot extends RobotDevice {
 	}
 
 	@Override
-	public void close() {
-		try {
+	public void shutDown() {
 
-	    	updateButtons(false);
-	    	updateControlButtons(false);
-	    	
-			if (m_oSocket != null) {
-				oSensorGatherer.setSensor(ERoombaSensorPackages.sensPkg_None);
-				
-				// before closing the connection we set the roomba to passive mode
-				// which consumes less power
-				m_oRoomba.setPassiveMode();
+    	updateButtons(false);
+    	updateControlButtons(false);
+    	
+		if (m_oRoomba.isConnected()) {
+			oSensorGatherer.setSensor(ERoombaSensorPackages.sensPkg_None);
 			
-				m_oSocket.close();
-				m_oSocket = null;
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			m_oRoomba.disconnect();
 		}
 		
-		if (m_bBTOnByUs) {
-			disableBluetooth();
-		}
+		m_oBTHelper.disableBluetooth();
 	}
 
 	@Override
@@ -461,7 +434,7 @@ public class RoombaRobot extends RobotDevice {
 				if (m_bAccelerometer) {
 					m_bSetAccelerometerBase = true;
 				} else {
-					m_oRoomba.stop();
+					m_oRoomba.driveStop();
 				}
 				
 				if (m_bAccelerometer && m_bMove) {
@@ -500,7 +473,7 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.stop();
+					m_oRoomba.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -523,7 +496,7 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.stop();
+					m_oRoomba.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -546,7 +519,7 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.stop();
+					m_oRoomba.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -569,7 +542,7 @@ public class RoombaRobot extends RobotDevice {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.stop();
+					m_oRoomba.driveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;

@@ -14,6 +14,7 @@ import org.dobots.nxt.NXTTypes.MotorData;
 import org.dobots.nxt.NXTTypes.SensorData;
 import org.dobots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
@@ -35,11 +36,11 @@ public class NXTSensorGatherer extends SensorGatherer {
 	
 	private EnumMap<ENXTSensorID, ENXTSensorType> m_oSensorTypes;
 	private EnumMap<ENXTSensorID, Boolean> m_oSensorEnabled;
-	private EnumMap<ENXTSensorID, Boolean> m_oSensorRequestActive;
+	private EnumMap<ENXTSensorID, Boolean> m_oSensorRequestActive; // TODO should be solved with timeouts
 	
 	private EnumMap<ENXTMotorID, Boolean> m_oMotorEnabled;
 	private EnumMap<ENXTMotorID, ENXTMotorSensorType> m_oMotorSensorTypes;
-	private EnumMap<ENXTMotorID, Boolean> m_oMotorRequestActive;
+	private EnumMap<ENXTMotorID, Boolean> m_oMotorRequestActive; // TODO should be solved with timeouts
 	
 	
 	public NXTSensorGatherer(Activity i_oActivity, NXT i_oNxt) {
@@ -60,7 +61,7 @@ public class NXTSensorGatherer extends SensorGatherer {
 		
 		start();
 	}
-	
+		
 	public void initialize() {
 		// set up the maps
 		for (ENXTSensorID sensor : ENXTSensorID.values()) {
@@ -79,21 +80,23 @@ public class NXTSensorGatherer extends SensorGatherer {
 	@Override
 	protected void execute() {
 
-		for (ENXTSensorID sensor : m_oSensorEnabled.keySet()) {
-			if (m_oSensorEnabled.get(sensor) && 
-				!m_oSensorRequestActive.get(sensor) &&
-				m_oSensorTypes.get(sensor) != ENXTSensorType.sensType_None) {
-					ENXTSensorType eType = m_oSensorTypes.get(sensor);
-					m_oNxt.requestSensorData(sensor, eType);
-					m_oSensorRequestActive.put(sensor, true);
+		if (m_oNxt.isConnected()) {
+			for (ENXTSensorID sensor : m_oSensorEnabled.keySet()) {
+				if (m_oSensorEnabled.get(sensor) && 
+					!m_oSensorRequestActive.get(sensor) &&
+					m_oSensorTypes.get(sensor) != ENXTSensorType.sensType_None) {
+						ENXTSensorType eType = m_oSensorTypes.get(sensor);
+						m_oNxt.requestSensorData(sensor, eType);
+						m_oSensorRequestActive.put(sensor, true);
+				}
 			}
-		}
-		
-		for (ENXTMotorID motor : m_oMotorEnabled.keySet()) {
-			if (m_oMotorEnabled.get(motor) &&
-				!m_oMotorRequestActive.get(motor)) {
-					m_oNxt.requestMotorData(motor);
-					m_oMotorRequestActive.put(motor, true);
+			
+			for (ENXTMotorID motor : m_oMotorEnabled.keySet()) {
+				if (m_oMotorEnabled.get(motor) &&
+					!m_oMotorRequestActive.get(motor)) {
+						m_oNxt.requestMotorData(motor);
+						m_oMotorRequestActive.put(motor, true);
+				}
 			}
 		}
 	}

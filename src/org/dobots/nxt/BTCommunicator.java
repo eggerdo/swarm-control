@@ -24,6 +24,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 
+import org.dobots.nxt.BTConnectable;
+import org.dobots.nxt.LCPMessage;
+import org.dobots.nxt.NXTTypes;
 import org.dobots.nxt.msg.MsgTypes;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.Utils;
@@ -44,6 +47,7 @@ public class BTCommunicator extends Thread {
 
     private Resources mResources;
     private BluetoothAdapter btAdapter;
+    private BluetoothDevice nxtDevice = null;
     private BluetoothSocket nxtBTsocket = null;
     private OutputStream nxtOutputStream = null;
     private InputStream nxtInputStream = null;
@@ -55,11 +59,14 @@ public class BTCommunicator extends Thread {
 
     private byte[] returnMessage;
 
-    public BTCommunicator(BTConnectable myOwner, Handler receiveHandler, BluetoothAdapter btAdapter, Resources resources) {
+    public BTCommunicator(BTConnectable myOwner, BluetoothAdapter btAdapter, Resources resources) {
         this.myOwner = myOwner;
-        this.receiveHandler = receiveHandler;
         this.btAdapter = btAdapter;
         this.mResources = resources;
+    }
+    
+    public void setReceiveHandler(Handler i_oHandler) {
+    	receiveHandler = i_oHandler;
     }
 
     public byte[] getReturnMessage() {
@@ -86,6 +93,7 @@ public class BTCommunicator extends Thread {
 
         try {        
             createNXTconnection();
+            connect();
         }
         catch (IOException e) { }
 
@@ -116,65 +124,69 @@ public class BTCommunicator extends Thread {
      * case of no message handler.
      */
     public void createNXTconnection() throws IOException {
-        try {
-            BluetoothSocket nxtBTSocketTemporary;
-            BluetoothDevice nxtDevice = null;
-            nxtDevice = btAdapter.getRemoteDevice(mMACaddress);
-            if (nxtDevice == null) {
-                if (receiveHandler == null)
-                    throw new IOException();
-                else {
-                    sendToast(mResources.getString(R.string.no_paired_nxt));
-                    sendState(NXTTypes.STATE_CONNECTERROR);
-                    return;
-                }
-            }
-            nxtBTSocketTemporary = nxtDevice.createRfcommSocketToServiceRecord(NXTTypes.SERIAL_PORT_SERVICE_CLASS_UUID);
-            try {
-                nxtBTSocketTemporary.connect();
-            }
-            catch (IOException e) {  
-                if (myOwner.isPairing()) {
-                    if (receiveHandler != null) {
-                        sendToast(mResources.getString(R.string.pairing_message));
-                        sendState(NXTTypes.STATE_CONNECTERROR_PAIRING);
-                    }
-                    else
-                        throw e;
-                    return;
-                }
-
-                // try another method for connection, this should work on the HTC desire, credits to Michael Biermann
-                try {
-                    Method mMethod = nxtDevice.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
-                    nxtBTSocketTemporary = (BluetoothSocket) mMethod.invoke(nxtDevice, Integer.valueOf(1));            
-                    nxtBTSocketTemporary.connect();
-                }
-                catch (Exception e1){
-                    if (receiveHandler == null)
-                        throw new IOException();
-                    else
-                        sendState(NXTTypes.STATE_CONNECTERROR);
-                    return;
-                }
-            }
-            nxtBTsocket = nxtBTSocketTemporary;
-            nxtInputStream = nxtBTsocket.getInputStream();
-            nxtOutputStream = nxtBTsocket.getOutputStream();
-            connected = true;
-        } catch (IOException e) {
+        nxtDevice = btAdapter.getRemoteDevice(mMACaddress);
+        if (nxtDevice == null) {
             if (receiveHandler == null)
-                throw e;
+                throw new IOException();
             else {
-                if (myOwner.isPairing())
-                    sendToast(mResources.getString(R.string.pairing_message));
+                sendToast(mResources.getString(R.string.no_paired_nxt));
                 sendState(NXTTypes.STATE_CONNECTERROR);
                 return;
             }
         }
-        // everything was OK
-        if (receiveHandler != null)
-            sendState(NXTTypes.STATE_CONNECTED);
+        nxtBTsocket = nxtDevice.createRfcommSocketToServiceRecord(NXTTypes.SERIAL_PORT_SERVICE_CLASS_UUID);
+    }
+    
+    public void connect() throws IOException {
+    	if (nxtBTsocket == null) {
+    		int i = 0;
+    		return;
+    	}
+        try {
+	    	try {
+	    		nxtBTsocket.connect();
+	        }
+	        catch (IOException e) {  
+	            if (myOwner.isPairing()) {
+	                if (receiveHandler != null) {
+	                    sendToast(mResources.getString(R.string.pairing_message));
+	                    sendState(NXTTypes.STATE_CONNECTERROR_PAIRING);
+	                }
+	                else
+	                    throw e;
+	                return;
+	            }
+	
+	            // try another method for connection, this should work on the HTC desire, credits to Michael Biermann
+	            try {
+	                Method mMethod = nxtDevice.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
+	                nxtBTsocket = (BluetoothSocket) mMethod.invoke(nxtDevice, Integer.valueOf(1));            
+	                nxtBTsocket.connect();
+	            }
+	            catch (Exception e1){
+	                if (receiveHandler == null)
+	                    throw new IOException();
+	                else
+	                    sendState(NXTTypes.STATE_CONNECTERROR);
+	                return;
+	            }
+	        }
+	        nxtInputStream = nxtBTsocket.getInputStream();
+	        nxtOutputStream = nxtBTsocket.getOutputStream();
+	        connected = true;
+	    } catch (IOException e) {
+	        if (receiveHandler == null)
+	            throw e;
+	        else {
+	            if (myOwner.isPairing())
+	                sendToast(mResources.getString(R.string.pairing_message));
+	            sendState(NXTTypes.STATE_CONNECTERROR);
+	            return;
+	        }
+	    }
+	    // everything was OK
+	    if (receiveHandler != null)
+	        sendState(NXTTypes.STATE_CONNECTED);
     }
 
     /**

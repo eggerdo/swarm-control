@@ -1,17 +1,10 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.swarmcontrol.About;
-import org.dobots.swarmcontrol.robots.NXTRobot;
-import org.dobots.swarmcontrol.robots.RobotDevice;
-import org.dobots.swarmcontrol.robots.RobotDeviceFactory;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.RoombaRobot;
-import org.dobots.utility.DeviceListActivity;
-import org.dobots.utility.ProgressDlg;
+import org.dobots.swarmcontrol.robots.RobotViewFactory;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,7 +22,7 @@ public class SwarmControlActivity extends Activity {
 	
 	private static final String CHANGELOG = "ChangeLog:\n" +
 											"\n" +
-											"  Version 1.0\n" +
+											"  Version 0.1\n" +
 											"    - IRobot Roomba added\n" +
 											"       - Sensor Information Display\n" +
 											"       - Remote Control (Arrows and Accelerometer)\n" +
@@ -46,8 +39,6 @@ public class SwarmControlActivity extends Activity {
 
 	private static Context CONTEXT;
 
-	private RobotDevice m_oRobot;
-	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,16 +94,11 @@ public class SwarmControlActivity extends Activity {
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		m_oRobot.onActivityResult(requestCode, resultCode, data);
-	}
-	
 	public static Context getContext() {
 		return CONTEXT;
 	}
 	
-	private AlertDialog CreateConnectDialog() {
+	public AlertDialog CreateConnectDialog() {
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Choose a robot");
@@ -129,12 +115,18 @@ public class SwarmControlActivity extends Activity {
 		return builder.create();
 	}
 	
-	private void showRobot(RobotType i_eRobot) {
-		m_oRobot = RobotDeviceFactory.getRobotDevice(i_eRobot);
-		Intent intent = new Intent(SwarmControlActivity.this, RobotDeviceFactory.getRobotDeviceClass(i_eRobot));
-		intent.putExtra("RobotType", i_eRobot);
+	public void showRobot(RobotType i_eType) {
+		Intent intent = new Intent(SwarmControlActivity.this, RobotViewFactory.getRobotViewClass(i_eType));
+		intent.putExtra("RobotType", i_eType);
 		startActivity(intent);
 	}
+	
+//	public void showRobot(RobotType i_eType, RobotDevice i_oRobot) {
+//		Intent intent = new Intent(SwarmControlActivity.this, RobotViewFactory.getRobotViewClass(i_eType));
+//		intent.putExtra("RobotType", i_eType);
+//		intent.putExtra("RobotDevice", i_oRobot);
+//		startActivity(intent);
+//	}
 	
 	@Override
 	public void onDestroy() {

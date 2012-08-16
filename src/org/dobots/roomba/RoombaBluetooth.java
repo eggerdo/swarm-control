@@ -24,7 +24,6 @@ public class RoombaBluetooth implements RoombaConnection {
 	public RoombaBluetooth(BluetoothSocket i_oSocket) {
 		m_oSocket = i_oSocket;
 		m_oConnectionHandler = new BTConnectionThread(this);
-		m_oConnectionHandler.start();
 	}
 	
 //	public void setListener(Object i_oListener) {
@@ -36,6 +35,8 @@ public class RoombaBluetooth implements RoombaConnection {
 		private OutputStream m_oOutStream;
 		
 		private Object m_oParent;
+		
+		private boolean m_bStopped = false;
 		
 		public BTConnectionThread(Object i_oParent) {
 //			m_oSocket = i_oSocket;
@@ -50,12 +51,20 @@ public class RoombaBluetooth implements RoombaConnection {
 			}
 		}
 		
+		public void startThread() {
+			this.start();
+		}
+		
+		public void stopThread() {
+			m_bStopped = true;
+		}
+		
 		public void run() {
 //			byte[] buffer = new byte[1024];
 			m_rgRxBuffer = new byte[1024];
 //			int bytes;
 			
-			while (true) {
+			while (!m_bStopped) {
 				try {
 					m_nRxBytes = m_oInStream.read(m_rgRxBuffer);
 					m_bMsgReceived = true;
@@ -80,14 +89,20 @@ public class RoombaBluetooth implements RoombaConnection {
 				e.printStackTrace();
 			}
 		}
-		
-		public void close() {
-			try {
-				m_oSocket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	}		
+
+	public void open() throws IOException {
+		m_oSocket.connect();
+		m_oConnectionHandler.startThread();
+	}
+	
+	public void close() {
+		try {
+			m_oConnectionHandler.stopThread();
+			m_oSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -152,5 +167,5 @@ public class RoombaBluetooth implements RoombaConnection {
 //		}
 		return buffer;
 	}
-	
+
 }
