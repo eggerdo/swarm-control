@@ -2,3 +2,8 @@
 # /
 /gen
 /bin
+*~
+/*
+!AndroidManifest.xml
+!.gitignore
+!README.md
