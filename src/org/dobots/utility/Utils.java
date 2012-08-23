@@ -1,11 +1,14 @@
 package org.dobots.utility;
 
+import org.dobots.swarmcontrol.SwarmControlActivity;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
 public class Utils {
@@ -94,6 +97,24 @@ public class Utils {
     	} else {
     		i_oLayout.setLayoutParams(new LinearLayout.LayoutParams(0,0));
     	}
+	}
+	
+	public static void showView(View i_oView, boolean i_bShow) {
+//		if (i_bShow) {
+//			i_oView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+//    	} else {
+//    		i_oView.setLayoutParams(new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT));
+//    	}
+		if (i_bShow) {
+			i_oView.setVisibility(View.VISIBLE);
+		} else {
+			i_oView.setVisibility(View.GONE);
+		}
+	}
+	
+    public static void showToast(String textToShow, int duration) {
+    	Toast oToast = Toast.makeText(SwarmControlActivity.getContext(), textToShow, duration);
+		oToast.show();
 	}
 
 	

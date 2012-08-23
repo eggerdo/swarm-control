@@ -7,6 +7,7 @@ import org.dobots.robots.RobotDevice;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaModes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
+import org.dobots.swarmcontrol.robots.RobotType;
 
 public class Roomba implements RobotDevice {
 	
@@ -27,6 +28,26 @@ public class Roomba implements RobotDevice {
 		// create bluetooth connection object and add it to the controller
 		// oRoombaCtrl.setConnection(oConnection);
 	}
+	
+	public void destroy() {
+		if (isConnected()) {
+			disconnect();
+		}
+		destroyConnection();
+		oRoombaCtrl = null;
+	}
+	
+	public RobotType getType() {
+		return RobotType.RBT_ROOMBA;
+	}
+	
+	public String getAddress() {
+		if (oRoombaCtrl.getConnection() != null) {
+			return oRoombaCtrl.getConnection().getAddress();
+		} else {
+			return "";
+		}
+	}
 
 	@Override
 	public void setConnection() {
@@ -37,12 +58,20 @@ public class Roomba implements RobotDevice {
 		oRoombaCtrl.setConnection(i_oConnection);
 	}
 	
+	public RoombaBluetooth getConnection() {
+		return oRoombaCtrl.getConnection();
+	}
+	
+	public void destroyConnection() {
+		oRoombaCtrl.destroyConnection();
+	}
+
 	public boolean isConnected() {
 		return oRoombaCtrl.isConnected();
 	}
 
 	@Override
-	public void connect() throws IOException {
+	public void connect() {
 		oRoombaCtrl.connect();
 	}
 
@@ -55,6 +84,18 @@ public class Roomba implements RobotDevice {
 		setPassiveMode();
 
 		oRoombaCtrl.disconnect();
+	}
+
+	@Override
+	public void enableControl(boolean i_bEnable) {
+		if (!isPowerOn()) {
+			powerOn();
+		}
+		if (i_bEnable) {
+			setSafeMode();
+		} else {
+			setPassiveMode();
+		}
 	}
 
 	/*

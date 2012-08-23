@@ -21,11 +21,30 @@ public class RoombaController {
 		m_oConnection = i_oConnection;
 	}
 	
-	public boolean isConnected() {
-		return m_oConnection != null;
+	public RoombaBluetooth getConnection() {
+		return m_oConnection;
 	}
 	
-	public void connect() throws IOException {
+	public void destroyConnection() {
+		if (m_oConnection != null) {
+			try {
+				m_oConnection.destroyConnection();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		m_oConnection = null;
+	}
+	
+	public boolean isConnected() {
+		if (m_oConnection != null) {
+			return m_oConnection.isConnected();
+		} else
+			return false;
+	}
+	
+	public void connect() {
 		m_oConnection.open();
 	}
 	

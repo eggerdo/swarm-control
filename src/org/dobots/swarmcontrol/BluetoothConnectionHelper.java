@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol;
 
+import org.dobots.swarmcontrol.behaviours.ActivityResultListener;
 import org.dobots.utility.DeviceListActivity;
 
 import android.app.Activity;
@@ -9,7 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-public class BluetoothConnectionHelper {
+public class BluetoothConnectionHelper implements ActivityResultListener {
 	
 	public static String TAG = "BTHelper";
 
@@ -25,15 +26,15 @@ public class BluetoothConnectionHelper {
 	public static final int REQUEST_CONNECT_ROBOT = 1000;
 	public static final int REQUEST_ENABLE_BT = 1001;
 	
-	private ConnectListener OnConnectRobot;
+	private BluetoothConnectionListener m_oListener;
 	
 	public BluetoothConnectionHelper(Activity i_oParent, String i_strMacFilter) {
 		m_oParent = i_oParent;
 		m_strMacFilter = i_strMacFilter;
 	}
 	
-	public void SetOnConnectListener(ConnectListener i_oListener) {
-		OnConnectRobot = i_oListener;
+	public void SetOnConnectListener(BluetoothConnectionListener i_oListener) {
+		m_oListener = i_oListener;
 	}
 
 	public boolean initBluetooth() {
@@ -90,7 +91,7 @@ public class BluetoothConnectionHelper {
 				// Get the device MAC address and connect to the robot
 				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 				
-				OnConnectRobot.connectToRobot(address);
+				m_oListener.connectToRobot(m_oBTAdapter.getRemoteDevice(address));
 			}
 			break;
 		case REQUEST_ENABLE_BT:

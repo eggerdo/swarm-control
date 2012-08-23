@@ -2,7 +2,14 @@ package org.dobots.robots;
 
 import java.io.IOException;
 
+import org.dobots.swarmcontrol.robots.RobotType;
+
 public interface RobotDevice {
+	
+	public RobotType getType();
+	public String getAddress();
+
+	public void destroy();
 	
 	// connection methods
 	public void setConnection();
@@ -11,6 +18,8 @@ public interface RobotDevice {
 	public boolean isConnected();
 	
 	// drive methods
+	public void enableControl(boolean i_bEnable);
+	
 	public void driveForward(double i_nSpeed);
 	public void driveForward(double i_nSpeed, int i_nRadius);
 	

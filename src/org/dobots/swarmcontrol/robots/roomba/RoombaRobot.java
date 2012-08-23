@@ -2,20 +2,29 @@ package org.dobots.swarmcontrol.robots.roomba;
 
 import java.io.IOException;
 
+import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.robots.roomba.BaseBluetooth;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
+import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
 import org.dobots.utility.Utils;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,22 +67,46 @@ public class RoombaRobot extends RobotView {
 	
 	private boolean m_bMove;
 
+	private boolean btErrorPending = false;
+
+	private boolean m_bKeepAlive = false;
+	
+	private Spinner m_spSensors;
+	private Button m_btnClean;
+	private Button m_btnStop;
+	private Button m_btnDock;
+	private Button m_btnControl;
+	private Button m_btnMainBrush;
+	private Button m_btnSideBrush;
+	private Button m_btnVacuum;
+	private Button m_btnPower;
+	private Button m_btnAccelerometer;
+	private Button m_btnMove;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	m_strRobotMacFilter = RoombaTypes.MAC_FILTER;
-        
     	super.onCreate(savedInstanceState);
-    	
-		m_oRoomba = new Roomba();
-		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 
     	updateButtons(false);
     	updateControlButtons(false);
+    	updatePowerButton(false);
     	
-		// if bluetooth is not yet enabled, initBluetooth will return false
-		// and the device selection will be called in the onActivityResult
-		if (m_oBTHelper.initBluetooth())
-			m_oBTHelper.selectRobot();
+    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
+    	if (nIndex == -1) {
+    		m_oRoomba = new Roomba();
+    		connectToRobot();
+    	} else {
+    		m_oRoomba = (Roomba) RobotInventory.getInstance().getRobot(nIndex);
+    		if (m_oRoomba.isConnected()) {
+    			updatePowerButton(true);
+				if (m_oRoomba.isPowerOn()) {
+					updateButtons(true);
+				}
+    		}
+    		m_bKeepAlive = true;
+    	}
+		
+		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 
     }
 
@@ -126,9 +159,7 @@ public class RoombaRobot extends RobotView {
     public void onDestroy() {
     	super.onDestroy();
     	
-    	if (m_oRoomba.isConnected()) {
-    		shutDown();
-    	}
+    	shutDown();
     }
     
 	@Override
@@ -202,109 +233,168 @@ public class RoombaRobot extends RobotView {
 	}
 	
 	public void updateArrowButtons(boolean enabled) {
-		m_oActivity.findViewById(R.id.btnLeft).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnRight).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnFwd).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnBwd).setEnabled(enabled);
+		m_btnLeft.setEnabled(enabled);
+		m_btnRight.setEnabled(enabled);
+		m_btnFwd.setEnabled(enabled);
+		m_btnBwd.setEnabled(enabled);
 		
 	}
 	
 	public void updateButtons(boolean enabled) {
-		m_oActivity.findViewById(R.id.btnClean).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnStop).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnDock).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnCtrl).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnPower).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spSensors).setEnabled(enabled);
+		m_btnClean.setEnabled(enabled);
+		m_btnStop.setEnabled(enabled);
+		m_btnDock.setEnabled(enabled);
+		m_btnControl.setEnabled(enabled);
+//		m_btnPower.setEnabled(enabled);
+		m_spSensors.setEnabled(enabled);
 	}
 
-	@Override
-	public void connectToRobot(String i_strAddr) {
-		m_strMacAddress = i_strAddr;
+	protected void connectToRobot() {
+		// if bluetooth is not yet enabled, initBluetooth will return false
+		// and the device selection will be called in the onActivityResult
+		if (m_oBTHelper.initBluetooth())
+			m_oBTHelper.selectRobot();
+
+	}
+
+	public void connectToRobot(BluetoothDevice i_oDevice) {
+		m_strMacAddress = i_oDevice.getAddress();
 		connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
-		BluetoothDevice oDevice = m_oBTHelper.getRemoteDevice(i_strAddr);
-		connectToRoomba(oDevice);
+		
+		if (m_oRoomba.isConnected()) {
+			m_oRoomba.destroyConnection();
+		}
+		RoombaBluetooth oRoombaBluetooth = new RoombaBluetooth(i_oDevice);
+		oRoombaBluetooth.setReceiveHandler(uiHandler);
+		m_oRoomba.setConnection(oRoombaBluetooth);
+		m_oRoomba.connect();
 	}
 	
-	private void connectToRoomba(BluetoothDevice i_oDevice) {
-		final BluetoothDevice oDevice = i_oDevice;
-
-//		if (progress == null) {
-//			progress = ProgressDlg.show(this, "Connecting...", "");
-//		}
-
-		try {
-			m_oSocket = oDevice.createRfcommSocketToServiceRecord(RoombaTypes.ROOMBA_UUID);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void updatePowerButton(boolean enabled) {
+		m_btnPower.setEnabled(enabled);
+		if (enabled) {
+			if (m_oRoomba.isConnected()) {
+				m_btnPower.setText("Power: " + (m_oRoomba.isPowerOn() ? "ON" : "OFF"));
+			}
 		}
+	}
 
-		m_oBTHelper.cancelDiscovery();
+	/**
+	 * Receive messages from the BTCommunicator
+	 */
+	final Handler uiHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case BaseBluetooth.DISPLAY_TOAST:
+				showToast((String)msg.obj, Toast.LENGTH_SHORT);
+				break;
+			case BaseBluetooth.STATE_CONNECTED:
+				connectingProgressDialog.dismiss();
+				m_oRoomba.init();
+				updatePowerButton(true);
+				if (m_oRoomba.isPowerOn()) {
+					updateButtons(true);
+				}
+//				updateButtonsAndMenu();
+				break;
+
+			case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+				connectingProgressDialog.dismiss();
+				break;
+
+			case BaseBluetooth.STATE_CONNECTERROR:
+				connectingProgressDialog.dismiss();
+			case BaseBluetooth.STATE_RECEIVEERROR:
+			case BaseBluetooth.STATE_SENDERROR:
+
+				if (btErrorPending == false) {
+					btErrorPending = true;
+					// inform the user of the error with an AlertDialog
+					AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
+					builder.setTitle(getResources().getString(R.string.bt_error_dialog_title))
+					.setMessage(getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						//                            @Override
+						public void onClick(DialogInterface dialog, int id) {
+							btErrorPending = false;
+							dialog.cancel();
+							m_oBTHelper.selectRobot();
+						}
+					});
+					builder.create().show();
+				}
+
+				break;
+			}
+		}
+	};
+
+	public static void connectToRoomba(final Activity m_oOwner, final Roomba i_oRoomba, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
 		
-		try {
-			RoombaBluetooth m_oConnection = new RoombaBluetooth(m_oSocket); 
-			
-			m_oRoomba.setConnection(m_oConnection);
-			m_oRoomba.connect();
-			
-			Toast.makeText(this, "Connection OK", Toast.LENGTH_SHORT).show();
-			
-			// initalize the robot
-			if (!m_oRoomba.init()) {
-			
-				// if the init failed it might be because the robot is not powered on
-				// in which case we try to power it on now
-				if (!m_oRoomba.isPowerOn()) {
-					m_oRoomba.powerOn();
-				}
-			}
-//			
-//			progress.dismiss();
-//			progress = null;
-			connectingProgressDialog.dismiss();
-			
-			updateButtons(true);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			connectingProgressDialog.dismiss();
-			e.printStackTrace();
-			try {
-				m_oSocket.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
-			builder.setTitle("Connection failed");
-			builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					connectToRoomba(oDevice);
-				}
-			});
-			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					finish();
-				}
-			});
-			builder.show();
+		if (i_oRoomba.isConnected()) {
+			i_oRoomba.destroyConnection();
 		}
+		RoombaBluetooth oRoombaBluetooth = new RoombaBluetooth(i_oDevice);
+		oRoombaBluetooth.setReceiveHandler(new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case BaseBluetooth.DISPLAY_TOAST:
+					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
+					break;
+				case BaseBluetooth.STATE_CONNECTED:
+					connectingProgress.dismiss();
+					i_oConnectListener.onConnect(true);
+					i_oRoomba.init();
+//					updateButtonsAndMenu();
+					break;
+
+				case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+					connectingProgress.dismiss();
+					i_oConnectListener.onConnect(false);
+					break;
+
+				case BaseBluetooth.STATE_CONNECTERROR:
+					connectingProgress.dismiss();
+				case BaseBluetooth.STATE_RECEIVEERROR:
+				case BaseBluetooth.STATE_SENDERROR:
+					i_oConnectListener.onConnect(false);
+
+//					if (btErrorPending == false) {
+//						btErrorPending = true;
+						// inform the user of the error with an AlertDialog
+						AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
+						builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
+						.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
+						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							//                            @Override
+							public void onClick(DialogInterface dialog, int id) {
+//								btErrorPending = false;
+								dialog.cancel();
+							}
+						});
+						builder.create().show();
+//					}
+
+					break;
+				}
+			}
+		});
+		i_oRoomba.setConnection(oRoombaBluetooth);
+		i_oRoomba.connect();
 	}
 
 	@Override
 	public void shutDown() {
-
     	updateButtons(false);
     	updateControlButtons(false);
-    	
-		if (m_oRoomba.isConnected()) {
-			oSensorGatherer.setSensor(ERoombaSensorPackages.sensPkg_None);
-			
+
+		oSensorGatherer.setSensor(ERoombaSensorPackages.sensPkg_None);
+		oSensorGatherer.stopThread();
+		
+		if (m_oRoomba.isConnected() && !m_bKeepAlive) {
 			m_oRoomba.disconnect();
 		}
 		
@@ -315,12 +405,12 @@ public class RoombaRobot extends RobotView {
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.roomba);
 		
-		Spinner spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
+        m_spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		final ArrayAdapter<ERoombaSensorPackages> adapter = new ArrayAdapter<ERoombaSensorPackages>(m_oActivity, 
 				android.R.layout.simple_spinner_item, ERoombaSensorPackages.values());
         adapter.setDropDownViewResource(android.R.layout.select_dialog_item);
-		spSensors.setAdapter(adapter);
-		spSensors.setOnItemSelectedListener(new OnItemSelectedListener() {
+		m_spSensors.setAdapter(adapter);
+		m_spSensors.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
@@ -336,8 +426,8 @@ public class RoombaRobot extends RobotView {
 			
 		});
 
-		Button btnClean = (Button) m_oActivity.findViewById(R.id.btnClean);
-		btnClean.setOnClickListener(new OnClickListener() {
+		m_btnClean = (Button) m_oActivity.findViewById(R.id.btnClean);
+		m_btnClean.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -345,8 +435,8 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 		
-		Button btnStop = (Button) m_oActivity.findViewById(R.id.btnStop);
-		btnStop.setOnClickListener(new OnClickListener() {
+		m_btnStop = (Button) m_oActivity.findViewById(R.id.btnStop);
+		m_btnStop.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -355,8 +445,8 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 		
-		Button btnDock = (Button) m_oActivity.findViewById(R.id.btnDock);
-		btnDock.setOnClickListener(new OnClickListener() {
+		m_btnDock = (Button) m_oActivity.findViewById(R.id.btnDock);
+		m_btnDock.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -364,24 +454,21 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 
-		Button btnControl = (Button) m_oActivity.findViewById(R.id.btnCtrl);
-		btnControl.setOnClickListener(new OnClickListener() {
+		m_btnControl = (Button) m_oActivity.findViewById(R.id.btnCtrl);
+		m_btnControl.setText("Control: OFF");
+		m_btnControl.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				m_bControl = !m_bControl;
 				updateControlButtons(m_bControl);
-				if (m_bControl) {
-					m_oRoomba.setSafeMode();
-				} else {
-					m_oRoomba.setPassiveMode();
-				}
-				((Button)v).setText("Control " + (m_bControl ? "OFF" : "ON"));
+				m_oRoomba.enableControl(m_bControl);
+				m_btnControl.setText("Control: " + (m_bControl ? "ON" : "OFF"));
 			}
 		});
 
-		Button btnMainBrush = (Button) m_oActivity.findViewById(R.id.btnMainBrush);
-		btnMainBrush.setOnClickListener(new OnClickListener() {
+		m_btnMainBrush = (Button) m_oActivity.findViewById(R.id.btnMainBrush);
+		m_btnMainBrush.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -390,8 +477,8 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 
-		Button btnSideBrush = (Button) m_oActivity.findViewById(R.id.btnSideBrush);
-		btnSideBrush.setOnClickListener(new OnClickListener() {
+		m_btnSideBrush = (Button) m_oActivity.findViewById(R.id.btnSideBrush);
+		m_btnSideBrush.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -400,8 +487,8 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 
-		Button btnVacuum = (Button) m_oActivity.findViewById(R.id.btnVacuum);
-		btnVacuum.setOnClickListener(new OnClickListener() {
+		m_btnVacuum = (Button) m_oActivity.findViewById(R.id.btnVacuum);
+		m_btnVacuum.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -410,8 +497,8 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 		
-		Button btnPower = (Button) m_oActivity.findViewById(R.id.btnPower);
-		btnPower.setOnClickListener(new OnClickListener() {
+		m_btnPower = (Button) m_oActivity.findViewById(R.id.btnPower);
+		m_btnPower.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -420,12 +507,15 @@ public class RoombaRobot extends RobotView {
 				} else {
 					m_oRoomba.powerOn();
 				}
-				((Button)v).setText("Power " + (m_oRoomba.isPowerOn() ? "OFF" : "ON"));
+				updatePowerButton(true);
+				if (m_oRoomba.isPowerOn()) {
+					updateButtons(true);
+				}
 			}
 		});
 		
-		Button btnAccelerometer = (Button) m_oActivity.findViewById(R.id.btnAccelerometer);
-		btnAccelerometer.setOnClickListener(new OnClickListener() {
+		m_btnAccelerometer = (Button) m_oActivity.findViewById(R.id.btnAccelerometer);
+		m_btnAccelerometer.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -445,8 +535,8 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 		
-		Button btnMove = (Button) m_oActivity.findViewById(R.id.btnMove);
-		btnMove.setOnClickListener(new OnClickListener() {
+		m_btnMove = (Button) m_oActivity.findViewById(R.id.btnMove);
+		m_btnMove.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -559,4 +649,9 @@ public class RoombaRobot extends RobotView {
 		});
 		
 	}
+
+	public static String getMacFilter() {
+		return RoombaTypes.MAC_FILTER;
+	}
+	
 }

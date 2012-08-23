@@ -645,7 +645,7 @@
 	                android:id="@+id/txtChargingState"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="TextView" />
+	                android:text="" />
 	        </TableRow>
 	
 	        <View android:layout_height="10dip" />
@@ -665,7 +665,7 @@
 	                android:id="@+id/txtCharge"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="TextView" />
+	                android:text="" />
 	        </TableRow>
 	
 	        <View android:layout_height="10dip" />
@@ -685,7 +685,7 @@
 	                android:id="@+id/txtTemperature"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="TextView" />
+	                android:text="" />
 	        </TableRow>
 	
 	        <View android:layout_height="10dip" />
@@ -705,7 +705,7 @@
 	                android:id="@+id/txtPower"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="TextView" />
+	                android:text="" />
 	        </TableRow>
 	
 	        <View

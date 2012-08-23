@@ -2,6 +2,6 @@ package org.dobots.swarmcontrol;
 
 public interface ConnectListener {
 	
-	public void connectToRobot(String i_strAddress);
+	public void onConnect(boolean i_bConnected);
 	
 }

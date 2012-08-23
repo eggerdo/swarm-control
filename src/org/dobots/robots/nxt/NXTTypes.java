@@ -23,12 +23,6 @@ public class NXTTypes {
     public static final int GET_FIRMWARE_VERSION = 70;
     public static final int DISCONNECT = 99;
 
-    public static final int DISPLAY_TOAST = 1000;
-    public static final int STATE_CONNECTED = 1001;
-    public static final int STATE_CONNECTERROR = 1002;
-    public static final int MOTOR_STATE = 1003;
-    public static final int STATE_RECEIVEERROR = 1004;
-    public static final int STATE_SENDERROR = 1005;
     public static final int FIRMWARE_VERSION = 1006;
     public static final int FIND_FILES = 1007;
     public static final int START_PROGRAM = 1008;
@@ -45,7 +39,7 @@ public class NXTTypes {
     public static final int LS_GET_STATUS = 1019;
     public static final int LS_READ = 1020;
     public static final int LS_WRITE = 1021;
-    public static final int STATE_CONNECTERROR_PAIRING = 1022;
+    public static final int MOTOR_STATE = 1022;
     public static final int GET_DISTANCE = 1023;
     public static final int KEEP_ALIVE = 1024;
     

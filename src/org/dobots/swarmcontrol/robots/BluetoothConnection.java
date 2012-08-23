@@ -1,8 +1,8 @@
-package org.dobots.robots.roomba;
+package org.dobots.swarmcontrol.robots;
 
 import java.util.concurrent.TimeoutException;
 
-public interface RoombaConnection {
+public interface BluetoothConnection {
 	
 	public void send(byte[] buffer);
 	

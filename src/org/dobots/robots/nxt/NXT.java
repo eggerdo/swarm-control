@@ -17,7 +17,9 @@ import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
 import org.dobots.robots.nxt.msg.MsgTypes.ResetMotorPositionMsg;
 import org.dobots.robots.nxt.msg.MsgTypes.SensorDataRequestMsg;
 import org.dobots.robots.nxt.msg.MsgTypes.SensorTypeMsg;
-import org.dobots.swarmcontrol.robots.nxt.BTCommunicator;
+import org.dobots.robots.roomba.BaseBluetooth;
+import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
 import org.dobots.swarmcontrol.robots.nxt.BTConnectable;
 import org.dobots.utility.Utils;
 
@@ -33,7 +35,7 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	private static String TAG = "NXT";
 
-	private BTCommunicator m_oConnection;
+	private NXTBluetooth m_oConnection;
 
 	private boolean m_bPairing;
 
@@ -93,17 +95,17 @@ public class NXT implements RobotDevice, BTConnectable {
 					switch (messageID) {
 					case NXTTypes.DESTROY:
 						m_oConnection = null;
-					case NXTTypes.STATE_CONNECTED:
+					case BaseBluetooth.STATE_CONNECTED:
 						connected = true;
 						getFirmwareVersion();
 						break;
 
-					case NXTTypes.STATE_CONNECTERROR_PAIRING:
+					case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
 						m_oConnection = null;
 						break;
 
-					case NXTTypes.STATE_RECEIVEERROR:
-					case NXTTypes.STATE_SENDERROR:
+					case BaseBluetooth.STATE_RECEIVEERROR:
+					case BaseBluetooth.STATE_SENDERROR:
 						connected = false;
 						break;
 
@@ -256,13 +258,24 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 	
 	public void destroy() {
-//		m_oReceiver.getLooper().quit();
-//		m_oSender.getLooper().quit();
 		m_oKeepAliveTimer.cancel();
+		disconnect();
 	}
 
 	public void setHandler(Handler i_oHandler) {
 		m_oUiHandler = i_oHandler;
+	}
+	
+	public RobotType getType() {
+		return RobotType.RBT_NXT;
+	}
+	
+	public String getAddress() {
+		if (m_oConnection != null) {
+			return m_oConnection.getAddress();
+		} else {
+			return "";
+		}
 	}
 
 	/**
@@ -295,17 +308,21 @@ public class NXT implements RobotDevice, BTConnectable {
 	
 	@Override
 	public void disconnect() {
-		connected = false;
 		sendCmdMessage(NXTTypes.DISCONNECT);
 	}
 	
-	public void setConnection(BTCommunicator i_oConnection) {
+	public void setConnection(NXTBluetooth i_oConnection) {
 		m_oConnection = i_oConnection;
 		m_oConnection.setReceiveHandler(m_oReceiver.getHandler());
 	}
 	
-	public BTCommunicator getConnection() {
+	public NXTBluetooth getConnection() {
 		return m_oConnection;
+	}
+	
+	@Override
+	public void enableControl(boolean i_bEnable) {
+		// nothing to do, control always enabled
 	}
 	
 	private void sendCmdMessage(int i_nCmd) {
@@ -558,19 +575,22 @@ public class NXT implements RobotDevice, BTConnectable {
 			setSensorType(eSensor, ENXTSensorType.sensType_None);
 		}
 
-        // send stop messages to motors
-    	m_oConnection.setMotorSpeed(NXTTypes.MOTOR_A, 0);
-    	m_oConnection.setMotorSpeed(NXTTypes.MOTOR_B, 0);
-    	m_oConnection.setMotorSpeed(NXTTypes.MOTOR_C, 0);
-    	
-        Utils.waitSomeTime(500);
-        try {
-        	// destroy connection
-        	m_oConnection.destroyNXTconnection();
-        }
-        catch (IOException e) { 
-        	e.printStackTrace();
-        }
+		if (m_oConnection != null) {
+	        // send stop messages to motors
+	    	m_oConnection.setMotorSpeed(NXTTypes.MOTOR_A, 0);
+	    	m_oConnection.setMotorSpeed(NXTTypes.MOTOR_B, 0);
+	    	m_oConnection.setMotorSpeed(NXTTypes.MOTOR_C, 0);
+	    	
+	        Utils.waitSomeTime(500);
+	        try {
+	        	// destroy connection
+	        	m_oConnection.destroyConnection();
+	        }
+	        catch (IOException e) { 
+	        	e.printStackTrace();
+	        }
+		}
+		connected = false;
 	}
 
 	public void setInverted() {

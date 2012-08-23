@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.msg.MsgTypes;
+import org.dobots.robots.roomba.BaseBluetooth;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.Utils;
 
@@ -42,45 +43,29 @@ import android.os.Handler;
  * Objects of this class can either be run as standalone thread or controlled
  * by the owners, i.e. calling the send/recive methods by themselves.
  */
-public class BTCommunicator extends Thread {
+public class NXTBluetooth extends BaseBluetooth {
 
     private Resources mResources;
-    private BluetoothAdapter btAdapter;
-    private BluetoothDevice nxtDevice = null;
-    private BluetoothSocket nxtBTsocket = null;
-    private OutputStream nxtOutputStream = null;
-    private InputStream nxtInputStream = null;
-    private boolean connected = false;
-
-    private Handler receiveHandler;
-    private String mMACaddress;
-    private BTConnectable myOwner;
+    
+//    private BTConnectable myOwner;
 
     private byte[] returnMessage;
 
-    public BTCommunicator(BTConnectable myOwner, BluetoothAdapter btAdapter, Resources resources) {
-        this.myOwner = myOwner;
-        this.btAdapter = btAdapter;
+//    public BTCommunicator(BTConnectable myOwner, BluetoothAdapter btAdapter, Resources resources) {
+//        this.myOwner = myOwner;
+//        this.btAdapter = btAdapter;
+//        this.mResources = resources;
+//    }
+
+    public NXTBluetooth(BluetoothDevice i_oDevice, Resources resources) {
+    	super(i_oDevice);
         this.mResources = resources;
+        m_oUUID = NXTTypes.SERIAL_PORT_SERVICE_CLASS_UUID;
+        m_strRobotName = "NXT";
     }
     
-    public void setReceiveHandler(Handler i_oHandler) {
-    	receiveHandler = i_oHandler;
-    }
-
     public byte[] getReturnMessage() {
         return returnMessage;
-    }
-
-    public void setMACAddress(String mMACaddress) {
-        this.mMACaddress = mMACaddress;
-    }
-
-    /**
-     * @return The current status of the connection
-     */            
-    public boolean isConnected() {
-        return connected;
     }
 
     /**
@@ -89,13 +74,9 @@ public class BTCommunicator extends Thread {
      */
     @Override
     public void run() {
-
-        try {        
-            createNXTconnection();
-            connect();
-        }
-        catch (IOException e) { }
-
+    	
+    	startUp();
+    	
         while (connected) {
             try {
                 returnMessage = receiveMessage();
@@ -107,107 +88,10 @@ public class BTCommunicator extends Thread {
                 // don't inform the user when connection is already closed
                 if (connected) {
                 	connected = false;
-                    sendState(NXTTypes.STATE_RECEIVEERROR);
+                    sendState(STATE_RECEIVEERROR);
                 }
                 return;
             }
-        }
-    }
-
-    /**
-     * Create a bluetooth connection with SerialPortServiceClass_UUID
-     * @see <a href=
-     *      "http://lejos.sourceforge.net/forum/viewtopic.php?t=1991&highlight=android"
-     *      />
-     * On error the method either sends a message to it's owner or creates an exception in the
-     * case of no message handler.
-     */
-    public void createNXTconnection() throws IOException {
-        nxtDevice = btAdapter.getRemoteDevice(mMACaddress);
-        if (nxtDevice == null) {
-            if (receiveHandler == null)
-                throw new IOException();
-            else {
-                sendToast(mResources.getString(R.string.no_paired_nxt));
-                sendState(NXTTypes.STATE_CONNECTERROR);
-                return;
-            }
-        }
-        nxtBTsocket = nxtDevice.createRfcommSocketToServiceRecord(NXTTypes.SERIAL_PORT_SERVICE_CLASS_UUID);
-    }
-    
-    public void connect() throws IOException {
-    	if (nxtBTsocket == null) {
-    		int i = 0;
-    		return;
-    	}
-        try {
-	    	try {
-	    		nxtBTsocket.connect();
-	        }
-	        catch (IOException e) {  
-	            if (myOwner.isPairing()) {
-	                if (receiveHandler != null) {
-	                    sendToast(mResources.getString(R.string.pairing_message));
-	                    sendState(NXTTypes.STATE_CONNECTERROR_PAIRING);
-	                }
-	                else
-	                    throw e;
-	                return;
-	            }
-	
-	            // try another method for connection, this should work on the HTC desire, credits to Michael Biermann
-	            try {
-	                Method mMethod = nxtDevice.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
-	                nxtBTsocket = (BluetoothSocket) mMethod.invoke(nxtDevice, Integer.valueOf(1));            
-	                nxtBTsocket.connect();
-	            }
-	            catch (Exception e1){
-	                if (receiveHandler == null)
-	                    throw new IOException();
-	                else
-	                    sendState(NXTTypes.STATE_CONNECTERROR);
-	                return;
-	            }
-	        }
-	        nxtInputStream = nxtBTsocket.getInputStream();
-	        nxtOutputStream = nxtBTsocket.getOutputStream();
-	        connected = true;
-	    } catch (IOException e) {
-	        if (receiveHandler == null)
-	            throw e;
-	        else {
-	            if (myOwner.isPairing())
-	                sendToast(mResources.getString(R.string.pairing_message));
-	            sendState(NXTTypes.STATE_CONNECTERROR);
-	            return;
-	        }
-	    }
-	    // everything was OK
-	    if (receiveHandler != null)
-	        sendState(NXTTypes.STATE_CONNECTED);
-    }
-
-    /**
-     * Closes the bluetooth connection. On error the method either sends a message
-     * to it's owner or creates an exception in the case of no message handler.
-     */
-    public void destroyNXTconnection() throws IOException {
-        try {
-            if (nxtBTsocket != null) {
-                connected = false;
-                nxtBTsocket.close();
-                nxtBTsocket = null;
-            }
-
-            nxtInputStream = null;
-            nxtOutputStream = null;
-
-        } catch (IOException e) {
-            if (receiveHandler == null)
-                throw e;
-            else
-                sendToast(mResources.getString(R.string.problem_at_closing));
         }
     }
 
@@ -216,14 +100,14 @@ public class BTCommunicator extends Thread {
      * @param message, the message as a byte array
      */
     public void sendMessage(byte[] message) throws IOException {
-        if (nxtOutputStream == null)
+        if (m_oOutStream == null)
             throw new IOException();
 
         // send message length
         int messageLength = message.length;
-        nxtOutputStream.write(messageLength);
-        nxtOutputStream.write(messageLength >> 8);
-        nxtOutputStream.write(message, 0, message.length);
+        m_oOutStream.write(messageLength);
+        m_oOutStream.write(messageLength >> 8);
+        m_oOutStream.write(message, 0, message.length);
     }  
 
     /**
@@ -231,13 +115,13 @@ public class BTCommunicator extends Thread {
      * @return the message
      */                
     public byte[] receiveMessage() throws IOException {
-        if (nxtInputStream == null)
+        if (m_oInStream == null)
             throw new IOException();
 
-        int length = nxtInputStream.read();
-        length = (nxtInputStream.read() << 8) + length;
+        int length = m_oInStream.read();
+        length = (m_oInStream.read() << 8) + length;
         byte[] returnMessage = new byte[length];
-        nxtInputStream.read(returnMessage);
+        m_oInStream.read(returnMessage);
         return returnMessage;
     }    
 
@@ -247,7 +131,7 @@ public class BTCommunicator extends Thread {
      * @param message, the message as a byte array
      */
     private void sendMessageAndState(byte[] message) {
-        if (nxtOutputStream == null)
+        if (m_oOutStream == null)
             return;
 
         try {
@@ -255,7 +139,7 @@ public class BTCommunicator extends Thread {
         }
         catch (IOException e) {
         	connected = false;
-            sendState(NXTTypes.STATE_SENDERROR);
+            sendState(STATE_SENDERROR);
         }
     }
 
@@ -426,15 +310,8 @@ public class BTCommunicator extends Thread {
     	sendMessageAndState(message);
     }
 
-    private void sendToast(String toastText) {
-    	Utils.sendMessage(receiveHandler, NXTTypes.DISPLAY_TOAST, toastText);
-    }
-
     private void sendStateAndData(int i_nCmd, byte[] i_rgbyData) {
-    	Utils.sendMessage(receiveHandler, i_nCmd, MsgTypes.assembleRawDataMsg(i_rgbyData));
+    	Utils.sendMessage(m_oReceiveHandler, i_nCmd, MsgTypes.assembleRawDataMsg(i_rgbyData));
     }
 
-    private void sendState(int i_nCmd) {
-    	Utils.sendMessage(receiveHandler, i_nCmd, null);
-    }
 }

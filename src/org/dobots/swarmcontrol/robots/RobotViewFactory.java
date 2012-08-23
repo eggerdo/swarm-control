@@ -1,5 +1,7 @@
 package org.dobots.swarmcontrol.robots;
 
+import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.swarmcontrol.robots.finch.FinchRobot;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
@@ -7,9 +9,9 @@ import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 
 public class RobotViewFactory {
 	
-	public static RobotView getRobotView(RobotType robot)
+	public static RobotView getRobotView(RobotType i_eRobot)
 	{
-		switch (robot) {
+		switch (i_eRobot) {
 			case RBT_FINCH: 
 				return new FinchRobot(); 
 			case RBT_ROOMBA:
@@ -21,8 +23,8 @@ public class RobotViewFactory {
 		}
 	}
 	
-	public static Class getRobotViewClass(RobotType robot) {
-		switch (robot) {
+	public static Class getRobotViewClass(RobotType i_eRobot) {
+		switch (i_eRobot) {
 //		case RBT_FINCH: 
 //			return FinchRobot.class;
 		case RBT_ROOMBA:
@@ -31,6 +33,17 @@ public class RobotViewFactory {
 			return NXTRobot.class;
 		default:
 			return RobotView.class;
+		}
+	}
+	
+	public static String getRobotMacFilter(RobotType i_eRobot) {
+		switch (i_eRobot) {
+		case RBT_ROOMBA:
+			return RoombaTypes.MAC_FILTER;
+		case RBT_NXT:
+			return NXTTypes.MAC_FILTER;
+		default:
+			return "";
 		}
 	}
 

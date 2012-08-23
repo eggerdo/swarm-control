@@ -1,6 +1,8 @@
 package org.dobots.swarmcontrol.robots;
 
+import org.dobots.robots.RobotDevice;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
+import org.dobots.swarmcontrol.BluetoothConnectionListener;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.AccelerometerListener;
@@ -8,6 +10,7 @@ import org.dobots.utility.AccelerometerManager;
 import org.dobots.utility.ProgressDlg;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,11 +23,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RobotView extends Activity implements AccelerometerListener, ConnectListener {
+public class RobotView extends Activity implements AccelerometerListener, BluetoothConnectionListener {
 	
 	protected static String TAG = "RobotDevice";
-	
-	protected String m_strRobotMacFilter;
 	
 	protected Activity m_oActivity;
 	protected RobotType m_eRobot;
@@ -53,15 +54,14 @@ public class RobotView extends Activity implements AccelerometerListener, Connec
     	super.onCreate(savedInstanceState);
     	
 		this.m_oActivity = this;
+		m_eRobot = (RobotType) getIntent().getExtras().get("RobotType");
 		
-		m_oBTHelper = new BluetoothConnectionHelper(this, m_strRobotMacFilter);
+		m_oBTHelper = new BluetoothConnectionHelper(this, RobotViewFactory.getRobotMacFilter(m_eRobot));
 		m_oBTHelper.SetOnConnectListener(this);
 
 		reusableToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 		
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
-		
-		m_eRobot = (RobotType) getIntent().getExtras().get("RobotType");
 		
         setProperties(m_eRobot);
 	}
@@ -248,8 +248,13 @@ public class RobotView extends Activity implements AccelerometerListener, Connec
 		// has to be implemented by child class
 	}
 
-	public void connectToRobot(String i_strAddr) {
+	public void connectToRobot(BluetoothDevice i_oDevice) {
 		// has to be implemented by child class
+	}
+	
+	public static String getMacFilter() {
+		// has to be implemented by child class
+		return "";
 	}
 
 }

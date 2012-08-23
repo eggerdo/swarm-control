@@ -6,7 +6,7 @@ public enum RobotType {
 	RBT_NXT("Mindstorm NXT"),
 	RBT_FINCH("Finch"),
 	RBT_SURVEYOR("Surveyor"),
-	ROBOT_TRAKR("Trakr"),
+	RBT_TRAKR("Trakr"),
 	RBT_SPYKEE("Spykee");
 	private String strDisplayName;
 	

@@ -13,9 +13,12 @@ import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
+import org.dobots.robots.roomba.BaseBluetooth;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.utility.AccelerometerListener;
@@ -77,6 +80,8 @@ public class NXTRobot extends RobotView implements BTConnectable {
 	
 	private boolean connected;
 	
+	private boolean m_bKeepAlive = false;
+	
 	private NXT m_oNxt;
 
 	private boolean btErrorPending = false;
@@ -95,27 +100,39 @@ public class NXTRobot extends RobotView implements BTConnectable {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-		m_strRobotMacFilter = NXTTypes.MAC_FILTER;
-		
     	super.onCreate(savedInstanceState);
-		
-		m_oNxt = new NXT();
+
+        updateButtons(false);
+        updateControlButtons(false);
+        
+    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
+    	if (nIndex == -1) {
+			m_oNxt = new NXT();
+	        connectToRobot();
+    	} else {
+    		m_oNxt = (NXT) RobotInventory.getInstance().getRobot(nIndex);
+    		if (m_oNxt.isConnected()) {
+    			updateButtons(true);
+    		}
+    		m_bKeepAlive = true;
+    	}
 		m_oNxt.setHandler(uiHandler);
 		
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
-		
+
         setDebug(false);
-        updateButtons(true);
-        updateControlButtons(false);
-		
-        connectToRobot();
+    }
+    
+    public void setNXT(NXT i_oNxt) {
+    	m_oNxt = i_oNxt;
+    	m_oNxt.setHandler(uiHandler);
     }
     
     @Override
     public void onDestroy() {
     	super.onDestroy();
 
-    	if (m_oNxt.isConnected()) {
+    	if (m_oNxt.isConnected() && !m_bKeepAlive) {
     		m_oNxt.disconnect();
     		m_oNxt.destroy();
     	}
@@ -129,7 +146,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
     	
 //    	m_oSensorGatherer.pauseThread();
     	
-    	if (m_oNxt.isConnected()) {
+    	if (m_oNxt.isConnected() && !m_bKeepAlive) {
     		m_oNxt.disconnect();
     	}
     }
@@ -146,7 +163,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
     	super.onRestart();
     	
     	if (m_strMacAddress != "") {
-    		connectToRobot(m_strMacAddress);
+    		connectToRobot(m_oBTHelper.getRemoteDevice(m_strMacAddress));
     	}
 
 //    	m_oSensorGatherer.resumeThread();
@@ -221,47 +238,80 @@ public class NXTRobot extends RobotView implements BTConnectable {
 	}
 	
 	@Override
-	public void connectToRobot(String i_strAddr) {
+	public void connectToRobot(BluetoothDevice i_oDevice) {
 		if (m_oBTHelper.initBluetooth()) {
-			m_strMacAddress = i_strAddr;
+			m_strMacAddress = i_oDevice.getAddress();
 			connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
-			createBTCommunicator(i_strAddr);
+			
+			if (m_oNxt.getConnection() != null) {
+				try {
+					m_oNxt.getConnection().destroyConnection();
+				}
+				catch (IOException e) { }
+			}
+			m_oNxt.setConnection(new NXTBluetooth(i_oDevice, getResources()));
 			m_oNxt.connect();
 		}
 	}
-
-	/**
-	 * Creates a new object for communication to the NXT robot via bluetooth and fetches the corresponding handler.
-	 */
-	public void createBTCommunicator(String i_strAddress) {
-		Log.i(TAG, "creating BT Communicator");
+	
+	public static void connectToNXT(final Activity m_oOwner, NXT i_oNxt, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
 		
-		BTCommunicator oBTCommunicator = m_oNxt.getConnection();
-		if (oBTCommunicator != null) {
+		if (i_oNxt.getConnection() != null) {
 			try {
-				oBTCommunicator.destroyNXTconnection();
+				i_oNxt.getConnection().destroyConnection();
 			}
 			catch (IOException e) { }
 		}
-		// interestingly BT adapter needs to be obtained by the UI thread - so we pass it in in the constructor
-		oBTCommunicator = new BTCommunicator(this, BluetoothAdapter.getDefaultAdapter(), getResources());
-		oBTCommunicator.setMACAddress(i_strAddress);
-		m_oNxt.setConnection(oBTCommunicator);
-	}
-
-	/**
-	 * Sends a message for disconnecting to the communication thread.
-	 */
-	public void destroyBTCommunicator() {
 		
-		if (m_oNxt.getConnection() != null) {
-			m_oNxt.disconnect();
-			m_oNxt.setConnection(null);
-		}
+		i_oNxt.setConnection(new NXTBluetooth(i_oDevice, m_oOwner.getResources()));
+		i_oNxt.connect();
+		i_oNxt.setHandler(new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case BaseBluetooth.DISPLAY_TOAST:
+					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
+					break;
+				case BaseBluetooth.STATE_CONNECTED:
+					connectingProgress.dismiss();
+					i_oConnectListener.onConnect(true);
+//					updateButtonsAndMenu();
+					break;
 
-		connected = false;
+				case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+					connectingProgress.dismiss();
+					i_oConnectListener.onConnect(false);
+					break;
+
+				case BaseBluetooth.STATE_CONNECTERROR:
+					connectingProgress.dismiss();
+				case BaseBluetooth.STATE_RECEIVEERROR:
+				case BaseBluetooth.STATE_SENDERROR:
+					i_oConnectListener.onConnect(false);
+
+//					if (btErrorPending == false) {
+//						btErrorPending = true;
+						// inform the user of the error with an AlertDialog
+						AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
+						builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
+						.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
+						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							//                            @Override
+							public void onClick(DialogInterface dialog, int id) {
+//								btErrorPending = false;
+								dialog.cancel();
+							}
+						});
+						builder.create().show();
+//					}
+
+					break;
+				}
+			}
+		});
 	}
-	
+
 	@Override
 	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
 		super.onAccelerationChanged(x, y, z, tx);
@@ -319,7 +369,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 			}
 		}
 	}
-
+	
 	/**
 	 * Receive messages from the BTCommunicator
 	 */
@@ -327,24 +377,24 @@ public class NXTRobot extends RobotView implements BTConnectable {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case NXTTypes.DISPLAY_TOAST:
+			case BaseBluetooth.DISPLAY_TOAST:
 				showToast((String)msg.obj, Toast.LENGTH_SHORT);
 				break;
-			case NXTTypes.STATE_CONNECTED:
+			case BaseBluetooth.STATE_CONNECTED:
 				connected = true;
 				connectingProgressDialog.dismiss();
 				updateButtons(true);
 //				updateButtonsAndMenu();
 				break;
 
-			case NXTTypes.STATE_CONNECTERROR_PAIRING:
+			case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
 				connectingProgressDialog.dismiss();
 				break;
 
-			case NXTTypes.STATE_CONNECTERROR:
+			case BaseBluetooth.STATE_CONNECTERROR:
 				connectingProgressDialog.dismiss();
-			case NXTTypes.STATE_RECEIVEERROR:
-			case NXTTypes.STATE_SENDERROR:
+			case BaseBluetooth.STATE_RECEIVEERROR:
+			case BaseBluetooth.STATE_SENDERROR:
 
 				if (btErrorPending == false) {
 					btErrorPending = true;
@@ -869,4 +919,9 @@ public class NXTRobot extends RobotView implements BTConnectable {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public static String getMacFilter() {
+		return NXTTypes.MAC_FILTER;
+	}
+	
 }
