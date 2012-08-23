@@ -164,6 +164,17 @@
     <string name="lblDancing_Description">Here we show a way to connect to a set of multiple robots which can be chosen from the available robots. Once the robots are paired together, they can be simultaneously controlled. This can be done by manual control or by choosing a set of dancing patterns and letting the robots execute them.</string>     
     <string name="lblDancing_Add">Add Robot...</string>     
     <string name="btnDancing_Control">Enable Remote Control</string>     
-    <string name="lblDancing_Title">Dancing</string>    
+    <string name="lblDancing_Title">Dancing</string>     
+    <string name="lblDancing_Remove">Remove Robots...</string>    
+    <string-array name="dance_moves">
+        <item>Forward</item>
+        <item>Backward</item>
+        <item>Rotate Left</item>
+        <item>Rotate Right</item>
+        <item>Delay</item>
+    </string-array>
+        <string name="btnDancing_RemoveSteps">Remove Steps...</string>
+        <string name="btnDancing_ClearSteps">Clear</string>
+        <string name="btnDancing_StartDance">Start</string>
     
 </resources>

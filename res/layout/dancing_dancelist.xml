@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dance List:" 
+        android:focusable="true"
+        android:focusableInTouchMode="true"/>
+
+    <ListView
+        android:id="@+id/lvDancing_DanceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+    </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Spinner
+            android:id="@+id/spDancing_Moves"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="6" />
+
+        <org.dobots.utility.external.NumberPicker
+            android:id="@+id/npDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+        </org.dobots.utility.external.NumberPicker>
+
+        <Button
+            android:id="@+id/btnDancing_AddMove"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Add" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btnDancing_ClearSteps" />
+
+        <Button
+            android:id="@+id/btnDancing_RemoveSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btnDancing_RemoveSteps" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/btnDance1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dance1" />
+
+        <Button
+            android:id="@+id/btnDancing_StartDance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btnDancing_StartDance" />
+
+    </LinearLayout>
+
+</LinearLayout>

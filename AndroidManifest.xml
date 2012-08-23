@@ -28,17 +28,23 @@
 			android:configChanges="keyboardHidden|orientation">
 		</activity>
 		<activity android:name="org.dobots.swarmcontrol.robots.RobotDevice"
-			android:screenOrientation="portrait" 
-            android:keepScreenOn="true" ></activity>
+			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.roomba.RoombaRobot"
-			android:screenOrientation="portrait" 
-            android:keepScreenOn="true" ></activity>
+			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.finch.FinchRobot"
-			android:screenOrientation="portrait" 
-            android:keepScreenOn="true" ></activity>
+			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.nxt.NXTRobot"
-			android:screenOrientation="portrait" 
-            android:keepScreenOn="true" ></activity>
+			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.Dancing"
+			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.dancing.DancingMain"
+			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.dancing.RobotList">
+			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.dancing.DanceList">
+			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.dancing.MultiRobotControl">
+		    android:screenOrientation="portrait" ></activity>
     </application>
 
 </manifest>
