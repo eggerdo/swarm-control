@@ -49,5 +49,5 @@ Since the app is just starting to take shape and is under heavy development ther
 * Swarm Behaviours need to be implemented, starting with simple flock movements and dancing patterns
 * And not forgetting, the robots want to be hooked up to the Internet and the cloud
 
-If you are interested you should definitely check back on our website http://www.dobots.nl where we will keep track of the development. But also the app is completely open source; you can find the code at https://dev.almende.com/repositories/browse/swarmcontrol. Feel free to contribute and add your own robots to the list or let us know which ones you want to see added!
+If you are interested you should definitely check back on our website http://www.dobots.nl where we will keep track of the development. But also the app is completely open source; you can find the code at https://github.com/eggerdo/swarm-control/. Feel free to contribute and add your own robots to the list or let us know which ones you want to see added!
 
