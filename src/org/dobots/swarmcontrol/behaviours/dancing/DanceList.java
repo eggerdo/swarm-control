@@ -9,8 +9,11 @@ import org.dobots.utility.Utils;
 import org.dobots.utility.external.NumberPicker;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -35,7 +38,8 @@ public class DanceList extends Activity {
 
 	private ArrayList<DanceEntry> m_oDanceList;
 	private ArrayList<RobotEntry> m_oRobotList;
-
+	
+	private DanceListAdapter m_oDanceListAdapter;
 	private ListView m_lvDanceList;
 	private Spinner m_spMoves;
 	private Button m_btnAddMove;
@@ -44,12 +48,48 @@ public class DanceList extends Activity {
 	private Button m_btnRemoveRobots;
 	private Button m_btnDance1;
 	private NumberPicker m_npDuration;
-
-	private Handler uiHandler = new Handler();
 	
+	private static final int SHOW_STEP = 1000;
+	private static final int CLEAR = 1001;
+
 	private boolean m_bShowRemoveSteps = false;
 	
 	private boolean m_bStopped = false;
+
+	private Button m_btnStopDance;
+	private boolean m_bDanceRunning = false;
+	
+	private Handler m_oDanceHandler;
+	private Thread m_oDanceExecutor = new Thread() {
+
+		@Override
+		public void run() {
+		
+			Looper.prepare();
+			m_oDanceHandler = new Handler();
+			Looper.loop();
+		}
+		
+	};
+	
+	private Handler uiHandler = new Handler() {
+		
+		@Override
+		public void handleMessage(Message msg) {
+
+            switch (msg.what) {
+            case SHOW_STEP:
+            	int nStepNr = msg.arg1;
+    			m_oDanceListAdapter.setSelection(nStepNr);
+    			m_lvDanceList.invalidateViews();
+    			break;
+            case CLEAR:
+            	m_oDanceListAdapter.clearSelection();
+            	m_lvDanceList.invalidateViews();
+            	break;
+            }
+		}
+	};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +101,8 @@ public class DanceList extends Activity {
 		m_oDanceList = DancingMain.getInstance().getDanceList();
 		m_oRobotList = DancingMain.getInstance().getRobotList();
 		
+		m_oDanceExecutor.start();
+		
 		setProperties();
 	}
 	
@@ -68,9 +110,12 @@ public class DanceList extends Activity {
 		setContentView(R.layout.dancing_dancelist);
 
 		m_lvDanceList = (ListView) m_oActivity.findViewById(R.id.lvDancing_DanceList);
-		ArrayAdapter<DanceEntry> oDanceListAdapter = new DanceListAdapter(m_oActivity, m_oDanceList);
-		m_lvDanceList.setAdapter(oDanceListAdapter);
+		m_oDanceListAdapter = new DanceListAdapter(m_oActivity, m_oDanceList);
+		m_oDanceListAdapter.setNotifyOnChange(true);
+		m_lvDanceList.setAdapter(m_oDanceListAdapter);
 		registerForContextMenu(m_lvDanceList);
+		m_lvDanceList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
 
 		m_npDuration = (NumberPicker) m_oActivity.findViewById(R.id.npDuration);
 		m_npDuration.setCurrent(1);
@@ -98,7 +143,20 @@ public class DanceList extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				startDance();
+				if (!m_bDanceRunning) {
+					startDance();
+				}
+			}
+		});
+		
+		m_btnStopDance = (Button) m_oActivity.findViewById(R.id.btnDancing_StopDance);
+		m_btnStopDance.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (m_bDanceRunning) {
+					stopDance();
+				}
 			}
 		});
 		
@@ -162,27 +220,46 @@ public class DanceList extends Activity {
 			return;
 		}
 		
+		m_bDanceRunning = true;
+		
 		MultiRobotControl.getInstance().enableControl(true);
 		
-		for (DanceEntry entry : m_oDanceList) {
-			
-			switch(entry.eMove) {
-			case dm_backward:
-				moveBwd(entry.nDuration);
-				break;
-			case dm_delay:
-				break;
-			case dm_forward:
-				moveFwd(entry.nDuration);
-				break;
-			case dm_rotateLeft:
-				turnLeft(entry.nDuration);
-				break;
-			case dm_rotateRight:
-				turnRight(entry.nDuration);
-				break;
-			}
+//		for (DanceEntry entry : m_oDanceList) {
+//			
+//			switch(entry.eMove) {
+//			case dm_backward:
+//				moveBwd(entry.nDuration);
+//				break;
+//			case dm_delay:
+//				break;
+//			case dm_forward:
+//				moveFwd(entry.nDuration);
+//				break;
+//			case dm_rotateLeft:
+//				turnLeft(entry.nDuration);
+//				break;
+//			case dm_rotateRight:
+//				turnRight(entry.nDuration);
+//				break;
+//			}
+//		}
+		for (int i = 0; i < m_oDanceList.size(); i++) {
+			DanceEntry entry = m_oDanceList.get(i);
+			DanceMove oMove = new DanceMove(entry.eMove, entry.nDuration, i);
+			m_oDanceHandler.post(oMove);
 		}
+		
+		danceEnd();
+		
+	}
+	
+	private void danceEnd() {
+		m_oDanceHandler.post(done);
+	}
+	
+	private void stopDance() {
+		stopAndCancelAll();
+		m_bDanceRunning = false;
 	}
 
 	private void dance1() {
@@ -201,92 +278,79 @@ public class DanceList extends Activity {
 
 	private void addMove(DanceMoves i_eMove, int i_nDuration) {
 		
-		DanceEntry entry = new DanceEntry(i_eMove, i_nDuration);
-		m_oDanceList.add(entry);
-
-		m_lvDanceList.invalidateViews();
+		if (i_eMove != DanceMoves.dm_nothing) {
+			DanceEntry entry = new DanceEntry(i_eMove, i_nDuration);
+			m_oDanceList.add(entry);
+	
+			m_lvDanceList.invalidateViews();
+		}
 	}
+	
+	private class DanceMove implements Runnable {
+		
+		private int nStepNr = -1;
+		private int nDuration;
+		private DanceMoves eMove;
 
-	private Runnable stopAll = new Runnable() {
+		DanceMove(DanceMoves i_eMove, int i_nDuration, int i_nStepNr) {
+			eMove = i_eMove;
+			nDuration = i_nDuration;
+			nStepNr = i_nStepNr;
+		}
+		
+		protected void setStepNr(int i_nStepNr) {
+			nStepNr = i_nStepNr;
+		}
+		
+		protected void showStep() {
+			Message msg = Message.obtain();
+			msg.what = SHOW_STEP;
+			msg.arg1 = nStepNr;
+			uiHandler.sendMessage(msg);
+		}
+
+		private void startMove() {
+			switch(eMove) {
+			case dm_backward:
+				MultiRobotControl.driveBackward();
+				break;
+			case dm_delay:
+			case dm_nothing:
+				break;
+			case dm_forward:
+				MultiRobotControl.driveForward();
+				break;
+			case dm_rotateLeft:
+				MultiRobotControl.rotateCounterClockwise();
+				break;
+			case dm_rotateRight:
+				MultiRobotControl.rotateClockwise();
+				break;
+			}
+		}
+		
+		public void run() {
+			showStep();
+			startMove();
+			Utils.waitSomeTime(nDuration * 1000);
+		}
+		
+	}
+	
+	private DanceMove done = new DanceMove(DanceMoves.dm_nothing, 0, -1) {
 		
 		@Override
 		public void run() {
+			showStep();
 			MultiRobotControl.driveStop();
+			m_bDanceRunning = false;
 		}
+		
 	};
-	
-	private Runnable turnLeftAll = new Runnable() {
-		
-		@Override
-		public void run() {
-			MultiRobotControl.rotateCounterClockwise();
-		}
-	};
-	
-	private Runnable turnRightAll = new Runnable() {
-		
-		@Override
-		public void run() {
-			MultiRobotControl.rotateClockwise();
-		}
-	};
-	
-	private Runnable moveFwdAll = new Runnable() {
-		
-		@Override
-		public void run() {
-			MultiRobotControl.driveForward();
-		}
-	};
-	
-	private Runnable moveBwdAll = new Runnable() {
-		
-		@Override
-		public void run() {
-			MultiRobotControl.driveBackward();
-		}
-	};
-	
-	private class DelayTask implements Runnable {
-		int delay;
-		
-		public DelayTask(int delay) {
-			this.delay = delay;
-		}
-		
-		public void run() {
-			Utils.waitSomeTime(delay);
-		}
-	}
-	
-	// duration in seconds
-	private void turnLeft(int i_nDuration) {
-		uiHandler.post(turnLeftAll);
-		uiHandler.post(new DelayTask(i_nDuration * 1000));
-		uiHandler.post(stopAll);
-	}
-	
-	private void turnRight(int i_nDuration) {
-		uiHandler.post(turnRightAll);
-		uiHandler.post(new DelayTask(i_nDuration * 1000));
-		uiHandler.post(stopAll);
-	}
-	
-	private void moveFwd(int i_nDuration) {
-		uiHandler.post(moveFwdAll);
-		uiHandler.post(new DelayTask(i_nDuration * 1000));
-		uiHandler.post(stopAll);
-	}
-	
-	private void moveBwd(int i_nDuration) {
-		uiHandler.post(moveBwdAll);
-		uiHandler.post(new DelayTask(i_nDuration * 1000));
-		uiHandler.post(stopAll);
-	}
-	
+
 	private void stopAndCancelAll() {
-		uiHandler.removeCallbacksAndMessages(null);
-		uiHandler.post(stopAll);
+		m_oDanceHandler.removeCallbacksAndMessages(null);
+		done.run();
 	}
 	
 	private enum DanceMoves {
@@ -294,7 +358,8 @@ public class DanceList extends Activity {
 		dm_backward("Backward"),
 		dm_rotateLeft("Rotate Left"),
 		dm_rotateRight("Rotate Right"),
-		dm_delay("Dealy");
+		dm_delay("Dealy"),
+		dm_nothing("");
 		String strName;
 		
 		private DanceMoves(String i_strName) {
@@ -311,6 +376,7 @@ public class DanceList extends Activity {
 		DanceMoves eMove;
 		int nDuration;
 		boolean bRemove;
+		boolean bSelected;
 		
 		public DanceEntry(DanceMoves i_eMove, int i_nDuration) {
 			this.eMove = i_eMove;
@@ -325,10 +391,20 @@ public class DanceList extends Activity {
 		private final Activity context;
 		private final List<DanceEntry> list;
 		
+		int nSelectedItem = -1;
+		
 		public DanceListAdapter(Activity context, List<DanceEntry> list) {
 			super(context, R.layout.dancing_move, list);
 			this.context = context;
 			this.list = list;
+		}
+		
+		public void setSelection(int i_nPosition) {
+			nSelectedItem = i_nPosition;
+		}
+		
+		public void clearSelection() {
+			nSelectedItem = -1;
 		}
 		
 		private class ViewHolder {
@@ -369,6 +445,12 @@ public class DanceList extends Activity {
 			}
 			
 			ViewHolder holder = (ViewHolder) view.getTag();
+			
+			if (position == nSelectedItem) {
+				view.setBackgroundColor(Color.RED);
+			} else {
+				view.setBackgroundColor(Color.TRANSPARENT);
+			}
 			
 			// the buttons and all other items which can get a focus need to be set
 			// to focusable=false so that the onClick event of the listViewItem gets

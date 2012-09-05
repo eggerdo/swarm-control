@@ -68,7 +68,7 @@ public class DancingMain extends TabActivity {
 		
 		TabWidget tabWidget = tabHost.getTabWidget();
 		for (int i=0; i < tabWidget.getChildCount(); i++) {
-			tabWidget.getChildAt(i).getLayoutParams().height = 50;
+			tabWidget.getChildAt(i).getLayoutParams().height = 70;
 		}
 		
 	}

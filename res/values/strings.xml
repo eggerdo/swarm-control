@@ -173,8 +173,25 @@
         <item>Rotate Right</item>
         <item>Delay</item>
     </string-array>
-        <string name="btnDancing_RemoveSteps">Remove Steps...</string>
-        <string name="btnDancing_ClearSteps">Clear</string>
-        <string name="btnDancing_StartDance">Start</string>
+    <string name="btnDancing_RemoveSteps">Remove Steps...</string>
+    <string name="btnDancing_ClearSteps">Clear</string>
+    <string name="btnDancing_StartDance">Start</string>
+    <string name="lbldancing_dancelist">Dance List:</string>
+    <string name="btnDancing_stopdance">Stop</string>
+    <string name="chatsettings_hostport">Host / Port:</string>
+    <string name="chatsettings_domain">Domain:</string>
+    <string name="chatsettings_username">Username:</string>
+    <string name="chatsettings_password">Password:</string>
+    <string name="btn_ok">OK</string>
+    <string name="dotty_title">Dotty</string>
+    <string name="dotty_commands">Dotty Commands</string>
+    <string name="dotty_sensorselection">Choose which sensors you want to display</string>
+    <string name="dotty_dist">Distance</string>
+    <string name="dotty_light">Light</string>
+    <string name="dotty_value">Value</string>
+    <string name="dotty_sound">Sound</string>
+    <string name="dotty_battery">Battery</string>
+    <string name="dotty_motorsensora">Motor A</string>
+    <string name="dotty_motorsensorb">Motor B</string>
     
 </resources>
