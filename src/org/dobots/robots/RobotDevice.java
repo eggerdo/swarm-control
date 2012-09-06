@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.dobots.swarmcontrol.robots.RobotType;
 
 public interface RobotDevice {
-	
+
 	public RobotType getType();
 	public String getAddress();
 
@@ -20,14 +20,14 @@ public interface RobotDevice {
 	// drive methods
 	public void enableControl(boolean i_bEnable);
 	
-	public void driveForward(double i_nSpeed);
-	public void driveForward(double i_nSpeed, int i_nRadius);
+	public void driveForward(double i_dblSpeed);
+	public void driveForward(double i_dblSpeed, int i_nRadius);
 	
-	public void driveBackward(double i_nSpeed);
-	public void driveBackward(double i_nSpeed, int i_nRadius);
+	public void driveBackward(double i_dblSpeed);
+	public void driveBackward(double i_dblSpeed, int i_nRadius);
 	
-	public void rotateClockwise(double i_nSpeed);
-	public void rotateCounterClockwise(double i_nSpeed);
+	public void rotateClockwise(double i_dblSpeed);
+	public void rotateCounterClockwise(double i_dblSpeed);
 	
 	public void driveStop();
 	

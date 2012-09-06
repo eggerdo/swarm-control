@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nxt"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+	android:gravity="fill" >
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="fill"
+        android:orientation="vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true" >
+
+        <TextView
+            android:id="@+id/lblRobot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dotty_title"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/lblCommands"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dotty_commands" />
+
+        <LinearLayout
+            android:id="@+id/layControls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|fill" >
+
+            <Button
+                android:id="@+id/btnRemoteControl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/roomba_lbl_control" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/LinearLayout01"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|fill" >
+
+            <Button
+                android:id="@+id/btnStreaming"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dotty_streaming" />
+
+            <TextView
+                android:id="@+id/lblInterval"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical"
+                android:text="@string/dotty_interval" />
+
+            <EditText
+                android:id="@+id/edtInterval"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="number" >
+            </EditText>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+
+        <include
+            android:id="@+id/laySensors"
+            layout="@layout/dotty_sensors" />
+
+        <include
+            android:id="@+id/layRemoteControl"
+            layout="@layout/remote_control" />
+    </LinearLayout>
+
+</ScrollView>

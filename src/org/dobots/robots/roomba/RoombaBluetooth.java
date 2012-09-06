@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
+import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.msg.MsgTypes;

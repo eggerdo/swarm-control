@@ -7,6 +7,7 @@
     <uses-sdk android:minSdkVersion="10" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:icon="@drawable/swarmcontrol_icon"
@@ -39,11 +40,14 @@
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".behaviours.dancing.DancingMain"
 			android:screenOrientation="portrait" ></activity>
-		<activity android:name=".behaviours.dancing.RobotList">
+		<activity android:name=".behaviours.dancing.RobotList"
 			android:screenOrientation="portrait" ></activity>
-		<activity android:name=".behaviours.dancing.DanceList">
+		<activity android:name=".behaviours.dancing.DanceList"
 			android:screenOrientation="portrait" ></activity>
-		<activity android:name=".behaviours.dancing.MultiRobotControl">
+		<activity android:name=".behaviours.dancing.MultiRobotControl"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name="org.dobots.chat.ChatClient"></activity>
+		<activity android:name=".robots.dotty.DottyRobot"
 		    android:screenOrientation="portrait" ></activity>
     </application>
 

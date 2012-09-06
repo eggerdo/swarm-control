@@ -24,10 +24,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 
+import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.robots.roomba.BaseBluetooth;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.Utils;
 

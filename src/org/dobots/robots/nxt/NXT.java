@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.RobotDevice;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
@@ -17,7 +18,6 @@ import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
 import org.dobots.robots.nxt.msg.MsgTypes.ResetMotorPositionMsg;
 import org.dobots.robots.nxt.msg.MsgTypes.SensorDataRequestMsg;
 import org.dobots.robots.nxt.msg.MsgTypes.SensorTypeMsg;
-import org.dobots.robots.roomba.BaseBluetooth;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
 import org.dobots.swarmcontrol.robots.nxt.BTConnectable;
@@ -468,7 +468,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	@Override
 	public void driveForward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
-		capRadius(i_nRadius);
+		i_nRadius = capRadius(i_nRadius);
 		
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
@@ -487,7 +487,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	@Override
 	public void driveBackward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
-		capRadius(i_nRadius);
+		i_nRadius = capRadius(i_nRadius);
 
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);

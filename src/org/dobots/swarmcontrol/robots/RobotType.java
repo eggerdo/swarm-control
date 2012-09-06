@@ -4,6 +4,7 @@ public enum RobotType {
 	
 	RBT_ROOMBA("Roomba"),
 	RBT_NXT("Mindstorm NXT"),
+	RBT_DOTTY("Dotty"),
 	RBT_FINCH("Finch"),
 	RBT_SURVEYOR("Surveyor"),
 	RBT_TRAKR("Trakr"),

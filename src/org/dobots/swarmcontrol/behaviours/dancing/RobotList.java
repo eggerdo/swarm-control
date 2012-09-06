@@ -41,6 +41,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class RobotList extends Activity {
 
@@ -142,20 +143,17 @@ public class RobotList extends Activity {
 
 	private void addRobot(RobotType i_eRobot) {
 		
-		switch(i_eRobot) {
-		case RBT_FINCH:
-		case RBT_SPYKEE:
-		case RBT_SURVEYOR:
-		case RBT_TRAKR:
-			break;
-		default:
-			RobotDevice oRobot = RobotDeviceFactory.getRobotDevice(i_eRobot);
+		RobotDevice oRobot;
+		try {
+			oRobot = RobotDeviceFactory.getRobotDevice(i_eRobot);
 			int nIndex = RobotInventory.getInstance().addRobot(oRobot);
 			
 			RobotEntry entry = new RobotEntry(oRobot, i_eRobot, nIndex);
 			m_oRobotList.add(entry);
 			
 			m_lvAddedRobots.invalidateViews();
+		} catch (Exception e) {
+			Toast.makeText(m_oActivity, "Robot not available", Toast.LENGTH_LONG);
 		}
 		
 	}
@@ -244,11 +242,11 @@ public class RobotList extends Activity {
 										}
 									}
 								};
-								
-								if (oEntry.eType == RobotType.RBT_NXT) {
-									NXTRobot.connectToNXT(context, (NXT)oEntry.oRobot, i_oDevice, oListener);
-								} else {
-									RoombaRobot.connectToRoomba(context, (Roomba)oEntry.oRobot, i_oDevice, oListener);
+
+								try {
+									RobotDeviceFactory.connectToRobot(context, oEntry.oRobot, i_oDevice, oListener);
+								} catch (Exception e) {
+									Toast.makeText(m_oActivity, "Robot not available", Toast.LENGTH_LONG);
 								}
 								m_oActivityResultListener.remove(oBTHelper);
 							}
@@ -316,8 +314,8 @@ public class RobotList extends Activity {
 			
 			return view;
 		}
-		
 	}
+	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if (v.getId() == R.id.lvDancing_RobotList) {

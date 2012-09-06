@@ -2,9 +2,9 @@ package org.dobots.swarmcontrol.robots.roomba;
 
 import java.io.IOException;
 
+import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.roomba.BaseBluetooth;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
@@ -51,10 +51,6 @@ public class RoombaRobot extends RobotView {
 
 	private RoombaSensorGatherer oSensorGatherer;
 
-	private ProgressDialog connectingProgressDialog;
-	
-	private String m_strMacAddress = "";
-	
 	private boolean m_bControl = false;
 	private boolean m_bMainBrushEnabled = false;
 	private boolean m_bSideBrushEnabled = false;
@@ -69,8 +65,6 @@ public class RoombaRobot extends RobotView {
 
 	private boolean btErrorPending = false;
 
-	private boolean m_bKeepAlive = false;
-	
 	private Spinner m_spSensors;
 	private Button m_btnClean;
 	private Button m_btnStop;
@@ -221,6 +215,21 @@ public class RoombaRobot extends RobotView {
 
 			}
 		}
+	}
+	
+	@Override
+	public void onConnect() {
+		m_oRoomba.init();
+		updatePowerButton(true);
+		if (m_oRoomba.isPowerOn()) {
+			updateButtons(true);
+		}
+	}
+	
+	@Override
+	public void onDisconnect() {
+		updatePowerButton(false);
+		updateButtons(false);
 	}
 
 	public void updateControlButtons(boolean visible) {
@@ -403,7 +412,7 @@ public class RoombaRobot extends RobotView {
 
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
-        m_oActivity.setContentView(R.layout.roomba);
+        m_oActivity.setContentView(R.layout.roomba_main);
 		
         m_spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		final ArrayAdapter<ERoombaSensorPackages> adapter = new ArrayAdapter<ERoombaSensorPackages>(m_oActivity, 

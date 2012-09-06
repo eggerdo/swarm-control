@@ -1,4 +1,4 @@
-package org.dobots.robots.roomba;
+package org.dobots.robots;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,7 +73,10 @@ public abstract class BaseBluetooth extends Thread {
             createConnection();
             connect();
         }
-        catch (IOException e) { }
+        catch (IOException e) { 
+        	e.printStackTrace();
+            sendState(STATE_CONNECTERROR);
+        }
 
 	}
 

@@ -2,7 +2,6 @@ package org.dobots.swarmcontrol;
 
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.swarmcontrol.behaviours.Dancing;
 import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
@@ -101,8 +100,8 @@ public class SwarmControlActivity extends Activity {
         TextView changelog = (TextView) findViewById(R.id.lblChangeLog);
         changelog.setText(CHANGELOG);
         
-//        showRobot(RobotType.RBT_NXT);
-        showBehaviour(SwarmAction.sa_Dance);
+//        showRobot(RobotType.RBT_DOTTY);
+//        showBehaviour(SwarmAction.sa_Dance);
     }
 
 	@Override

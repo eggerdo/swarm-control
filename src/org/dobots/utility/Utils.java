@@ -13,6 +13,14 @@ import android.widget.LinearLayout.LayoutParams;
 
 public class Utils {
 	
+	public static int setBit(int i_nVal, int i_nBit) {
+		return i_nVal | 1 << i_nBit;
+	}
+	
+	public static int clearBit(int i_nVal, int i_nBit) {
+		return i_nVal & ~(1 << i_nBit);
+	}
+	
 	public static boolean IsBitSet(int i_nVal, int i_nBit) {
 		return ((i_nVal >> i_nBit) & 1) == 1;
 	}

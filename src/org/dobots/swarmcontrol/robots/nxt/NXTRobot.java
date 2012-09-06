@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTTypes;
@@ -13,7 +14,6 @@ import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.robots.roomba.BaseBluetooth;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.ConnectListener;
@@ -76,15 +76,9 @@ public class NXTRobot extends RobotView implements BTConnectable {
 	private static final int INVERT_ID = DEBUG_ID + 1;
 	private static final int ACCEL_ID = INVERT_ID + 1;
 
-	private ProgressDialog connectingProgressDialog;
-	
 	private boolean connected;
 	
-	private boolean m_bKeepAlive = false;
-	
 	private NXT m_oNxt;
-
-	private boolean btErrorPending = false;
 
 	private NXTSensorGatherer m_oSensorGatherer;
 	
@@ -96,8 +90,6 @@ public class NXTRobot extends RobotView implements BTConnectable {
 	private Button m_btnLeft;
 	private Button m_btnRight;
 	
-	private String m_strMacAddress = "";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -370,71 +362,40 @@ public class NXTRobot extends RobotView implements BTConnectable {
 		}
 	}
 	
-	/**
-	 * Receive messages from the BTCommunicator
-	 */
-	final Handler uiHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case BaseBluetooth.DISPLAY_TOAST:
-				showToast((String)msg.obj, Toast.LENGTH_SHORT);
-				break;
-			case BaseBluetooth.STATE_CONNECTED:
-				connected = true;
-				connectingProgressDialog.dismiss();
-				updateButtons(true);
-//				updateButtonsAndMenu();
-				break;
-
-			case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
-				connectingProgressDialog.dismiss();
-				break;
-
-			case BaseBluetooth.STATE_CONNECTERROR:
-				connectingProgressDialog.dismiss();
-			case BaseBluetooth.STATE_RECEIVEERROR:
-			case BaseBluetooth.STATE_SENDERROR:
-
-				if (btErrorPending == false) {
-					btErrorPending = true;
-					// inform the user of the error with an AlertDialog
-					AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
-					builder.setTitle(getResources().getString(R.string.bt_error_dialog_title))
-					.setMessage(getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-						//                            @Override
-						public void onClick(DialogInterface dialog, int id) {
-							btErrorPending = false;
-							dialog.cancel();
-							m_oBTHelper.selectRobot();
-						}
-					});
-					builder.create().show();
-				}
-
-				break;
-				
-			case NXTTypes.GET_INPUT_VALUES:
-				m_oSensorGatherer.sendMessage(NXTTypes.SENSOR_DATA_RECEIVED, msg.obj);
-				break;
-				
-			case NXTTypes.GET_DISTANCE:
-				m_oSensorGatherer.sendMessage(NXTTypes.DISTANCE_DATA_RECEIVED, msg.obj);
-				break;
-				
-			case NXTTypes.MOTOR_STATE:
-				m_oSensorGatherer.sendMessage(NXTTypes.MOTOR_DATA_RECEIVED, msg.obj);
-				break;
-			
-			}
-		}
-	};
+	public void onConnect() {
+		connected = true;
+		updateButtons(true);
+//		updateButtonsAndMenu();
+	}
 	
+	public void onDisconnect() {
+		connected = false;
+		updateButtons(false);
+	}
+	
+	@Override
+	public void handleUIMessage(Message msg) {
+		super.handleUIMessage(msg);
+		
+		switch (msg.what) {
+		case NXTTypes.GET_INPUT_VALUES:
+			m_oSensorGatherer.sendMessage(NXTTypes.SENSOR_DATA_RECEIVED, msg.obj);
+			break;
+			
+		case NXTTypes.GET_DISTANCE:
+			m_oSensorGatherer.sendMessage(NXTTypes.DISTANCE_DATA_RECEIVED, msg.obj);
+			break;
+			
+		case NXTTypes.MOTOR_STATE:
+			m_oSensorGatherer.sendMessage(NXTTypes.MOTOR_DATA_RECEIVED, msg.obj);
+			break;
+		
+		}
+	}
 	
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
-        m_oActivity.setContentView(R.layout.nxt);
+        m_oActivity.setContentView(R.layout.nxt_main);
         
         // adapter is the same, for each sensor we can choose the same types
 		final ArrayAdapter<ENXTSensorType> oSensorTypeAdapter = new ArrayAdapter<ENXTSensorType>(m_oActivity, 
@@ -769,7 +730,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 		m_oSensorGatherer.setDebug(i_bDebug);
 		
 		// create a temporary layout from the nxt layout
-		View oTempView = LayoutInflater.from(m_oActivity).inflate(R.layout.nxt, null);
+		View oTempView = LayoutInflater.from(m_oActivity).inflate(R.layout.nxt_main, null);
 		
 		for (ENXTSensorID eSensorID : ENXTSensorID.values()) {
 

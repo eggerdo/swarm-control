@@ -20,8 +20,9 @@ public class RemoteControlHelper {
 	
 	private Activity m_oActivity;
 	
-	public boolean bControl;
+	public boolean m_bControl;
 
+	private Button m_btnControl;
 	private Button m_btnFwd;
 	private Button m_btnBwd;
 	private Button m_btnLeft;
@@ -39,18 +40,18 @@ public class RemoteControlHelper {
 	
 	public void setProperties() {
 
-		Button btnControl = (Button) m_oActivity.findViewById(R.id.btnRemoteControl);
-		btnControl.setText("Remote Control: OFF");
-		btnControl.setOnClickListener(new OnClickListener() {
+		m_btnControl = (Button) m_oActivity.findViewById(R.id.btnRemoteControl);
+		m_btnControl.setText("Remote Control: OFF");
+		m_btnControl.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				bControl = !bControl;
+				m_bControl = !m_bControl;
 				if (OnControlPress != null) {
-					OnControlPress.buttonPressed(bControl);
+					OnControlPress.buttonPressed(m_bControl);
 				}
-				updateControlButtons(bControl);
-				((Button)v).setText("Remote Control: " + (bControl ? "ON" : "OFF"));
+				showControlButtons(m_bControl);
+				((Button)v).setText("Remote Control: " + (m_bControl ? "ON" : "OFF"));
 			}
 		});
 	
@@ -159,6 +160,7 @@ public class RemoteControlHelper {
 			}
 		});
 		
+		showControlButtons(false);
 	}
 	
 	public void setControlPressListener(OnButtonPress i_oListener) {
@@ -181,10 +183,19 @@ public class RemoteControlHelper {
 		OnRightPress = i_oListener;
 	}
 	
-	
-	public void updateControlButtons(boolean visible) {
+	public void showControlButtons(boolean visible) {
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
 	}
 	
+	public void resetLayout() {
+		m_btnControl.setText("Remote Control: OFF");
+		m_bControl = false;
+		updateButtons(false);
+		showControlButtons(false);
+	}
+
+	public void updateButtons(boolean b) {
+		m_btnControl.setEnabled(true);
+	}
 	
 }

@@ -9,7 +9,7 @@ public class RoombaTypes {
 
 	public static final UUID ROOMBA_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	
-	public static String MAC_FILTER = "00:06:66";
+	public static final String MAC_FILTER = "00:06:66";
 
     public static int MAX_SPEED = 100;
 	
