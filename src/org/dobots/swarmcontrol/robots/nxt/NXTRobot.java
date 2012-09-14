@@ -120,6 +120,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 		m_oNxt.setHandler(uiHandler);
 		
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
+		m_dblSpeed = m_oNxt.getBaseSped();
 
         setDebug(false);
     }
@@ -602,7 +603,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 					nIndex = RobotInventory.getInstance().addRobot(m_oNxt);
 				}
 				m_bKeepAlive = true;
-				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex);
+				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex, m_dblSpeed);
 			}
 		});
 	

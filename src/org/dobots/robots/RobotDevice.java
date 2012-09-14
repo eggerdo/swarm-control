@@ -38,6 +38,8 @@ public interface RobotDevice {
 	public void executeCircle(double i_dblTime, double i_dblSpeed);
 	
 	public void setBaseSpeed(double i_dblSpeed);
+	public double getBaseSped();
+	
 	public void driveForward();
 	public void driveBackward();
 	public void rotateCounterClockwise();

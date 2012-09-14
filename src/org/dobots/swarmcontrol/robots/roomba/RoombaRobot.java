@@ -106,6 +106,7 @@ public class RoombaRobot extends RobotView {
     	}
 		
 		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
+		m_dblSpeed = m_oRoomba.getBaseSped();
 
     }
 
@@ -510,7 +511,7 @@ public class RoombaRobot extends RobotView {
 					nIndex = RobotInventory.getInstance().addRobot(m_oRoomba);
 				}
 				m_bKeepAlive = true;
-				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_ROOMBA, nIndex);
+				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_ROOMBA, nIndex, m_dblSpeed);
 			}
 		});
 	

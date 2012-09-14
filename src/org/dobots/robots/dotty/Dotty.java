@@ -324,4 +324,10 @@ public class Dotty implements RobotDevice {
 		m_dblBaseSpeed = i_dblSpeed;
 	}
 
+	@Override
+	public double getBaseSped() {
+		// TODO Auto-generated method stub
+		return m_dblBaseSpeed;
+	}
+
 }

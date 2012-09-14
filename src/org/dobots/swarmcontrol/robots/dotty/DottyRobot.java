@@ -69,6 +69,8 @@ public class DottyRobot extends RobotView {
 	private CheckBox m_cbMotorB;
 
 	private EditText m_edtInterval;
+	
+	private double m_dblSpeed;
 
 	
     @Override
@@ -91,6 +93,7 @@ public class DottyRobot extends RobotView {
     	m_oDotty.setHandler(uiHandler);
 		
 		m_oSensorGatherer = new DottySensorGatherer(m_oActivity, m_oDotty);
+		m_dblSpeed = m_oDotty.getBaseSped();
 		
     }
     

@@ -514,4 +514,9 @@ public class Roomba implements RobotDevice {
 		m_dblBaseSpeed = i_dblSpeed;
 	}
 
+	@Override
+	public double getBaseSped() {
+		return m_dblBaseSpeed;
+	}
+
 }

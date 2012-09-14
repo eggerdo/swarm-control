@@ -31,6 +31,7 @@ public class CalibrationDialogSelf extends Activity {
 
 	public static final String TITLE = "Title";
 	public static final String MESSAGE = "Message";
+	public static final String SPEED = "Speed";
 	public static final String CALIBRATED_VALUE = "CALIBRATED_VALUE";
 	
 	public static final int CALIBRATION_RESULT = 1050;
@@ -144,6 +145,8 @@ public class CalibrationDialogSelf extends Activity {
         Bundle oParameter = this.getIntent().getExtras();
         String strTitle = oParameter.getString(TITLE);
         String strMessage = oParameter.getString(MESSAGE);
+        m_dblSpeed = oParameter.getDouble(SPEED);
+        updateSpeedDisplay();
 
         setTitle(strTitle);
         
@@ -155,12 +158,13 @@ public class CalibrationDialogSelf extends Activity {
     	m_txtSpeed.setText(Double.toString(m_dblSpeed));
     }
     
-    public static void createAndShow(Activity i_oActivity, String i_strTitle, String i_strMessage, OnRunClick i_onRunClicked) {
+    public static void createAndShow(Activity i_oActivity, String i_strTitle, String i_strMessage, double i_dblSpeed, OnRunClick i_onRunClicked) {
 
 		Intent oIntent = new Intent(i_oActivity, CalibrationDialogSelf.class);
 		Bundle oParam = new Bundle();
 		oParam.putString(TITLE, i_strTitle);
 		oParam.putString(MESSAGE, i_strMessage);
+		oParam.putDouble(SPEED, i_dblSpeed);
 		oIntent.putExtras(oParam);
 		
 		CalibrationDialogSelf.onRunClicked = i_onRunClicked;

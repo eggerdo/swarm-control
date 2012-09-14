@@ -32,7 +32,7 @@ public class RobotCalibration extends Activity {
 	
 	private Activity m_oActivity;
 	
-	private int m_nSpeed;
+	private double m_dblSpeed;
 
 	public static final String CALIBRATED_SPEED = "CALIBRATED_SPEED";
 	
@@ -45,6 +45,7 @@ public class RobotCalibration extends Activity {
 		m_oActivity = this;
 		
     	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
+    	m_dblSpeed = (Double) getIntent().getExtras().get("Speed");
 
     	m_oRobot = RobotInventory.getInstance().getRobot(nIndex);
 
@@ -59,7 +60,7 @@ public class RobotCalibration extends Activity {
 		switch (requestCode) {
 		case CalibrationDialogSelf.CALIBRATION_RESULT:
 			if (resultCode == RESULT_OK) {
-				m_nSpeed = data.getExtras().getInt(CalibrationDialogSelf.CALIBRATED_VALUE);
+				m_dblSpeed = data.getExtras().getDouble(CalibrationDialogSelf.CALIBRATED_VALUE);
 			}
 		}
 		
@@ -73,7 +74,7 @@ public class RobotCalibration extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				CalibrationDialogSelf.createAndShow(m_oActivity, "Calibrate Circle", "Check if Circle was done correctly and adjust if necessary",
+				CalibrationDialogSelf.createAndShow(m_oActivity, "Calibrate Circle", "Check if Circle was done correctly and adjust if necessary", m_dblSpeed,
 						new OnRunClick() {
 							
 							@Override
@@ -89,7 +90,7 @@ public class RobotCalibration extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				CalibrationDialogUser.createAndShow(m_oActivity, "Calibrate Circle", "Check if Circle was done correctly and adjust if necessary",
+				CalibrationDialogUser.createAndShow(m_oActivity, "Calibrate Circle", "Check if Circle was done correctly and adjust if necessary", m_dblSpeed,
 						new OnRunClick() {
 							
 							@Override
@@ -106,7 +107,7 @@ public class RobotCalibration extends Activity {
 			public void onClick(View v) {
 				Intent result = new Intent();
 				Bundle data = new Bundle();
-				data.putInt(CALIBRATED_SPEED, m_nSpeed);
+				data.putDouble(CALIBRATED_SPEED, m_dblSpeed);
 				result.putExtras(data);
 				setResult(RESULT_OK, result);
 				finish();
@@ -125,10 +126,11 @@ public class RobotCalibration extends Activity {
 		
 	}
 
-	public static void createAndShow(Activity i_oActivity, RobotType i_eType, int i_nIndex) {
+	public static void createAndShow(Activity i_oActivity, RobotType i_eType, int i_nIndex, double i_dblSpeed) {
 		Intent intent = new Intent(i_oActivity, RobotCalibration.class);
 		intent.putExtra("RobotType", i_eType);
 		intent.putExtra("InventoryIndex", i_nIndex);
+		intent.putExtra("Speed", i_dblSpeed);
 		i_oActivity.startActivityForResult(intent, ROBOT_CALIBRATION_RESULT);
 	}
 	

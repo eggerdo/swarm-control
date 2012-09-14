@@ -651,4 +651,10 @@ public class NXT implements RobotDevice, BTConnectable {
 		m_dblBaseSpeed = i_dblSpeed;
 	}
 
+	@Override
+	public double getBaseSped() {
+		// TODO Auto-generated method stub
+		return m_dblBaseSpeed;
+	}
+
 }
