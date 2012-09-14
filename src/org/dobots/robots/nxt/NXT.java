@@ -37,6 +37,8 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	private NXTBluetooth m_oConnection;
 
+	private double m_dblBaseSpeed = 50.0;
+	
 	private boolean m_bPairing;
 
 	int motorLeft;
@@ -62,7 +64,7 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	private Timer m_oKeepAliveTimer;
 	
-	private int m_nInvertFactor = 1;	// normal = 1, inverted = -1
+	private int m_nInvertFactor = -1;	// normal = 1, inverted = -1
 	
 	private double m_dblAxleWidth = 160.0;
 	
@@ -475,6 +477,10 @@ public class NXT implements RobotDevice, BTConnectable {
 		
 		drive(velocity[0], velocity[1]);
 	}
+	
+	public void driveForward() {
+		driveForward(m_dblBaseSpeed);
+	}
 
 	@Override
 	public void driveBackward(double i_dblSpeed) {
@@ -482,6 +488,10 @@ public class NXT implements RobotDevice, BTConnectable {
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		drive(-nVelocity, -nVelocity);
+	}
+	
+	public void driveBackward() {
+		driveBackward(m_dblBaseSpeed);
 	}
 
 	@Override
@@ -502,6 +512,10 @@ public class NXT implements RobotDevice, BTConnectable {
 		
 		drive(nVelocity, -nVelocity);
 	}
+	
+	public void rotateClockwise() {
+		rotateClockwise(m_dblBaseSpeed);
+	}
 
 	@Override
 	public void rotateCounterClockwise(double i_dblSpeed) {
@@ -511,6 +525,38 @@ public class NXT implements RobotDevice, BTConnectable {
 		drive(-nVelocity, nVelocity);
 	}
 	
+	public void rotateCounterClockwise() {
+		rotateCounterClockwise(m_dblBaseSpeed);
+	}
+
+	Handler executor = new Handler();
+	@Override
+	public void executeCircle(final double i_dblTime, final double i_dblSpeed) {
+		executor.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				rotateClockwise(i_dblSpeed);
+			}
+		});
+		executor.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				Utils.waitSomeTime((int)i_dblTime);
+			}
+		});
+		executor.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				driveStop();
+			}
+		});
+	}
+	
+	int m_lCircleTime = 4000;
+
 	@Override
 	public void driveStop() {
 		drive(0, 0);
@@ -599,6 +645,10 @@ public class NXT implements RobotDevice, BTConnectable {
 	
 	public boolean isInverted() {
 		return m_nInvertFactor == -1;
+	}
+
+	public void setBaseSpeed(double i_dblSpeed) {
+		m_dblBaseSpeed = i_dblSpeed;
 	}
 
 }

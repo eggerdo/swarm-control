@@ -19,7 +19,7 @@ public class RobotInventory {
 	
 	public int addRobot(RobotDevice i_oRobot) {
 		m_oRobotList.add(i_oRobot);
-		return m_oRobotList.indexOf(i_oRobot);
+		return findRobot(i_oRobot);
 	}
 	
 	public RobotDevice getRobot(int i_nIndex) {
@@ -28,6 +28,10 @@ public class RobotInventory {
 
 	public void removeRobot(RobotDevice oRobot) {
 		m_oRobotList.remove(oRobot);
+	}
+	
+	public int findRobot(RobotDevice i_oRobot) {
+		return m_oRobotList.indexOf(i_oRobot);
 	}
 	
 }

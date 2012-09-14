@@ -6,6 +6,10 @@ import org.dobots.swarmcontrol.robots.RobotType;
 
 public interface RobotDevice {
 
+	public interface OnFinishListener {
+		public void onFinish();
+	}
+	
 	public RobotType getType();
 	public String getAddress();
 
@@ -31,6 +35,12 @@ public interface RobotDevice {
 	
 	public void driveStop();
 	
+	public void executeCircle(double i_dblTime, double i_dblSpeed);
 	
-
+	public void setBaseSpeed(double i_dblSpeed);
+	public void driveForward();
+	public void driveBackward();
+	public void rotateCounterClockwise();
+	public void rotateClockwise();
+	
 }

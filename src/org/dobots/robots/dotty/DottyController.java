@@ -41,6 +41,8 @@ public class DottyController {
 	}
 	
 	public void disconnect() {
+		byte[] message = DottyTypes.getDisconnectPackage();
+		m_oConnection.sendMessage(message);
 		m_oConnection.close();
 		m_oConnection = null;
 	}

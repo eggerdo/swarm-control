@@ -196,5 +196,14 @@
     <string name="all">All</string>
     <string name="dotty_interval">Interval:</string>
     <string name="dotty_streaming">Streaming: OFF</string>
+    <string name="feedback_up">Up</string>
+    <string name="feedback_ok">OK</string>
+    <string name="feedback_down">Down</string>
+    <string name="calibrate_description">Execute the following steps to calibrate the robot</string>
+    <string name="calibrate_circle">Circle</string>
+    <string name="calibrate_distance">Distance</string>
+    <string name="calibrate_start">Start</string>
+    <string name="calibrate_toohigh">Too High</string>
+    <string name="calibrate_toolow">Too Low</string>
     
 </resources>

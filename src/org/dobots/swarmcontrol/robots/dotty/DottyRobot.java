@@ -15,12 +15,12 @@ import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.RemoteControlHelper.OnButtonPress;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
 import org.dobots.swarmcontrol.robots.nxt.NXTSensorGatherer;
 import org.dobots.utility.InputFilterMinMax;
+import org.dobots.utility.OnButtonPress;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;

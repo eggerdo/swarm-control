@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol;
 
+import org.dobots.utility.OnButtonPress;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
@@ -11,12 +12,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 public class RemoteControlHelper {
-	
-	public interface OnButtonPress {
-		
-		void buttonPressed(boolean i_bDown); 
-		
-	}
 	
 	private Activity m_oActivity;
 	

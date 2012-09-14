@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
-import org.dobots.swarmcontrol.RemoteControlHelper.OnButtonPress;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
+import org.dobots.utility.OnButtonPress;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -44,7 +44,7 @@ public class MultiRobotControl extends Activity {
         m_oRemoteCtrl.setProperties();
         
         m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
-			
+        	
 			@Override
 			public void buttonPressed(boolean i_bDown) {
 				enableControl(i_bDown);
@@ -111,7 +111,7 @@ public class MultiRobotControl extends Activity {
 		
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
-			entry.oRobot.driveForward(nSpeed);
+			entry.oRobot.driveForward();
 		}
 		
 	}
@@ -120,7 +120,7 @@ public class MultiRobotControl extends Activity {
 
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
-			entry.oRobot.driveBackward(nSpeed);
+			entry.oRobot.driveBackward();
 		}
 		
 	}
@@ -129,7 +129,7 @@ public class MultiRobotControl extends Activity {
 
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
-			entry.oRobot.rotateCounterClockwise(nSpeed);
+			entry.oRobot.rotateCounterClockwise();
 		}
 		
 	}
@@ -138,7 +138,7 @@ public class MultiRobotControl extends Activity {
 
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
-			entry.oRobot.rotateClockwise(nSpeed);
+			entry.oRobot.rotateClockwise();
 		}
 		
 	}

@@ -32,6 +32,8 @@ public class Dotty implements RobotDevice {
 
 	private double m_dblAxleWidth = 1.0;
 	
+	private double m_dblBaseSpeed = 50.0;
+	
 	private class DottyReceiver extends Thread {
 		
 		private Handler m_oHandler;
@@ -289,6 +291,37 @@ public class Dotty implements RobotDevice {
 	
 	public void stopStreaming() {
 		m_oController.stopStreaming();
+	}
+
+	@Override
+	public void executeCircle(double i_nTime, double i_nSpeed) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void driveForward() {
+		driveForward(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void driveBackward() {
+		driveBackward(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void rotateCounterClockwise() {
+		rotateCounterClockwise(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void rotateClockwise() {
+		rotateClockwise(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void setBaseSpeed(double i_dblSpeed) {
+		m_dblBaseSpeed = i_dblSpeed;
 	}
 
 }

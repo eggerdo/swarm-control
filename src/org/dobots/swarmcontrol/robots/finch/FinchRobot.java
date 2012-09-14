@@ -8,7 +8,7 @@ import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
 
-import edu.cmu.ri.createlab.terk.robot.finch.Finch;
+//import edu.cmu.ri.createlab.terk.robot.finch.Finch;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 public class FinchRobot extends RobotView {
 	
-	private Finch oFinch;
+//	private Finch oFinch;
 	private FinchSensorData oData;
 	private SensorGatherer oSensorGatherer;
 	private Timer oTimer;
@@ -127,9 +127,9 @@ public class FinchRobot extends RobotView {
 //					oData.dblTemperature = oFinch.getTemperature();
 					break;
 				case SENS_ACCELERATION:
-					oData.dblAccelX = oFinch.getXAcceleration();
-					oData.dblAccelY = oFinch.getYAcceleration();
-					oData.dblAccelZ = oFinch.getZAcceleration();
+//					oData.dblAccelX = oFinch.getXAcceleration();
+//					oData.dblAccelY = oFinch.getYAcceleration();
+//					oData.dblAccelZ = oFinch.getZAcceleration();
 
 //					oData.dblAccelX = oRand.nextDouble();
 //					oData.dblAccelY = oRand.nextDouble();
@@ -155,7 +155,7 @@ public class FinchRobot extends RobotView {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 		
-		oFinch = new Finch();
+//		oFinch = new Finch();
 		oData = new FinchSensorData();
 		oSensorGatherer = new SensorGatherer();
 		oHandler = new Handler();
@@ -217,6 +217,18 @@ public class FinchRobot extends RobotView {
 
 	@Override
 	public void shutDown() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onConnect() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onDisconnect() {
 		// TODO Auto-generated method stub
 		
 	}

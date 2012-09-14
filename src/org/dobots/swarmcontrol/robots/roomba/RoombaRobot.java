@@ -12,6 +12,7 @@ import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
+import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
@@ -22,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -76,6 +78,9 @@ public class RoombaRobot extends RobotView {
 	private Button m_btnPower;
 	private Button m_btnAccelerometer;
 	private Button m_btnMove;
+	private Button m_btnCalibrate;
+
+	private double m_dblSpeed;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -157,6 +162,22 @@ public class RoombaRobot extends RobotView {
     }
     
 	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		switch (requestCode) {
+		case RobotCalibration.ROBOT_CALIBRATION_RESULT:
+			if (resultCode == RESULT_OK) {
+				m_dblSpeed = data.getExtras().getDouble(RobotCalibration.CALIBRATED_SPEED);
+				m_oRoomba.setBaseSpeed(m_dblSpeed);
+				showToast("Calibrated speed saved", Toast.LENGTH_SHORT);
+			} else {
+				showToast("Calibration discarded", Toast.LENGTH_SHORT);
+			}
+		}
+	};
+    
+	@Override
 	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
 		super.onAccelerationChanged(x, y, z, tx);
 		
@@ -236,6 +257,8 @@ public class RoombaRobot extends RobotView {
 //		m_oActivity.findViewById(R.id.btnMainBrush).setEnabled(visible);
 //		m_oActivity.findViewById(R.id.btnSideBrush).setEnabled(visible);
 //		m_oActivity.findViewById(R.id.btnVacuum).setEnabled(visible);
+		m_btnCalibrate.setEnabled(visible);
+		
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layBrushes), visible);
 		
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
@@ -476,6 +499,21 @@ public class RoombaRobot extends RobotView {
 			}
 		});
 
+		m_btnCalibrate = (Button) m_oActivity.findViewById(R.id.btnCalibrate);
+		m_btnCalibrate.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+
+				int nIndex = RobotInventory.getInstance().findRobot(m_oRoomba);
+				if (nIndex == -1) {
+					nIndex = RobotInventory.getInstance().addRobot(m_oRoomba);
+				}
+				m_bKeepAlive = true;
+				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_ROOMBA, nIndex);
+			}
+		});
+	
 		m_btnMainBrush = (Button) m_oActivity.findViewById(R.id.btnMainBrush);
 		m_btnMainBrush.setOnClickListener(new OnClickListener() {
 			

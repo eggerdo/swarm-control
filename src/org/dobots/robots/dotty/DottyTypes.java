@@ -73,6 +73,8 @@ public class DottyTypes {
 
 	public static final int CONTROL_CMD_LEN = 2;
 	
+	// disconnect command
+	public static final byte DISCONNECT = 0x0C;
 	
 	/////////////////////////////////////////////////
 	
@@ -181,6 +183,14 @@ public class DottyTypes {
 	public static byte[] getStreamingOFFPackage() {
 		CmdPackage cmd = assembleCmdPackage();
 		cmd.nType = STREAM_OFF;
+		cmd.nLength = 0;
+		cmd.nCRC = 1;
+		return cmd.toByteArray();
+	}
+
+	public static byte[] getDisconnectPackage() {
+		CmdPackage cmd = assembleCmdPackage();
+		cmd.nType = DISCONNECT;
 		cmd.nLength = 0;
 		cmd.nCRC = 1;
 		return cmd.toByteArray();

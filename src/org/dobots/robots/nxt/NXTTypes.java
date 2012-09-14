@@ -43,6 +43,8 @@ public class NXTTypes {
     public static final int GET_DISTANCE = 1023;
     public static final int KEEP_ALIVE = 1024;
     
+    public static final int MAKE_CIRLCE = 1025;
+    
     public static final int SAY_TEXT = 1030;
     public static final int VIBRATE_PHONE = 1031;
 

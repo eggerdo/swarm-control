@@ -8,6 +8,9 @@ import org.dobots.robots.roomba.RoombaTypes.ERoombaModes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.utility.Utils;
+
+import android.os.Handler;
 
 public class Roomba implements RobotDevice {
 	
@@ -19,6 +22,8 @@ public class Roomba implements RobotDevice {
 	byte m_byPowerIntensity;
 	
 	ERoombaModes m_eMode;
+
+	private double m_dblBaseSpeed = 50.0;
 	
 	public Roomba() {
 		oRoombaCtrl = new RoombaController();
@@ -456,6 +461,57 @@ public class Roomba implements RobotDevice {
 		}
 		
 		m_eMode = ERoombaModes.mod_Passive;
+	}
+
+	Handler executor = new Handler();
+	@Override
+	public void executeCircle(final double i_dblTime, final double i_dblSpeed) {
+		executor.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				rotateClockwise(i_dblSpeed);
+			}
+		});
+		executor.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				Utils.waitSomeTime((int)i_dblTime);
+			}
+		});
+		executor.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				driveStop();
+			}
+		});
+	}
+
+	@Override
+	public void driveForward() {
+		driveForward(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void driveBackward() {
+		driveBackward(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void rotateCounterClockwise() {
+		rotateCounterClockwise(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void rotateClockwise() {
+		rotateClockwise(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void setBaseSpeed(double i_dblSpeed) {
+		m_dblBaseSpeed = i_dblSpeed;
 	}
 
 }

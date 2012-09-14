@@ -19,11 +19,16 @@ import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
+import org.dobots.swarmcontrol.SwarmControlActivity;
+import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.utility.AccelerometerListener;
 import org.dobots.utility.AccelerometerManager;
+import org.dobots.utility.CalibrationDialogSelf;
 import org.dobots.utility.DeviceListActivity;
+import org.dobots.utility.FeedbackDialog;
+import org.dobots.utility.OnButtonPress;
 import org.dobots.utility.ProgressDlg;
 import org.dobots.utility.Utils;
 
@@ -90,6 +95,10 @@ public class NXTRobot extends RobotView implements BTConnectable {
 	private Button m_btnLeft;
 	private Button m_btnRight;
 	
+	private Button m_btnCalibrate;
+	
+	private double m_dblSpeed;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -154,7 +163,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
     public void onRestart() {
     	super.onRestart();
     	
-    	if (m_strMacAddress != "") {
+    	if (m_strMacAddress != "" && !m_bKeepAlive) {
     		connectToRobot(m_oBTHelper.getRemoteDevice(m_strMacAddress));
     	}
 
@@ -362,6 +371,22 @@ public class NXTRobot extends RobotView implements BTConnectable {
 		}
 	}
 	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		switch (requestCode) {
+		case RobotCalibration.ROBOT_CALIBRATION_RESULT:
+			if (resultCode == RESULT_OK) {
+				m_dblSpeed = data.getExtras().getDouble(RobotCalibration.CALIBRATED_SPEED);
+				m_oNxt.setBaseSpeed(m_dblSpeed);
+				showToast("Calibrated speed saved", Toast.LENGTH_SHORT);
+			} else {
+				showToast("Calibration discarded", Toast.LENGTH_SHORT);
+			}
+		}
+	};
+	
 	public void onConnect() {
 		connected = true;
 		updateButtons(true);
@@ -565,6 +590,21 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				}
 			}
 		});
+		
+		m_btnCalibrate = (Button) m_oActivity.findViewById(R.id.btnCalibrate);
+		m_btnCalibrate.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+
+				int nIndex = RobotInventory.getInstance().findRobot(m_oNxt);
+				if (nIndex == -1) {
+					nIndex = RobotInventory.getInstance().addRobot(m_oNxt);
+				}
+				m_bKeepAlive = true;
+				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex);
+			}
+		});
 	
 		m_btnFwd = (Button) m_oActivity.findViewById(R.id.btnFwd);
 		m_btnLeft = (Button) m_oActivity.findViewById(R.id.btnLeft);
@@ -583,7 +623,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oNxt.driveForward(50);
+					m_oNxt.driveForward(m_dblSpeed);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -606,7 +646,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oNxt.driveBackward(50);
+					m_oNxt.driveBackward(m_dblSpeed);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -629,7 +669,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oNxt.rotateCounterClockwise(50);
+					m_oNxt.rotateCounterClockwise(m_dblSpeed);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -652,7 +692,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oNxt.rotateClockwise(50);
+					m_oNxt.rotateClockwise(m_dblSpeed);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -679,6 +719,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 
 	public void updateButtons(boolean enabled) {
 		m_oActivity.findViewById(R.id.btnCtrl).setEnabled(enabled);
+		m_oActivity.findViewById(R.id.btnCalibrate).setEnabled(enabled);
 		m_oActivity.findViewById(R.id.cbSensor1).setEnabled(enabled);
 		m_oActivity.findViewById(R.id.spSensor1Type).setEnabled(enabled);
 		m_oActivity.findViewById(R.id.cbSensor2).setEnabled(enabled);
