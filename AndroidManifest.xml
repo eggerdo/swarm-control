@@ -53,7 +53,7 @@
 		<activity android:name="org.dobots.chat.ChatClient"></activity>
 		<activity android:name=".robots.dotty.DottyRobot"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name=".robots.ardrone.ARDroneRobot"
+		<activity android:name=".robots.parrot.ParrotRobot"
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name="org.dobots.utility.FeedbackDialog"
 			android:screenOrientation="portrait" 
