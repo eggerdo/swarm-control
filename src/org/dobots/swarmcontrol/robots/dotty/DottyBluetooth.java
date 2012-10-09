@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.robots.dotty;
 import java.io.IOException;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.nxt.msg.MsgTypes;
 import org.dobots.utility.Utils;
@@ -83,7 +84,7 @@ public class DottyBluetooth extends BaseBluetooth {
 			m_oOutStream.write(buffer);
 		} catch (IOException e) {
 			connected = false;
-            sendState(STATE_SENDERROR);
+            sendState(MessageTypes.STATE_SENDERROR);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

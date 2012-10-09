@@ -2,11 +2,13 @@ package org.dobots.robots;
 
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.parrot.Parrot;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
+import org.dobots.swarmcontrol.robots.parrot.ParrotRobot;
 import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 
 import android.app.Activity;
@@ -23,6 +25,8 @@ public class RobotDeviceFactory {
 				return new NXT();
 			case RBT_DOTTY:
 				return new Dotty();
+			case RBT_ARDRONE:
+				return new Parrot();
 			default: 		
 				throw new Exception();
 		}
@@ -36,6 +40,8 @@ public class RobotDeviceFactory {
 			return NXT.class;
 		case RBT_DOTTY:
 			return Dotty.class;
+		case RBT_ARDRONE:
+			return Parrot.class;
 		default:
 			throw new Exception();
 		}
@@ -53,6 +59,8 @@ public class RobotDeviceFactory {
 		case RBT_DOTTY:
 			DottyRobot.connectToDotty(context, (Dotty)oRobot, i_oDevice, oListener);
 			break;
+		case RBT_ARDRONE:
+			ParrotRobot.connectToARDrone(context, (Parrot)oRobot, "", oListener);
 		default:
 			throw new Exception();
 		}

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTTypes;
@@ -20,6 +21,7 @@ import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.SwarmControlActivity;
+import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
@@ -72,7 +74,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-public class NXTRobot extends RobotView implements BTConnectable {
+public class NXTRobot extends BluetoothRobot implements BTConnectable {
 
 	private static String TAG = "NXT";
 	
@@ -223,7 +225,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 			if (m_bAccelerometer) {
 				m_bSetAccelerometerBase = true;
 			} else {
-				m_oNxt.driveStop();
+				m_oNxt.moveStop();
 			}
 		}
 			
@@ -272,24 +274,24 @@ public class NXTRobot extends RobotView implements BTConnectable {
 			@Override
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
-				case BaseBluetooth.DISPLAY_TOAST:
+				case MessageTypes.DISPLAY_TOAST:
 					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
 					break;
-				case BaseBluetooth.STATE_CONNECTED:
+				case MessageTypes.STATE_CONNECTED:
 					connectingProgress.dismiss();
 					i_oConnectListener.onConnect(true);
 //					updateButtonsAndMenu();
 					break;
 
-				case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+				case MessageTypes.STATE_CONNECTERROR_PAIRING:
 					connectingProgress.dismiss();
 					i_oConnectListener.onConnect(false);
 					break;
 
-				case BaseBluetooth.STATE_CONNECTERROR:
+				case MessageTypes.STATE_CONNECTERROR:
 					connectingProgress.dismiss();
-				case BaseBluetooth.STATE_RECEIVEERROR:
-				case BaseBluetooth.STATE_SENDERROR:
+				case MessageTypes.STATE_RECEIVEERROR:
+				case MessageTypes.STATE_SENDERROR:
 					i_oConnectListener.onConnect(false);
 
 //					if (btErrorPending == false) {
@@ -331,11 +333,11 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
 
 				if (radius > RADIUS_SENSITIVITY) {
-					m_oNxt.driveForward(speed, radius);
+					m_oNxt.moveForward(speed, radius);
 				} else if (radius < -RADIUS_SENSITIVITY) {
-					m_oNxt.driveForward(speed, radius);
+					m_oNxt.moveForward(speed, radius);
 				} else {
-					m_oNxt.driveForward(speed);
+					m_oNxt.moveForward(speed);
 				}
 			} else if (speed < -SPEED_SENSITIVITY) {
 				// remove the speed_sensitivity again
@@ -344,11 +346,11 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				Log.i("Speeds", "speed=" + speed + ", radius=" + radius); 
 
 				if (radius > RADIUS_SENSITIVITY) {
-					m_oNxt.driveBackward(speed, radius);
+					m_oNxt.moveBackward(speed, radius);
 				} else if (radius < -RADIUS_SENSITIVITY) {
-					m_oNxt.driveBackward(speed, radius);
+					m_oNxt.moveBackward(speed, radius);
 				} else {
-					m_oNxt.driveBackward(speed);
+					m_oNxt.moveBackward(speed);
 				}
 			} else {
 
@@ -365,7 +367,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 					speed = (int) (radius / (double)NXTTypes.MAX_RADIUS * NXTTypes.MAX_VELOCITY);
 					m_oNxt.rotateClockwise(speed);
 				} else {
-					m_oNxt.driveStop();
+					m_oNxt.moveStop();
 				}
 				
 			}
@@ -619,12 +621,12 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.driveStop();
+					m_oNxt.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oNxt.driveForward(m_dblSpeed);
+					m_oNxt.moveForward(m_dblSpeed);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -642,12 +644,12 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.driveStop();
+					m_oNxt.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oNxt.driveBackward(m_dblSpeed);
+					m_oNxt.moveBackward(m_dblSpeed);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -665,7 +667,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.driveStop();
+					m_oNxt.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -688,7 +690,7 @@ public class NXTRobot extends RobotView implements BTConnectable {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oNxt.driveStop();
+					m_oNxt.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;

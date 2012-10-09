@@ -3,6 +3,7 @@ package org.dobots.robots.dotty;
 import java.io.IOException;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.RobotDevice;
 import org.dobots.robots.dotty.DottyTypes.DataPackage;
 import org.dobots.robots.dotty.DottyTypes.SensorData;
@@ -61,16 +62,16 @@ public class Dotty implements RobotDevice {
 					}
 					
 					switch (messageID) {
-					case BaseBluetooth.STATE_CONNECTED:
+					case MessageTypes.STATE_CONNECTED:
 						connected = true;
 						break;
 
-					case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+					case MessageTypes.STATE_CONNECTERROR_PAIRING:
 						m_oController.destroyConnection();
 						break;
 
-					case BaseBluetooth.STATE_RECEIVEERROR:
-					case BaseBluetooth.STATE_SENDERROR:
+					case MessageTypes.STATE_RECEIVEERROR:
+					case MessageTypes.STATE_SENDERROR:
 						connected = false;
 						break;
 					
@@ -223,7 +224,7 @@ public class Dotty implements RobotDevice {
 	
 	
 	@Override
-	public void driveForward(double i_dblSpeed) {
+	public void moveForward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
@@ -231,7 +232,7 @@ public class Dotty implements RobotDevice {
 	}
 
 	@Override
-	public void driveForward(double i_dblSpeed, int i_nRadius) {
+	public void moveForward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		i_nRadius = capRadius(i_nRadius);
 
@@ -242,7 +243,7 @@ public class Dotty implements RobotDevice {
 	}
 
 	@Override
-	public void driveBackward(double i_dblSpeed) {
+	public void moveBackward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
@@ -250,7 +251,7 @@ public class Dotty implements RobotDevice {
 	}
 
 	@Override
-	public void driveBackward(double i_dblSpeed, int i_nRadius) {
+	public void moveBackward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		i_nRadius = capRadius(i_nRadius);
 
@@ -277,7 +278,7 @@ public class Dotty implements RobotDevice {
 	}
 
 	@Override
-	public void driveStop() {
+	public void moveStop() {
 		m_oController.driveStop();
 	}
 	
@@ -300,13 +301,13 @@ public class Dotty implements RobotDevice {
 	}
 
 	@Override
-	public void driveForward() {
-		driveForward(m_dblBaseSpeed);
+	public void moveForward() {
+		moveForward(m_dblBaseSpeed);
 	}
 
 	@Override
-	public void driveBackward() {
-		driveBackward(m_dblBaseSpeed);
+	public void moveBackward() {
+		moveBackward(m_dblBaseSpeed);
 	}
 
 	@Override

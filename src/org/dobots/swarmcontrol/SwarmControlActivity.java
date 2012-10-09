@@ -100,7 +100,7 @@ public class SwarmControlActivity extends Activity {
         TextView changelog = (TextView) findViewById(R.id.lblChangeLog);
         changelog.setText(CHANGELOG);
         
-//        showRobot(RobotType.RBT_DOTTY);
+        showRobot(RobotType.RBT_ARDRONE);
 //        showBehaviour(SwarmAction.sa_Dance);
     }
 

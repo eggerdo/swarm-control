@@ -304,14 +304,14 @@ public class Roomba implements RobotDevice {
 		return (int) Math.round(i_dblSpeed / 100.0 * RoombaTypes.MAX_VELOCITY);
 	}
 	
-	public void driveForward(double i_dblSpeed) {
+	public void moveForward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.STRAIGHT);
 	}
 	
-	public void driveForward(double i_dblSpeed, int i_nRadius) {
+	public void moveForward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
@@ -319,14 +319,14 @@ public class Roomba implements RobotDevice {
 		oRoombaCtrl.drive(nVelocity, i_nRadius);
 	}
 	
-	public void driveBackward(double i_dblSpeed) {
+	public void moveBackward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(-nVelocity, RoombaTypes.STRAIGHT);
 	}
 
-	public void driveBackward(double i_dblSpeed, int i_nRadius) {
+	public void moveBackward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
@@ -348,7 +348,7 @@ public class Roomba implements RobotDevice {
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.COUNTER_CLOCKWISE);
 	}
 	
-	public void driveStop() {
+	public void moveStop() {
 		oRoombaCtrl.drive(0, 0);
 	}
 	
@@ -484,19 +484,19 @@ public class Roomba implements RobotDevice {
 			
 			@Override
 			public void run() {
-				driveStop();
+				moveStop();
 			}
 		});
 	}
 
 	@Override
-	public void driveForward() {
-		driveForward(m_dblBaseSpeed);
+	public void moveForward() {
+		moveForward(m_dblBaseSpeed);
 	}
 
 	@Override
-	public void driveBackward() {
-		driveBackward(m_dblBaseSpeed);
+	public void moveBackward() {
+		moveBackward(m_dblBaseSpeed);
 	}
 
 	@Override

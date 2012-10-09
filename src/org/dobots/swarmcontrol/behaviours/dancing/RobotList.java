@@ -226,7 +226,7 @@ public class RobotList extends Activity {
 					@Override
 					public void onClick(View v) {
 						final RobotEntry oEntry = (RobotEntry) viewHolder.btnConnect.getTag();
-						final BluetoothConnectionHelper oBTHelper = new BluetoothConnectionHelper(context, RobotViewFactory.getRobotMacFilter(oEntry.eType));
+						final BluetoothConnectionHelper oBTHelper = new BluetoothConnectionHelper(context, RobotViewFactory.getRobotAddressFilter(oEntry.eType));
 						oBTHelper.SetOnConnectListener(new BluetoothConnectionListener() {
 							
 							@Override

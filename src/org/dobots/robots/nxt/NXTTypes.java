@@ -189,10 +189,10 @@ public class NXTTypes {
 				bCalibrated			= data_in.readBoolean();
 				nSensorType			= data_in.readUnsignedByte();
 				nSensorMode			= data_in.readUnsignedByte();
-				nRawValue			= Utils.LittleEndianToBigEndian(data_in.readShort());
-				nNormalizedValue	= Utils.LittleEndianToBigEndian(data_in.readShort());
-				nScaledValue		= Utils.LittleEndianToBigEndian(data_in.readShort());
-				nCalibratedValue	= Utils.LittleEndianToBigEndian(data_in.readShort());
+				nRawValue			= Utils.ConvertEndian(data_in.readShort());
+				nNormalizedValue	= Utils.ConvertEndian(data_in.readShort());
+				nScaledValue		= Utils.ConvertEndian(data_in.readShort());
+				nCalibratedValue	= Utils.ConvertEndian(data_in.readShort());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -2,10 +2,12 @@ package org.dobots.swarmcontrol.robots;
 
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.robots.parrot.ParrotTypes;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
 import org.dobots.swarmcontrol.robots.finch.FinchRobot;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
+import org.dobots.swarmcontrol.robots.parrot.ParrotRobot;
 import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 
 
@@ -37,12 +39,14 @@ public class RobotViewFactory {
 			return NXTRobot.class;
 		case RBT_DOTTY:
 			return DottyRobot.class;
+		case RBT_ARDRONE:
+			return ParrotRobot.class;
 		default:
 			return RobotView.class;
 		}
 	}
 	
-	public static String getRobotMacFilter(RobotType i_eRobot) {
+	public static String getRobotAddressFilter(RobotType i_eRobot) {
 		switch (i_eRobot) {
 		case RBT_ROOMBA:
 			return RoombaTypes.MAC_FILTER;
@@ -50,6 +54,8 @@ public class RobotViewFactory {
 			return NXTTypes.MAC_FILTER;
 		case RBT_DOTTY:
 			return DottyTypes.MAC_FILTER;
+		case RBT_ARDRONE:
+			return ParrotTypes.SSID_Filter;
 		default:
 			return "";
 		}

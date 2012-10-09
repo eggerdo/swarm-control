@@ -205,5 +205,21 @@
     <string name="calibrate_start">Start</string>
     <string name="calibrate_toohigh">Too High</string>
     <string name="calibrate_toolow">Too Low</string>
+    <string name="ardrone_takeoff">Take Off</string>
+    <string name="ardrone_land">Land</string>
+    <string name="ardrone_battery">Battery</string>
+    <string name="ardrone_altitude">Altitude</string>
+    <string name="ardrone_pitch">Pitch</string>
+    <string name="ardrone_roll">Roll</string>
+    <string name="ardrone_yaw">Yaw</string>
+    <string name="ardrone_ctrlstate">Control State</string>
+    <string name="ardrone_sensors">Sensors: OFF</string>
+    <string name="ardrone_camera">Camera:</string>
+    <string name="ardrone_title">AR Drone</string>
+    <string name="ardrone_commands">AR Drone Commands</string>
+    <string name="ardrone_up">Up</string>
+    <string name="ardrone_down">Down</string>
+    <string name="ardrone_rotleft">Rotate Left</string>
+    <string name="ardrone_rotright">Rotate Right</string>
     
 </resources>

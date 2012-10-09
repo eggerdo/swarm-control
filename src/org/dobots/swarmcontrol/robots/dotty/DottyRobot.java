@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
@@ -15,6 +16,7 @@ import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
+import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
@@ -44,7 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-public class DottyRobot extends RobotView {
+public class DottyRobot extends BluetoothRobot {
 
 	private static String TAG = "Dotty";
 	
@@ -140,10 +142,10 @@ public class DottyRobot extends RobotView {
         	case sensor_Light:
         		cbSensor = m_cbLight;
         		break;
-        	case sensor_MotorA:
+        	case sensor_Motor1:
         		cbSensor = m_cbMotorA;
         		break;
-        	case sensor_MotorB:
+        	case sensor_Motor2:
         		cbSensor = m_cbMotorB;
         		break;
         	case sensor_Sound:
@@ -194,9 +196,9 @@ public class DottyRobot extends RobotView {
 			@Override
 			public void buttonPressed(boolean i_bDown) {
 				if (i_bDown) {
-					m_oDotty.driveForward(50);
+					m_oDotty.moveForward(50);
 				} else {
-					m_oDotty.driveStop();
+					m_oDotty.moveStop();
 				}
 			}
 		});
@@ -206,9 +208,9 @@ public class DottyRobot extends RobotView {
 			@Override
 			public void buttonPressed(boolean i_bDown) {
 				if (i_bDown) {
-					m_oDotty.driveBackward(50);
+					m_oDotty.moveBackward(50);
 				} else {
-					m_oDotty.driveStop();
+					m_oDotty.moveStop();
 				}
 			}
 		});
@@ -220,7 +222,7 @@ public class DottyRobot extends RobotView {
 				if (i_bDown) {
 					m_oDotty.rotateCounterClockwise(50);
 				} else {
-					m_oDotty.driveStop();
+					m_oDotty.moveStop();
 				}
 			}
 		});
@@ -232,7 +234,7 @@ public class DottyRobot extends RobotView {
 				if (i_bDown) {
 					m_oDotty.rotateClockwise(50);
 				} else {
-					m_oDotty.driveStop();
+					m_oDotty.moveStop();
 				}
 			}
 		});
@@ -405,24 +407,24 @@ public class DottyRobot extends RobotView {
 			@Override
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
-				case BaseBluetooth.DISPLAY_TOAST:
+				case MessageTypes.DISPLAY_TOAST:
 					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
 					break;
-				case BaseBluetooth.STATE_CONNECTED:
+				case MessageTypes.STATE_CONNECTED:
 					connectingProgress.dismiss();
 					i_oConnectListener.onConnect(true);
 //					updateButtonsAndMenu();
 					break;
 
-				case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+				case MessageTypes.STATE_CONNECTERROR_PAIRING:
 					connectingProgress.dismiss();
 					i_oConnectListener.onConnect(false);
 					break;
 
-				case BaseBluetooth.STATE_CONNECTERROR:
+				case MessageTypes.STATE_CONNECTERROR:
 					connectingProgress.dismiss();
-				case BaseBluetooth.STATE_RECEIVEERROR:
-				case BaseBluetooth.STATE_SENDERROR:
+				case MessageTypes.STATE_RECEIVEERROR:
+				case MessageTypes.STATE_SENDERROR:
 					i_oConnectListener.onConnect(false);
 
 //					if (btErrorPending == false) {

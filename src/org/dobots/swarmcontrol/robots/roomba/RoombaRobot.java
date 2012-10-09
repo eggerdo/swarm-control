@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.robots.roomba;
 import java.io.IOException;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.roomba.Roomba;
@@ -12,6 +13,7 @@ import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
+import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
@@ -42,7 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-public class RoombaRobot extends RobotView {
+public class RoombaRobot extends BluetoothRobot {
 	
 	private static String TAG = "Roomba";
 
@@ -149,7 +151,7 @@ public class RoombaRobot extends RobotView {
 			if (m_bAccelerometer) {
 				m_bSetAccelerometerBase = true;
 			} else {
-				m_oRoomba.driveStop();
+				m_oRoomba.moveStop();
 			}
 		}
 
@@ -197,11 +199,11 @@ public class RoombaRobot extends RobotView {
 				Log.i("Speeds", "speed=" + nSpeed + ", radius=" + nRadius); 
 
 				if (nRadius > RADIUS_SENSITIVITY) {
-					m_oRoomba.driveForward(nSpeed, nRadius);
+					m_oRoomba.moveForward(nSpeed, nRadius);
 				} else if (nRadius < -RADIUS_SENSITIVITY) {
-					m_oRoomba.driveForward(nSpeed, nRadius);
+					m_oRoomba.moveForward(nSpeed, nRadius);
 				} else {
-					m_oRoomba.driveForward(nSpeed);
+					m_oRoomba.moveForward(nSpeed);
 				}
 			} else if (nSpeed < -SPEED_SENSITIVITY) {
 				// remove the speed_sensitivity again
@@ -211,11 +213,11 @@ public class RoombaRobot extends RobotView {
 
 				if (nRadius > RADIUS_SENSITIVITY) {
 					// 
-					m_oRoomba.driveBackward(nSpeed, nRadius);
+					m_oRoomba.moveBackward(nSpeed, nRadius);
 				} else if (nRadius < -RADIUS_SENSITIVITY) {
-					m_oRoomba.driveBackward(nSpeed, nRadius);
+					m_oRoomba.moveBackward(nSpeed, nRadius);
 				} else {
-					m_oRoomba.driveBackward(nSpeed);
+					m_oRoomba.moveBackward(nSpeed);
 				}
 			} else {
 				
@@ -232,7 +234,7 @@ public class RoombaRobot extends RobotView {
 					nSpeed = (int) (nRadius / RoombaTypes.MAX_RADIUS * RoombaTypes.MAX_SPEED);
 					m_oRoomba.rotateClockwise(nSpeed);
 				} else {
-					m_oRoomba.driveStop();
+					m_oRoomba.moveStop();
 				}
 
 			}
@@ -319,10 +321,10 @@ public class RoombaRobot extends RobotView {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case BaseBluetooth.DISPLAY_TOAST:
+			case MessageTypes.DISPLAY_TOAST:
 				showToast((String)msg.obj, Toast.LENGTH_SHORT);
 				break;
-			case BaseBluetooth.STATE_CONNECTED:
+			case MessageTypes.STATE_CONNECTED:
 				connectingProgressDialog.dismiss();
 				m_oRoomba.init();
 				updatePowerButton(true);
@@ -332,14 +334,14 @@ public class RoombaRobot extends RobotView {
 //				updateButtonsAndMenu();
 				break;
 
-			case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+			case MessageTypes.STATE_CONNECTERROR_PAIRING:
 				connectingProgressDialog.dismiss();
 				break;
 
-			case BaseBluetooth.STATE_CONNECTERROR:
+			case MessageTypes.STATE_CONNECTERROR:
 				connectingProgressDialog.dismiss();
-			case BaseBluetooth.STATE_RECEIVEERROR:
-			case BaseBluetooth.STATE_SENDERROR:
+			case MessageTypes.STATE_RECEIVEERROR:
+			case MessageTypes.STATE_SENDERROR:
 
 				if (btErrorPending == false) {
 					btErrorPending = true;
@@ -374,25 +376,25 @@ public class RoombaRobot extends RobotView {
 			@Override
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
-				case BaseBluetooth.DISPLAY_TOAST:
+				case MessageTypes.DISPLAY_TOAST:
 					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
 					break;
-				case BaseBluetooth.STATE_CONNECTED:
+				case MessageTypes.STATE_CONNECTED:
 					connectingProgress.dismiss();
 					i_oConnectListener.onConnect(true);
 					i_oRoomba.init();
 //					updateButtonsAndMenu();
 					break;
 
-				case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+				case MessageTypes.STATE_CONNECTERROR_PAIRING:
 					connectingProgress.dismiss();
 					i_oConnectListener.onConnect(false);
 					break;
 
-				case BaseBluetooth.STATE_CONNECTERROR:
+				case MessageTypes.STATE_CONNECTERROR:
 					connectingProgress.dismiss();
-				case BaseBluetooth.STATE_RECEIVEERROR:
-				case BaseBluetooth.STATE_SENDERROR:
+				case MessageTypes.STATE_RECEIVEERROR:
+				case MessageTypes.STATE_SENDERROR:
 					i_oConnectListener.onConnect(false);
 
 //					if (btErrorPending == false) {
@@ -572,7 +574,7 @@ public class RoombaRobot extends RobotView {
 				if (m_bAccelerometer) {
 					m_bSetAccelerometerBase = true;
 				} else {
-					m_oRoomba.driveStop();
+					m_oRoomba.moveStop();
 				}
 				
 				if (m_bAccelerometer && m_bMove) {
@@ -611,12 +613,12 @@ public class RoombaRobot extends RobotView {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.driveStop();
+					m_oRoomba.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oRoomba.driveForward(50);
+					m_oRoomba.moveForward(50);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -634,12 +636,12 @@ public class RoombaRobot extends RobotView {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.driveStop();
+					m_oRoomba.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
 				case MotionEvent.ACTION_DOWN:
-					m_oRoomba.driveBackward(50);
+					m_oRoomba.moveBackward(50);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					break;					
@@ -657,7 +659,7 @@ public class RoombaRobot extends RobotView {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.driveStop();
+					m_oRoomba.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;
@@ -680,7 +682,7 @@ public class RoombaRobot extends RobotView {
 				switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
-					m_oRoomba.driveStop();
+					m_oRoomba.moveStop();
 					break;
 				case MotionEvent.ACTION_POINTER_UP:
 					break;

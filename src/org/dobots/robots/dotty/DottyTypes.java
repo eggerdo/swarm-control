@@ -31,14 +31,13 @@ public class DottyTypes {
 	public static final byte HEADER = (byte)0xA5;
 	public static final byte LOGGING = (byte)0xA6;
 	
-	public static final int CMD_PARAM_LEN = 11;
-	public static final int NR_SENSORS = 8;
-	public static final int NR_LEDS = 3;
-	public static final int DATA_PARAM_LEN = NR_SENSORS + NR_LEDS;
+	public static final int NR_SENSORS = 11;
+	public static final int DATA_PARAM_LEN = NR_SENSORS;
+	public static final int CMD_PARAM_LEN = DATA_PARAM_LEN;
 
-	public static final int HEADER_SIZE = 7;
-	public static final int DATA_PKG_SIZE = HEADER_SIZE + DATA_PARAM_LEN * 2;
-	public static final int CMD_PKG_SIZE = HEADER_SIZE + CMD_PARAM_LEN * 2;
+	public static final int HEADER_SIZE = 7; // 7 bytes
+	public static final int DATA_PKG_SIZE = HEADER_SIZE + DATA_PARAM_LEN * 2; // 7 + 2 * 11 = 29 bytes
+	public static final int CMD_PKG_SIZE = HEADER_SIZE + CMD_PARAM_LEN * 2; // same as data package
 
 	public static final byte SENSOR_DATA = 0x00;
 	
@@ -85,6 +84,7 @@ public class DottyTypes {
 		int nType;
 		int nLength;
 		int rgnParameter[] = new int[CMD_PARAM_LEN];
+		boolean bDirtyBitSet;
 		int nCRC;
 		
 		public CmdPackage() {
@@ -97,13 +97,22 @@ public class DottyTypes {
 			DataInputStream data_in = new DataInputStream(byte_in);
 			try {
 				nHeader 		= data_in.readUnsignedByte();
-				nTimestamp 		= Utils.LittleEndianToBigEndian((short)data_in.readUnsignedShort());
+				nTimestamp 		= Utils.ConvertEndian((short)data_in.readUnsignedShort());
 				nType			= data_in.readUnsignedByte();
 				nLength			= data_in.readUnsignedByte();
 				for (int i = 0; i < CMD_PARAM_LEN; i++) {
-					rgnParameter[i] = Utils.LittleEndianToBigEndian((short)data_in.readUnsignedShort());
+					rgnParameter[i] = Utils.ConvertEndian((short)data_in.readUnsignedShort());
 				}
-				nCRC			= Utils.LittleEndianToBigEndian((short)data_in.readUnsignedShort());
+				// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
+				// we read in the 16 bits together, then parse it into DirtyBit and CRC
+				short sTmp = (short) data_in.readUnsignedShort();
+				// the first bit in the sequence (bit number 15) is the DirtyBit. We convert that into a boolean
+				// for easier handling
+				bDirtyBitSet	= Utils.IsBitSet(sTmp, 15); 
+				// next we clear the DirtyBit from the short and use the result as CRC
+//				sTmp = (short) Utils.clearBit(sTmp, 15);
+//				nCRC			= Utils.LittleEndianToBigEndian(sTmp);
+				nCRC			= (short) Utils.clearBit(sTmp, 15);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -115,13 +124,19 @@ public class DottyTypes {
 			DataOutputStream data_out = new DataOutputStream(byte_out);
 			try {
 				data_out.writeByte(nHeader);
-				data_out.writeShort(Utils.LittleEndianToBigEndian((short)nTimestamp));
+				data_out.writeShort(Utils.ConvertEndian((short)nTimestamp));
 				data_out.writeByte(nType);
 				data_out.writeByte(nLength);
 				for (int i=0; i < CMD_PARAM_LEN; i++) {
-					data_out.writeShort(Utils.LittleEndianToBigEndian((short)rgnParameter[i]));
+					data_out.writeShort(Utils.ConvertEndian((short)rgnParameter[i]));
 				}
-				data_out.writeShort(Utils.LittleEndianToBigEndian((short)nCRC));
+				// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
+				// we concatenate them and write them out together
+				short sTmp = (short)nCRC;
+				if (bDirtyBitSet) {
+					Utils.setBit(sTmp, 15);
+				} // clearing is not necessary since the bit 15 should be 0 by default
+				data_out.writeShort(sTmp);
 				return byte_out.toByteArray();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -209,13 +224,13 @@ public class DottyTypes {
 			DataInputStream data_in = new DataInputStream(byte_in);
 			try {
 				nHeader 		= data_in.readUnsignedByte();
-				nTimestamp 		= Utils.LittleEndianToBigEndian((short)data_in.readUnsignedShort());
+				nTimestamp 		= Utils.ConvertEndian((short)data_in.readUnsignedShort());
 				nType			= data_in.readUnsignedByte();
 				nLength			= data_in.readUnsignedByte();
 				for (int i = 0; i < DATA_PARAM_LEN; i++) {
-					rgnSensor[i] = Utils.LittleEndianToBigEndian((short)data_in.readUnsignedShort());
+					rgnSensor[i] = Utils.ConvertEndian((short)data_in.readUnsignedShort());
 				}
-				nCRC			= Utils.LittleEndianToBigEndian((short)data_in.readUnsignedByte());
+				nCRC			= Utils.ConvertEndian((short)data_in.readUnsignedByte());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -248,25 +263,27 @@ public class DottyTypes {
 	}
 	
 	public class SensorData {
-		public int nDistance;
-		public int nLight;
 		public int nSound;
 		public int nBattery;
-		public int nMotorA;
-		public int nMotorB;
+		public int nLight;
+		public int nDistance;
+		public int nMotor1;
+		public int nMotor2;
+		public int nWheel1;
+		public int nWheel2;
 		public boolean bLed1ON;
 		public boolean bLed2ON;
 		public boolean bLed3ON;
 		
 		public SensorData(int[] i_rgnData) {
-			nLight			= i_rgnData[0];
-			nSound			= i_rgnData[1];
-			nDistance		= i_rgnData[2];
-			nBattery		= i_rgnData[3];
-//			i_rgnData[4]; // position 5 unused
-//			i_rgnData[5]; // position 6 unused
-			nMotorA			= i_rgnData[6];
-			nMotorB			= i_rgnData[7];
+			nSound			= i_rgnData[0];
+			nBattery		= i_rgnData[1];
+			nLight			= i_rgnData[2];
+			nDistance		= i_rgnData[3];
+			nMotor1			= i_rgnData[4];
+			nMotor2			= i_rgnData[5];
+			nWheel1			= i_rgnData[6];
+			nWheel2			= i_rgnData[7];
 			bLed1ON			= readBoolean(i_rgnData[8]);
 			bLed2ON			= readBoolean(i_rgnData[9]);
 			bLed3ON			= readBoolean(i_rgnData[10]);
@@ -286,8 +303,10 @@ public class DottyTypes {
 		sensor_Sound("Sound"),
 		sensor_Light("Light"),
 		sensor_Battery("Battery"),
-		sensor_MotorA("Motor A"),
-		sensor_MotorB("Motor B");
+		sensor_Motor1("Motor 1"),
+		sensor_Motor2("Motor 2"),
+		sensor_Wheel1("Wheel 1"),
+		sensor_Wheel2("Wheel 2");
 		String strName;
 		
 		EDottySensors(String i_strName) {

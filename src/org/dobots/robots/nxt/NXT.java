@@ -7,6 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.RobotDevice;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
@@ -95,22 +96,22 @@ public class NXT implements RobotDevice, BTConnectable {
 					}
 					
 					switch (messageID) {
-					case NXTTypes.DESTROY:
-						m_oConnection = null;
-					case BaseBluetooth.STATE_CONNECTED:
+					case MessageTypes.STATE_CONNECTED:
 						connected = true;
 						getFirmwareVersion();
 						break;
 
-					case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+					case MessageTypes.STATE_CONNECTERROR_PAIRING:
 						m_oConnection = null;
 						break;
 
-					case BaseBluetooth.STATE_RECEIVEERROR:
-					case BaseBluetooth.STATE_SENDERROR:
+					case MessageTypes.STATE_RECEIVEERROR:
+					case MessageTypes.STATE_SENDERROR:
 						connected = false;
 						break;
 
+					case NXTTypes.DESTROY:
+						m_oConnection = null;
 					case NXTTypes.FIRMWARE_VERSION:
 
 						if (m_oConnection != null) {
@@ -460,7 +461,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 	
 	@Override
-	public void driveForward(double i_dblSpeed) {
+	public void moveForward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
@@ -468,7 +469,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 
 	@Override
-	public void driveForward(double i_dblSpeed, int i_nRadius) {
+	public void moveForward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		i_nRadius = capRadius(i_nRadius);
 		
@@ -478,24 +479,24 @@ public class NXT implements RobotDevice, BTConnectable {
 		drive(velocity[0], velocity[1]);
 	}
 	
-	public void driveForward() {
-		driveForward(m_dblBaseSpeed);
+	public void moveForward() {
+		moveForward(m_dblBaseSpeed);
 	}
 
 	@Override
-	public void driveBackward(double i_dblSpeed) {
+	public void moveBackward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		drive(-nVelocity, -nVelocity);
 	}
 	
-	public void driveBackward() {
-		driveBackward(m_dblBaseSpeed);
+	public void moveBackward() {
+		moveBackward(m_dblBaseSpeed);
 	}
 
 	@Override
-	public void driveBackward(double i_dblSpeed, int i_nRadius) {
+	public void moveBackward(double i_dblSpeed, int i_nRadius) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		i_nRadius = capRadius(i_nRadius);
 
@@ -550,7 +551,7 @@ public class NXT implements RobotDevice, BTConnectable {
 			
 			@Override
 			public void run() {
-				driveStop();
+				moveStop();
 			}
 		});
 	}
@@ -558,7 +559,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	int m_lCircleTime = 4000;
 
 	@Override
-	public void driveStop() {
+	public void moveStop() {
 		drive(0, 0);
 	}
 	

@@ -111,7 +111,7 @@ public class MultiRobotControl extends Activity {
 		
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
-			entry.oRobot.driveForward();
+			entry.oRobot.moveForward();
 		}
 		
 	}
@@ -120,7 +120,7 @@ public class MultiRobotControl extends Activity {
 
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
-			entry.oRobot.driveBackward();
+			entry.oRobot.moveBackward();
 		}
 		
 	}
@@ -146,7 +146,7 @@ public class MultiRobotControl extends Activity {
 	public static void driveStop() {
 
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
-			entry.oRobot.driveStop();
+			entry.oRobot.moveStop();
 		}
 		
 	}

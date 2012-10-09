@@ -1,6 +1,7 @@
 package org.dobots.swarmcontrol.robots;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.RobotDevice;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.BluetoothConnectionListener;
@@ -28,15 +29,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public abstract class RobotView extends Activity implements AccelerometerListener, BluetoothConnectionListener {
-	
+
 	protected static String TAG = "RobotDevice";
 	
 	protected Activity m_oActivity;
 	protected RobotType m_eRobot;
-
-//	protected BluetoothAdapter m_oBTAdapter = null;
-	protected BluetoothSocket m_oSocket = null;
-	protected boolean m_bBTOnByUs = false;
 
 	protected String m_strMacAddress = "";
 
@@ -53,8 +50,6 @@ public abstract class RobotView extends Activity implements AccelerometerListene
 
 	protected Toast reusableToast;
 	
-	protected BluetoothConnectionHelper m_oBTHelper;
-
 	protected boolean m_bKeepAlive = false;
 
 	protected ProgressDialog connectingProgressDialog;
@@ -73,43 +68,8 @@ public abstract class RobotView extends Activity implements AccelerometerListene
 	
 	protected void handleUIMessage(Message msg) {
 		switch (msg.what) {
-		case BaseBluetooth.DISPLAY_TOAST:
+		case MessageTypes.DISPLAY_TOAST:
 			showToast((String)msg.obj, Toast.LENGTH_SHORT);
-			break;
-		case BaseBluetooth.STATE_CONNECTED:
-			connectingProgressDialog.dismiss();
-			onConnect();
-//				updateButtonsAndMenu();
-			break;
-
-		case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
-			connectingProgressDialog.dismiss();
-			break;
-
-		case BaseBluetooth.STATE_CONNECTERROR:
-			connectingProgressDialog.dismiss();
-		case BaseBluetooth.STATE_RECEIVEERROR:
-		case BaseBluetooth.STATE_SENDERROR:
-
-			if (btErrorPending == false) {
-				onDisconnect();
-				
-				btErrorPending = true;
-				// inform the user of the error with an AlertDialog
-				AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
-				builder.setTitle(getResources().getString(R.string.bt_error_dialog_title))
-				.setMessage(getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					//                            @Override
-					public void onClick(DialogInterface dialog, int id) {
-						btErrorPending = false;
-						dialog.cancel();
-						m_oBTHelper.selectRobot();
-					}
-				});
-				builder.create().show();
-			}
-
 			break;
 		}
 	}
@@ -124,9 +84,6 @@ public abstract class RobotView extends Activity implements AccelerometerListene
 		this.m_oActivity = this;
 		m_eRobot = (RobotType) getIntent().getExtras().get("RobotType");
 		
-		m_oBTHelper = new BluetoothConnectionHelper(this, RobotViewFactory.getRobotMacFilter(m_eRobot));
-		m_oBTHelper.SetOnConnectListener(this);
-
 		reusableToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 		
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -264,10 +221,6 @@ public abstract class RobotView extends Activity implements AccelerometerListene
     	switch (requestCode) {
     		//nothing to be done right now here
     	}
-    	
-    	// pass the result on to the BluetoothConnectionHelper in case
-    	// he has something to do with the result
-    	m_oBTHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
 	protected void setProperties(RobotType i_eRobot) {

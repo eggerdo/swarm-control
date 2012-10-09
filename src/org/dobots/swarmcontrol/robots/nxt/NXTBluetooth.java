@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.msg.MsgTypes;
@@ -88,7 +89,7 @@ public class NXTBluetooth extends BaseBluetooth {
                 // don't inform the user when connection is already closed
                 if (connected) {
                 	connected = false;
-                    sendState(STATE_RECEIVEERROR);
+                    sendState(MessageTypes.STATE_RECEIVEERROR);
                 }
                 return;
             }
@@ -139,7 +140,7 @@ public class NXTBluetooth extends BaseBluetooth {
         }
         catch (IOException e) {
         	connected = false;
-            sendState(STATE_SENDERROR);
+            sendState(MessageTypes.STATE_SENDERROR);
         }
     }
 

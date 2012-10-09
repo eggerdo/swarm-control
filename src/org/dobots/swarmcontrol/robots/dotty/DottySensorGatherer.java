@@ -120,11 +120,11 @@ public class DottySensorGatherer extends SensorGatherer {
 				case sensor_Light:
 					setText(txtLightValue, oData.nLight);
 					break;
-				case sensor_MotorA:
-					setText(txtMotorAValue, oData.nMotorA);
+				case sensor_Motor1:
+					setText(txtMotorAValue, oData.nMotor1);
 					break;
-				case sensor_MotorB:
-					setText(txtMotorBValue, oData.nMotorB);
+				case sensor_Motor2:
+					setText(txtMotorBValue, oData.nMotor2);
 					break;
 				case sensor_Sound:
 					setText(txtSoundValue, oData.nSound);
@@ -162,10 +162,10 @@ public class DottySensorGatherer extends SensorGatherer {
 		case sensor_Light:
 			showLayout(layLightValue, i_bShow);
 			break;
-		case sensor_MotorA:
+		case sensor_Motor1:
 			showLayout(layMotorAValue, i_bShow);
 			break;
-		case sensor_MotorB:
+		case sensor_Motor2:
 			showLayout(layMotorBValue, i_bShow);
 			break;
 		case sensor_Sound:

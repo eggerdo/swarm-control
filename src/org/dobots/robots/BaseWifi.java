@@ -4,22 +4,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.msg.MsgTypes;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 
-public abstract class BaseBluetooth extends Thread {
-    
-	protected BluetoothDevice m_oDevice = null;
-	protected BluetoothSocket m_oSocket = null;
+public abstract class BaseWifi extends Thread {
+
+    protected Socket m_oSocket = null;
 	protected InputStream m_oInStream = null;
 	protected OutputStream m_oOutStream = null;
 
@@ -28,13 +29,15 @@ public abstract class BaseBluetooth extends Thread {
 	protected boolean connected = false;
 	protected boolean m_bStopped = false;
 	
-	protected UUID m_oUUID = null;
 	protected String m_strRobotName = "";
-	protected String m_strMacAddress = "";
+	protected String m_strSSID_Filter = "";
 	
-	public BaseBluetooth(BluetoothDevice i_oDevice) {
-		this.m_oDevice = i_oDevice;
-		this.m_strMacAddress = i_oDevice.getAddress();
+	protected String m_strAddress = "";
+	protected int m_nPort = 80;
+	
+	public BaseWifi(String i_strAddress, int i_nPort) {
+		this.m_strAddress = i_strAddress;
+		this.m_nPort = i_nPort;
 	}
 
     public void setReceiveHandler(Handler i_oHandler) {
@@ -42,7 +45,7 @@ public abstract class BaseBluetooth extends Thread {
     }
     
     public String getAddress() {
-    	return m_strMacAddress;
+    	return m_strAddress;
     }
 
     /**
@@ -73,17 +76,8 @@ public abstract class BaseBluetooth extends Thread {
 
 	}
 
-    public void createConnection() throws IOException {
-        if (m_oDevice == null) {
-            if (m_oReceiveHandler == null)
-                throw new IOException();
-            else {
-                sendToast("No paired " + m_strRobotName + " robot found!");
-                sendState(MessageTypes.STATE_CONNECTERROR);
-                return;
-            }
-        }
-        m_oSocket = m_oDevice.createRfcommSocketToServiceRecord(m_oUUID);
+    public void createConnection() throws UnknownHostException, IOException {
+        m_oSocket = new Socket();
     }
 
     /**
@@ -110,39 +104,18 @@ public abstract class BaseBluetooth extends Thread {
     }
 
     public void connect() throws IOException {
-    	if (m_oSocket == null) {
-    		int i = 0;
-    		return;
-    	}
         try {
 	    	try {
-	    		m_oSocket.connect();
+	    		m_oSocket.connect(new InetSocketAddress(m_strAddress, m_nPort));
 	        }
 	        catch (IOException e) {  
-//	            if (myOwner.isPairing()) {
-//	                if (m_oReceiveHandler != null) {
-//	                    sendToast(mResources.getString(R.string.pairing_message));
-//	                    sendState(NXTTypes.STATE_CONNECTERROR_PAIRING);
-//	                }
-//	                else
-//	                    throw e;
-//	                return;
-//	            }
-	
-	            // try another method for connection, this should work on the HTC desire, credits to Michael Biermann
-	            try {
-	                Method mMethod = m_oDevice.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
-	                m_oSocket = (BluetoothSocket) mMethod.invoke(m_oDevice, Integer.valueOf(1));            
-	                m_oSocket.connect();
-	            }
-	            catch (Exception e1){
-	                if (m_oReceiveHandler == null)
-	                    throw new IOException();
-	                else
-	                    sendState(MessageTypes.STATE_CONNECTERROR);
-	                return;
-	            }
-	        }
+                if (m_oReceiveHandler == null)
+                    throw new IOException();
+                else
+                    sendState(MessageTypes.STATE_CONNECTERROR);
+                return;
+            }
+	    	
 	    	m_oInStream = m_oSocket.getInputStream();
 	    	m_oOutStream = m_oSocket.getOutputStream();
 	        connected = true;
@@ -150,8 +123,6 @@ public abstract class BaseBluetooth extends Thread {
 	        if (m_oReceiveHandler == null)
 	            throw e;
 	        else {
-//	            if (myOwner.isPairing())
-//	                sendToast(mResources.getString(R.string.pairing_message));
 	            sendState(MessageTypes.STATE_CONNECTERROR);
 	            return;
 	        }

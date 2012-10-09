@@ -29,7 +29,7 @@ public class Utils {
 		return (short)(((i_byHighByte & 0xFF) << 8) | (i_byLowByte & 0xFF));
 	}
 	
-	public static short LittleEndianToBigEndian(short i_sValue) {
+	public static short ConvertEndian(short i_sValue) {
 		return (short)(((i_sValue >> 8) & 0xFF) | ((i_sValue & 0xFF) << 8));
 	}
 
@@ -105,6 +105,11 @@ public class Utils {
     	} else {
     		i_oLayout.setLayoutParams(new LinearLayout.LayoutParams(0,0));
     	}
+		if (i_bShow) {
+			i_oLayout.setVisibility(View.VISIBLE);
+		} else {
+			i_oLayout.setVisibility(View.GONE);
+		}
 	}
 	
 	public static void showView(View i_oView, boolean i_bShow) {

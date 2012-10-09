@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.msg.MsgTypes;
@@ -60,7 +61,7 @@ public class RoombaBluetooth extends BaseBluetooth implements BluetoothConnectio
 			} catch (IOException e) {
 				if (connected) {
                 	connected = false;
-                    sendState(STATE_RECEIVEERROR);
+                    sendState(MessageTypes.STATE_RECEIVEERROR);
                 }
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -24,24 +24,24 @@ public interface RobotDevice {
 	// drive methods
 	public void enableControl(boolean i_bEnable);
 	
-	public void driveForward(double i_dblSpeed);
-	public void driveForward(double i_dblSpeed, int i_nRadius);
+	public void moveForward(double i_dblSpeed);
+	public void moveForward(double i_dblSpeed, int i_nRadius);
 	
-	public void driveBackward(double i_dblSpeed);
-	public void driveBackward(double i_dblSpeed, int i_nRadius);
+	public void moveBackward(double i_dblSpeed);
+	public void moveBackward(double i_dblSpeed, int i_nRadius);
 	
 	public void rotateClockwise(double i_dblSpeed);
 	public void rotateCounterClockwise(double i_dblSpeed);
 	
-	public void driveStop();
+	public void moveStop();
 	
 	public void executeCircle(double i_dblTime, double i_dblSpeed);
 	
 	public void setBaseSpeed(double i_dblSpeed);
 	public double getBaseSped();
 	
-	public void driveForward();
-	public void driveBackward();
+	public void moveForward();
+	public void moveBackward();
 	public void rotateCounterClockwise();
 	public void rotateClockwise();
 	

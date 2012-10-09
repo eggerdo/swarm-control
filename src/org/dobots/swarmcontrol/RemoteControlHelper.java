@@ -189,8 +189,8 @@ public class RemoteControlHelper {
 		showControlButtons(false);
 	}
 
-	public void updateButtons(boolean b) {
-		m_btnControl.setEnabled(true);
+	public void updateButtons(boolean enabled) {
+		m_btnControl.setEnabled(enabled);
 	}
 	
 }
