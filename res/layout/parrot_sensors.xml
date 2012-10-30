@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+	android:visibility="gone"
+    android:orientation="vertical" >
+	
+	<View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblControlState"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ardrone_ctrlstate" />
+
+        <TextView
+            android:id="@+id/txtControlState"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblBattery"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ardrone_battery" />
+
+        <TextView
+            android:id="@+id/txtBattery"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblAltitude"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ardrone_altitude" />
+
+        <TextView
+            android:id="@+id/txtAltitude"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblPitch"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ardrone_pitch" />
+
+        <TextView
+            android:id="@+id/txtPitch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblRoll"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ardrone_roll" />
+
+        <TextView
+            android:id="@+id/txtRoll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblYaw"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ardrone_yaw" />
+
+        <TextView
+            android:id="@+id/txtYaw"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblVX"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="VX" />
+
+        <TextView
+            android:id="@+id/txtVX"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblVY"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="VY" />
+
+        <TextView
+            android:id="@+id/txtVY"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/lblVZ"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="VZ" />
+
+        <TextView
+            android:id="@+id/txtVZ"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+	<View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+      
+</LinearLayout>

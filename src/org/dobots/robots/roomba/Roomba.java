@@ -519,4 +519,16 @@ public class Roomba implements RobotDevice {
 		return m_dblBaseSpeed;
 	}
 
+	@Override
+	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void moveForward(double i_dblSpeed, double i_dblAngle) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

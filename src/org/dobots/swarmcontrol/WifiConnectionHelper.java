@@ -3,7 +3,9 @@ package org.dobots.swarmcontrol;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
@@ -40,19 +42,33 @@ public class WifiConnectionHelper{
 					if (strSsid.contains(m_strSSID_Filter)) {
 						return true;
 					} else {
-						Utils.showToast("You first need to be connected to the robot!\n"
-								+ "It should be a connection starting with " + m_strSSID_Filter + ".\n", 
-								Toast.LENGTH_LONG);
+						showAlertDialog("WiFi Error", 
+								"Wrong WiFi connection!\n"
+								+ "It should be a connection starting with " + m_strSSID_Filter + ".");
 					}
 				} else {
-					Utils.showToast("Not possible to determine the name of your Wifi connection. "
-							+ "Make sure you are connected!\n", 
-							Toast.LENGTH_LONG);
+					showAlertDialog("Wifi Error", 
+							"Not possible to determine the name of your Wifi connection. "
+							+ "Make sure you are connected!");
 				}
 			}
 		}
 		
 		return false;
+	}
+	
+	private void showAlertDialog(String i_strTitle, String i_strMessage) {
+		// inform the user of the error with an AlertDialog
+		AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
+		builder.setTitle(i_strTitle)
+		.setMessage(i_strMessage).setCancelable(false)
+		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			//                            @Override
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.cancel();
+			}
+		});
+		builder.create().show();
 	}
 
 	public boolean checkConnection() {

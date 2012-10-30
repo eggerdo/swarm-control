@@ -102,6 +102,9 @@ public class SwarmControlActivity extends Activity {
         
         showRobot(RobotType.RBT_ARDRONE);
 //        showBehaviour(SwarmAction.sa_Dance);
+        
+//        Intent intent = new Intent(SwarmControlActivity.this, Test.class);
+//		startActivity(intent);
     }
 
 	@Override

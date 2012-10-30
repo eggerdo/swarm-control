@@ -34,10 +34,29 @@ public abstract class WifiRobot extends RobotView {
 
 		case MessageTypes.STATE_CONNECTERROR:
 			connectingProgressDialog.dismiss();
-			showToast("Connection Failed", Toast.LENGTH_SHORT);
+//			showToast("Connection Failed", Toast.LENGTH_SHORT);
 		case MessageTypes.STATE_RECEIVEERROR:
 		case MessageTypes.STATE_SENDERROR:
-			onDisconnect();
+
+			if (btErrorPending == false) {
+				onDisconnect();
+				
+				btErrorPending = true;
+				// inform the user of the error with an AlertDialog
+				AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
+				builder.setTitle("Wifi Connection Error")
+				.setMessage("Connection could not be established. Please check your Wifi Connection and try again").setCancelable(false)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					//                            @Override
+					public void onClick(DialogInterface dialog, int id) {
+						btErrorPending = false;
+						dialog.cancel();
+//						connectToRobot();
+					}
+				});
+				builder.create().show();
+			}
+	
 			break;
 		}
 	}

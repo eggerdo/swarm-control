@@ -2,53 +2,31 @@ package org.dobots.swarmcontrol.robots.nxt;
 
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.robots.roomba.RoombaBluetooth;
-import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.SwarmControlActivity;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.RobotView;
-import org.dobots.utility.AccelerometerListener;
-import org.dobots.utility.AccelerometerManager;
-import org.dobots.utility.CalibrationDialogSelf;
-import org.dobots.utility.DeviceListActivity;
-import org.dobots.utility.FeedbackDialog;
-import org.dobots.utility.OnButtonPress;
-import org.dobots.utility.ProgressDlg;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.TabActivity;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Vibrator;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -56,23 +34,18 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TabHost;
 import android.widget.TableLayout;
 import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 public class NXTRobot extends BluetoothRobot implements BTConnectable {
 
@@ -82,41 +55,49 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	private static final int DEBUG_ID = CONNECT_ID + 1;
 	private static final int INVERT_ID = DEBUG_ID + 1;
 	private static final int ACCEL_ID = INVERT_ID + 1;
+	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
 
 	private boolean connected;
 	
 	private NXT m_oNxt;
 
 	private NXTSensorGatherer m_oSensorGatherer;
-	
-	private boolean m_bDebug;
-	private boolean m_bControl;
 
-	private Button m_btnFwd;
-	private Button m_btnBwd;
-	private Button m_btnLeft;
-	private Button m_btnRight;
-	
+	private RemoteControlHelper m_oRemoteCtrl;
+
+	private boolean m_bDebug;
+
 	private Button m_btnCalibrate;
-	
+	private CheckBox m_cbSensor1;
+	private CheckBox m_cbSensor2;
+	private CheckBox m_cbSensor3;
+	private CheckBox m_cbSensor4;
+	private Spinner m_spSensor1Type;
+	private Spinner m_spSensor2Type;
+	private Spinner m_spSensor3Type;
+	private Spinner m_spSensor4Type;
+	private CheckBox m_cbMotor1;
+	private CheckBox m_cbMotor2;
+	private CheckBox m_cbMotor3;
+	private Spinner m_spMotor1Type;
+	private Spinner m_spMotor2Type;
+	private Spinner m_spMotor3Type;
+	private Button m_btnMotor1Reset;
+	private Button m_btnMotor2Reset;
+	private Button m_btnMotor3Reset;
+
 	private double m_dblSpeed;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
-        updateButtons(false);
-        updateControlButtons(false);
-        
     	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
     	if (nIndex == -1) {
 			m_oNxt = new NXT();
 	        connectToRobot();
     	} else {
     		m_oNxt = (NXT) RobotInventory.getInstance().getRobot(nIndex);
-    		if (m_oNxt.isConnected()) {
-    			updateButtons(true);
-    		}
     		m_bKeepAlive = true;
     	}
 		m_oNxt.setHandler(uiHandler);
@@ -124,7 +105,16 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
 		m_dblSpeed = m_oNxt.getBaseSped();
 
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oNxt, null);
+        m_oRemoteCtrl.setProperties();
+
+        updateButtons(false);
+        updateControlButtons(false);
         setDebug(false);
+
+        if (m_oNxt.isConnected()) {
+			updateButtons(true);
+		}
     }
     
     public void setNXT(NXT i_oNxt) {
@@ -183,20 +173,27 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_bControl) {
+    	if (m_oRemoteCtrl.m_bControl) {
     		if (menu.findItem(INVERT_ID) == null) {
 				menu.add(0, INVERT_ID, 3, "Invert Driving (ON)");
-				menu.add(0, ACCEL_ID, 3, "Accelerometer (ON)");
+				menu.add(0, ACCEL_ID, 4, "Accelerometer (ON)");
+				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control (ON)");
     		}
 		} else
 			if (menu.findItem(INVERT_ID) != null) {
 				menu.removeItem(INVERT_ID);
 				menu.removeItem(ACCEL_ID);
+				menu.removeItem(ADVANCED_CONTROL_ID);
 			}
     	
     	MenuItem item = menu.findItem(ACCEL_ID);
     	if (item != null) {
     		item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
+    	}
+    	
+    	item = menu.findItem(ADVANCED_CONTROL_ID);
+    	if (item != null) {
+    		item.setTitle("Advanced Control " + (m_oRemoteCtrl.m_bAdvancedControl ? "(OFF)" : "(ON)"));
     	}
 		return true;
     }
@@ -227,8 +224,10 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 			} else {
 				m_oNxt.moveStop();
 			}
+		case ADVANCED_CONTROL_ID:
+			m_oRemoteCtrl.setAdvancedControl(!m_oRemoteCtrl.m_bAdvancedControl);
+			break;
 		}
-			
 
 		return super.onMenuItemSelected(featureId, item);
 	}
@@ -566,34 +565,25 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 				}
 			});
         }
-        
-		Button btnControl = (Button) m_oActivity.findViewById(R.id.btnCtrl);
-		btnControl.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				m_bControl = !m_bControl;
-				updateControlButtons(m_bControl);
-				((Button)v).setText("Control " + (m_bControl ? "OFF" : "ON"));
-				if (m_bControl) {
-//					Rect r = new Rect();
-////					 ((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl)).getDrawingRect(r);
-////					 ((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl)).requestRectangleOnScreen(r);
-//					ScrollView sview = (ScrollView)m_oActivity.findViewById(R.id.nxt);
-////					sview.scrollTo(0, m_oActivity.findViewById(R.id.layRemoteControl).getBottom());
-//					View ctrl = m_oActivity.findViewById(R.id.layRemoteControl);
-//					sview.recomputeViewAttributes(ctrl);
-//					sview.refreshDrawableState();
-//					ctrl.setFocusable(true);
-//					ctrl.requestFocus();
-//					ctrl.getLocalVisibleRect(r);
-//					ctrl.getDrawingRect(r);
-//					ctrl.getGlobalVisibleRect(r);
-//					ctrl.requestRectangleOnScreen(r);
-				}
-			}
-		});
-		
+
+    	m_cbSensor1 = (CheckBox) m_oActivity.findViewById(R.id.cbSensor1);
+    	m_spSensor1Type = (Spinner) m_oActivity.findViewById(R.id.spSensor1Type);
+    	m_cbSensor2 = (CheckBox) m_oActivity.findViewById(R.id.cbSensor2);
+    	m_spSensor2Type = (Spinner) m_oActivity.findViewById(R.id.spSensor2Type);
+    	m_cbSensor3 = (CheckBox) m_oActivity.findViewById(R.id.cbSensor3);
+    	m_spSensor3Type = (Spinner) m_oActivity.findViewById(R.id.spSensor3Type);
+    	m_cbSensor4 = (CheckBox) m_oActivity.findViewById(R.id.cbSensor4);
+    	m_spSensor4Type = (Spinner) m_oActivity.findViewById(R.id.spSensor4Type);
+    	m_cbMotor1 = (CheckBox) m_oActivity.findViewById(R.id.cbMotor1);
+    	m_spMotor1Type = (Spinner) m_oActivity.findViewById(R.id.spMotor1Type);
+    	m_btnMotor1Reset = (Button) m_oActivity.findViewById(R.id.btnMotor1Reset);
+    	m_cbMotor2 = (CheckBox) m_oActivity.findViewById(R.id.cbMotor2);
+    	m_spMotor2Type = (Spinner) m_oActivity.findViewById(R.id.spMotor2Type);
+    	m_btnMotor2Reset = (Button) m_oActivity.findViewById(R.id.btnMotor2Reset);
+    	m_cbMotor3 = (CheckBox) m_oActivity.findViewById(R.id.cbMotor3);
+    	m_spMotor3Type = (Spinner) m_oActivity.findViewById(R.id.spMotor3Type);
+    	m_btnMotor3Reset = (Button) m_oActivity.findViewById(R.id.btnMotor3Reset);
+    	
 		m_btnCalibrate = (Button) m_oActivity.findViewById(R.id.btnCalibrate);
 		m_btnCalibrate.setOnClickListener(new OnClickListener() {
 			
@@ -608,163 +598,58 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex, m_dblSpeed);
 			}
 		});
-	
-		m_btnFwd = (Button) m_oActivity.findViewById(R.id.btnFwd);
-		m_btnLeft = (Button) m_oActivity.findViewById(R.id.btnLeft);
-		m_btnBwd = (Button) m_oActivity.findViewById(R.id.btnBwd);
-		m_btnRight = (Button) m_oActivity.findViewById(R.id.btnRight);
-		
-		m_btnFwd.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent e) {
-				int action = e.getAction();
-				switch (action & MotionEvent.ACTION_MASK) {
-				case MotionEvent.ACTION_CANCEL:
-				case MotionEvent.ACTION_UP:
-					m_oNxt.moveStop();
-					break;
-				case MotionEvent.ACTION_POINTER_UP:
-					break;
-				case MotionEvent.ACTION_DOWN:
-					m_oNxt.moveForward(m_dblSpeed);
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
-					break;					
-				case MotionEvent.ACTION_MOVE:
-					break;
-				}
-				return true;
-			}
-		});
-		
-		m_btnBwd.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent e) {
-				int action = e.getAction();
-				switch (action & MotionEvent.ACTION_MASK) {
-				case MotionEvent.ACTION_CANCEL:
-				case MotionEvent.ACTION_UP:
-					m_oNxt.moveStop();
-					break;
-				case MotionEvent.ACTION_POINTER_UP:
-					break;
-				case MotionEvent.ACTION_DOWN:
-					m_oNxt.moveBackward(m_dblSpeed);
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
-					break;					
-				case MotionEvent.ACTION_MOVE:
-					break;
-				}
-				return true;
-			}
-		});
-
-		m_btnLeft.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent e) {
-				int action = e.getAction();
-				switch (action & MotionEvent.ACTION_MASK) {
-				case MotionEvent.ACTION_CANCEL:
-				case MotionEvent.ACTION_UP:
-					m_oNxt.moveStop();
-					break;
-				case MotionEvent.ACTION_POINTER_UP:
-					break;
-				case MotionEvent.ACTION_DOWN:
-					m_oNxt.rotateCounterClockwise(m_dblSpeed);
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
-					break;					
-				case MotionEvent.ACTION_MOVE:
-					break;
-				}
-				return true;
-			}
-		});
-
-		m_btnRight.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent e) {
-				int action = e.getAction();
-				switch (action & MotionEvent.ACTION_MASK) {
-				case MotionEvent.ACTION_CANCEL:
-				case MotionEvent.ACTION_UP:
-					m_oNxt.moveStop();
-					break;
-				case MotionEvent.ACTION_POINTER_UP:
-					break;
-				case MotionEvent.ACTION_DOWN:
-					m_oNxt.rotateClockwise(m_dblSpeed);
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
-					break;					
-				case MotionEvent.ACTION_MOVE:
-					break;
-				}
-				return true;
-			}
-		});
-		
 	}
 
 	public void updateControlButtons(boolean visible) {
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
 	}
 	
-	public void updateArrowButtons(boolean enabled) {
-		m_oActivity.findViewById(R.id.btnLeft).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnRight).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnFwd).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnBwd).setEnabled(enabled);
-		
-	}
-
 	public void updateButtons(boolean enabled) {
-		m_oActivity.findViewById(R.id.btnCtrl).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnCalibrate).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.cbSensor1).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spSensor1Type).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.cbSensor2).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spSensor2Type).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.cbSensor3).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spSensor3Type).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.cbSensor4).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spSensor4Type).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.cbMotor1).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spMotor1Type).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnMotor1Reset).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.cbMotor2).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spMotor2Type).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnMotor2Reset).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.cbMotor3).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.spMotor3Type).setEnabled(enabled);
-		m_oActivity.findViewById(R.id.btnMotor3Reset).setEnabled(enabled);
+		m_oRemoteCtrl.updateButtons(enabled);
+		
+		m_btnCalibrate.setEnabled(enabled);
+		m_cbSensor1.setEnabled(enabled);
+		m_spSensor1Type.setEnabled(enabled);
+		m_cbSensor2.setEnabled(enabled);
+		m_spSensor2Type.setEnabled(enabled);
+		m_cbSensor3.setEnabled(enabled);
+		m_spSensor3Type.setEnabled(enabled);
+		m_cbSensor4.setEnabled(enabled);
+		m_spSensor4Type.setEnabled(enabled);
+		m_cbMotor1.setEnabled(enabled);
+		m_spMotor1Type.setEnabled(enabled);
+		m_btnMotor1Reset.setEnabled(enabled);
+		m_cbMotor2.setEnabled(enabled);
+		m_spMotor2Type.setEnabled(enabled);
+		m_btnMotor2Reset.setEnabled(enabled);
+		m_cbMotor3.setEnabled(enabled);
+		m_spMotor3Type.setEnabled(enabled);
+		m_btnMotor3Reset.setEnabled(enabled);
 	}
 	
 	public void resetLayout() {
 		updateControlButtons(false);
 		
-		((CheckBox)m_oActivity.findViewById(R.id.cbSensor1)).setChecked(false);
-		((Spinner)m_oActivity.findViewById(R.id.spSensor1Type)).setSelection(0);
+		m_cbSensor1.setChecked(false);
+		m_spSensor1Type.setSelection(0);
 		
-		((CheckBox)m_oActivity.findViewById(R.id.cbSensor2)).setChecked(false);
-		((Spinner)m_oActivity.findViewById(R.id.spSensor2Type)).setSelection(0);
+		m_cbSensor2.setChecked(false);
+		m_spSensor2Type.setSelection(0);
 		
-		((CheckBox)m_oActivity.findViewById(R.id.cbSensor3)).setChecked(false);
-		((Spinner)m_oActivity.findViewById(R.id.spSensor3Type)).setSelection(0);
+		m_cbSensor3.setChecked(false);
+		m_spSensor3Type.setSelection(0);
 		
-		((CheckBox)m_oActivity.findViewById(R.id.cbSensor4)).setChecked(false);
-		((Spinner)m_oActivity.findViewById(R.id.spSensor4Type)).setSelection(0);
+		m_cbSensor4.setChecked(false);
+		m_spSensor4Type.setSelection(0);
 		
-		((CheckBox)m_oActivity.findViewById(R.id.cbMotor1)).setChecked(false);
-		((Spinner)m_oActivity.findViewById(R.id.spMotor1Type)).setSelection(0);
+		m_cbMotor1.setChecked(false);
+		m_spMotor1Type.setSelection(0);
 		
-		((CheckBox)m_oActivity.findViewById(R.id.cbMotor2)).setChecked(false);
-		((Spinner)m_oActivity.findViewById(R.id.spMotor2Type)).setSelection(0);
+		m_cbMotor2.setChecked(false);
+		m_spMotor2Type.setSelection(0);
 		
-		((CheckBox)m_oActivity.findViewById(R.id.cbMotor3)).setChecked(false);
-		((Spinner)m_oActivity.findViewById(R.id.spMotor3Type)).setSelection(0);
+		m_cbMotor3.setChecked(false);
+		m_spMotor3Type.setSelection(0);
 	}
 
 	public void setDebug(boolean i_bDebug) {
@@ -928,5 +813,5 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	public static String getMacFilter() {
 		return NXTTypes.MAC_FILTER;
 	}
-	
+
 }

@@ -177,7 +177,7 @@ public class Dotty implements RobotDevice {
 	private int calculateVelocity(double i_dblSpeed) {
 		return (int) Math.round(i_dblSpeed / 100.0 * DottyTypes.MAX_VELOCITY);
 	}
-
+	
 	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
 		int nBaseVelocity = calculateVelocity(i_dblSpeed);
 		int nVelocity1, nVelocity2;
@@ -241,6 +241,13 @@ public class Dotty implements RobotDevice {
 
 		m_oController.drive(velocity[0], velocity[1]);
 	}
+	
+	public void moveForward(double i_dblSpeed, double i_dblAngle) {
+		double dblAngle = i_dblAngle - 90.0;
+		int nRadius = (int)(DottyTypes.MAX_RADIUS / 90.0 * dblAngle);
+		
+		moveForward(i_dblSpeed, nRadius);
+	}
 
 	@Override
 	public void moveBackward(double i_dblSpeed) {
@@ -259,6 +266,13 @@ public class Dotty implements RobotDevice {
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
 
 		m_oController.drive(-velocity[0], -velocity[1]);
+	}
+	
+	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
+		double dblAngle = i_dblAngle - 90.0;
+		int nRadius = (int)(DottyTypes.MAX_RADIUS / 90.0 * dblAngle);
+		
+		moveBackward(i_dblSpeed, nRadius);
 	}
 
 	@Override

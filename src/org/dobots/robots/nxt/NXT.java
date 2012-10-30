@@ -9,6 +9,7 @@ import java.util.TimerTask;
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.RobotDevice;
+import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
@@ -483,6 +484,13 @@ public class NXT implements RobotDevice, BTConnectable {
 		moveForward(m_dblBaseSpeed);
 	}
 
+	public void moveForward(double i_dblSpeed, double i_dblAngle) {
+		double dblAngle = i_dblAngle - 90.0;
+		int nRadius = (int)(NXTTypes.MAX_RADIUS / 90.0 * dblAngle);
+		
+		moveForward(i_dblSpeed, nRadius);
+	}
+
 	@Override
 	public void moveBackward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
@@ -504,6 +512,13 @@ public class NXT implements RobotDevice, BTConnectable {
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
 		
 		drive(-velocity[0], -velocity[1]);
+	}
+
+	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
+		double dblAngle = i_dblAngle - 90.0;
+		int nRadius = (int)(NXTTypes.MAX_RADIUS / 90.0 * dblAngle);
+		
+		moveBackward(i_dblSpeed, nRadius);
 	}
 
 	@Override

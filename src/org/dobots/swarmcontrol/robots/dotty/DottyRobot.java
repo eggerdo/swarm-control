@@ -3,14 +3,10 @@ package org.dobots.swarmcontrol.robots.dotty;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
-import org.dobots.robots.nxt.NXT;
-import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
@@ -18,10 +14,6 @@ import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.RobotView;
-import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
-import org.dobots.swarmcontrol.robots.nxt.NXTSensorGatherer;
-import org.dobots.utility.OnButtonPress;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
@@ -32,7 +24,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.InputFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,16 +32,16 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.Toast;
 
 public class DottyRobot extends BluetoothRobot {
 
 	private static String TAG = "Dotty";
 	
 	private static final int CONNECT_ID = Menu.FIRST;
+	private static final int ADVANCED_CONTROL_ID = CONNECT_ID + 1;
 	
 	private Dotty m_oDotty;
 
@@ -96,7 +87,18 @@ public class DottyRobot extends BluetoothRobot {
 		
 		m_oSensorGatherer = new DottySensorGatherer(m_oActivity, m_oDotty);
 		m_dblSpeed = m_oDotty.getBaseSped();
-		
+
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oDotty, null);
+        m_oRemoteCtrl.setProperties();
+        
+//        m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
+//			
+//			@Override
+//			public void buttonPressed(boolean i_bDown) {
+//				m_oDotty.enableControl(i_bDown);
+//			}
+//		});
+        
     }
     
     public void setNXT(Dotty i_oNxt) {
@@ -179,65 +181,6 @@ public class DottyRobot extends BluetoothRobot {
 		        m_cbMotorB.setChecked(isChecked);
 			}
 		});
-
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
-        m_oRemoteCtrl.setProperties();
-        
-        m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				m_oDotty.enableControl(i_bDown);
-			}
-		});
-        
-        m_oRemoteCtrl.setFwdPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					m_oDotty.moveForward(50);
-				} else {
-					m_oDotty.moveStop();
-				}
-			}
-		});
-        
-		m_oRemoteCtrl.setBwdPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					m_oDotty.moveBackward(50);
-				} else {
-					m_oDotty.moveStop();
-				}
-			}
-		});
-		
-		m_oRemoteCtrl.setLeftPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					m_oDotty.rotateCounterClockwise(50);
-				} else {
-					m_oDotty.moveStop();
-				}
-			}
-		});
-		
-		m_oRemoteCtrl.setRightPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					m_oDotty.rotateClockwise(50);
-				} else {
-					m_oDotty.moveStop();
-				}
-			}
-		});
 		
 		m_edtInterval = (EditText) m_oActivity.findViewById(R.id.edtInterval);
 		m_edtInterval.setText(Integer.toString(DottyTypes.DEFAULT_SENSOR_INTERVAL));
@@ -264,7 +207,7 @@ public class DottyRobot extends BluetoothRobot {
 		});
 		
     }
-    
+
     @Override
     public void onDestroy() {
     	super.onDestroy();
@@ -313,6 +256,24 @@ public class DottyRobot extends BluetoothRobot {
 		return true;
 	}
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	if (m_oRemoteCtrl.m_bControl) {
+    		if (menu.findItem(ADVANCED_CONTROL_ID) == null) {
+				menu.add(0, ADVANCED_CONTROL_ID, 3, "Advanced Control (ON)");
+    		}
+		} else
+			if (menu.findItem(ADVANCED_CONTROL_ID) != null) {
+				menu.removeItem(ADVANCED_CONTROL_ID);
+			}
+    	
+    	MenuItem item = menu.findItem(ADVANCED_CONTROL_ID);
+    	if (item != null) {
+    		item.setTitle("Advanced Control " + (m_oRemoteCtrl.m_bAdvancedControl ? "(ON)" : "(OFF)"));
+    	}
+		return true;
+    }
+    
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
@@ -322,11 +283,14 @@ public class DottyRobot extends BluetoothRobot {
 			resetLayout();
 			m_oBTHelper.selectRobot();
 			return true;
+		case ADVANCED_CONTROL_ID:
+			m_oRemoteCtrl.setAdvancedControl(!m_oRemoteCtrl.m_bAdvancedControl);
+			return true;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
 	}
-	
+
 	private void resetLayout() {
 		m_cbAll.setChecked(false);
         m_cbDistance.setChecked(false);
@@ -448,6 +412,5 @@ public class DottyRobot extends BluetoothRobot {
 			}
 		});
 	}
-	
 
 }

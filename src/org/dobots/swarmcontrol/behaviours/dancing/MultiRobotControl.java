@@ -4,14 +4,17 @@ import java.util.ArrayList;
 
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
+import org.dobots.swarmcontrol.RemoteControlHelper.Move;
+import org.dobots.swarmcontrol.RemoteControlListener;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
 import org.dobots.utility.OnButtonPress;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager.LayoutParams;
 
-public class MultiRobotControl extends Activity {
+public class MultiRobotControl extends Activity implements RemoteControlListener {
 
 	private static MultiRobotControl INSTANCE;
 	
@@ -32,7 +35,7 @@ public class MultiRobotControl extends Activity {
 		this.m_oActivity = this;
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, null, this);
 		
 		setProperties();
 	}
@@ -40,68 +43,67 @@ public class MultiRobotControl extends Activity {
 	public void setProperties() {
 		setContentView(R.layout.dancing_remotecontrol);
 		
-
         m_oRemoteCtrl.setProperties();
-        
-        m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
-        	
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				enableControl(i_bDown);
-			}
-		});
-        
-        m_oRemoteCtrl.setFwdPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					driveForward();
-				} else {
-					driveStop();
-				}
-			}
-		});
-        
-		m_oRemoteCtrl.setBwdPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					driveBackward();
-				} else {
-					driveStop();
-				}
-			}
-		});
-		
-		m_oRemoteCtrl.setLeftPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					rotateCounterClockwise();
-				} else {
-					driveStop();
-				}
-			}
-		});
-		
-		m_oRemoteCtrl.setRightPressListener(new OnButtonPress() {
-			
-			@Override
-			public void buttonPressed(boolean i_bDown) {
-				if (i_bDown) {
-					rotateClockwise();
-				} else {
-					driveStop();
-				}
-			}
-		});
+//        
+//        m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
+//        	
+//			@Override
+//			public void buttonPressed(boolean i_bDown) {
+//				enableControl(i_bDown);
+//			}
+//		});
+//        
+//        m_oRemoteCtrl.setFwdPressListener(new OnButtonPress() {
+//			
+//			@Override
+//			public void buttonPressed(boolean i_bDown) {
+//				if (i_bDown) {
+//					driveForward();
+//				} else {
+//					driveStop();
+//				}
+//			}
+//		});
+//        
+//		m_oRemoteCtrl.setBwdPressListener(new OnButtonPress() {
+//			
+//			@Override
+//			public void buttonPressed(boolean i_bDown) {
+//				if (i_bDown) {
+//					driveBackward();
+//				} else {
+//					driveStop();
+//				}
+//			}
+//		});
+//		
+//		m_oRemoteCtrl.setLeftPressListener(new OnButtonPress() {
+//			
+//			@Override
+//			public void buttonPressed(boolean i_bDown) {
+//				if (i_bDown) {
+//					rotateCounterClockwise();
+//				} else {
+//					driveStop();
+//				}
+//			}
+//		});
+//		
+//		m_oRemoteCtrl.setRightPressListener(new OnButtonPress() {
+//			
+//			@Override
+//			public void buttonPressed(boolean i_bDown) {
+//				if (i_bDown) {
+//					rotateClockwise();
+//				} else {
+//					driveStop();
+//				}
+//			}
+//		});
 
 	}
 	
-	public static void enableControl(boolean i_bEnable) {
+	public void enableControl(boolean i_bEnable) {
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
 			entry.oRobot.enableControl(i_bEnable);
 		}
@@ -149,6 +151,32 @@ public class MultiRobotControl extends Activity {
 			entry.oRobot.moveStop();
 		}
 		
+	}
+
+	@Override
+	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onMove(Move i_oMove) {
+
+		// execute this move
+		switch(i_oMove) {
+		case NONE:
+			driveStop();
+		case BACKWARD:
+			driveBackward();
+		case FORWARD:
+			driveForward();
+			break;
+		case LEFT:
+			rotateCounterClockwise();
+			break;
+		case RIGHT:
+			rotateClockwise();
+			break;
+		}
 	}
 	
 }

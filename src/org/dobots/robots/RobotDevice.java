@@ -29,6 +29,9 @@ public interface RobotDevice {
 	
 	public void moveBackward(double i_dblSpeed);
 	public void moveBackward(double i_dblSpeed, int i_nRadius);
+
+	public void moveBackward(double i_dblSpeed, double i_dblAngle);
+	public void moveForward(double i_dblSpeed, double i_dblAngle);
 	
 	public void rotateClockwise(double i_dblSpeed);
 	public void rotateCounterClockwise(double i_dblSpeed);

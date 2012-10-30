@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<org.dobots.utility.LockableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollview"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 	
@@ -34,7 +35,7 @@
 	            android:text="@string/roomba_btn_power" />
 	
 	        <Button
-	            android:id="@+id/btnCtrl"
+	            android:id="@+id/btnRemoteControl"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/roomba_lbl_control" />
@@ -725,4 +726,4 @@
 	    
 	</LinearLayout>
 
-</ScrollView>
+</org.dobots.utility.LockableScrollView>

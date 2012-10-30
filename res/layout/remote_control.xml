@@ -49,7 +49,9 @@
         </LinearLayout>
     </LinearLayout>
 
-	<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	<TableLayout
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/tblBasicControl"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content" >
 	      
@@ -121,5 +123,10 @@
 	        android:layout_weight="1" />
 	    		
 	</TableLayout>
-	
+
+    <include 
+        android:id="@+id/layAdvancedControl"
+        layout="@layout/advanced_remote"
+        />
+
 </LinearLayout>
