@@ -71,7 +71,6 @@ public class Racing extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
 		m_oActivity = this;
@@ -80,8 +79,7 @@ public class Racing extends Activity {
 		
 		setProperties();
 	
-//		testSetup();
-		setup();
+		testSetup();
 	}
 	
 	private void testSetup() {
@@ -161,21 +159,10 @@ public class Racing extends Activity {
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
+		menu.add(0, SETUP_ID, 1, "Setup");
 		return true;
     }
 
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-		if (menu.findItem(SETUP_ID) != null) {
-			menu.removeItem(SETUP_ID);
-		}
-    	if (m_oAddress == null) {
-    		menu.add(0, SETUP_ID, 1, "Setup");
-    	}
-    	return true;
-    }
-    
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
