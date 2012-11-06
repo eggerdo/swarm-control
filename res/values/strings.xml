@@ -191,8 +191,13 @@
     <string name="dotty_value">Value</string>
     <string name="dotty_sound">Sound</string>
     <string name="dotty_battery">Battery</string>
-    <string name="dotty_motorsensora">Motor A</string>
-    <string name="dotty_motorsensorb">Motor B</string>
+    <string name="dotty_motorsensor1">Motor 1</string>
+    <string name="dotty_motorsensor2">Motor 2</string>
+    <string name="dotty_wheel1">Wheel 1</string>
+    <string name="dotty_wheel2">Wheel 2</string>
+    <string name="dotty_led1">Led 1</string>
+    <string name="dotty_led2">Led 2</string>
+    <string name="dotty_led3">Led 3</string>
     <string name="all">All</string>
     <string name="dotty_interval">Interval:</string>
     <string name="dotty_streaming">Streaming: OFF</string>
@@ -221,5 +226,6 @@
     <string name="ardrone_down">Down</string>
     <string name="ardrone_rotleft">Rotate Left</string>
     <string name="ardrone_rotright">Rotate Right</string>
+    <string name="racing_title">Choose your robot</string>
     
 </resources>

@@ -18,7 +18,7 @@ public abstract class WifiRobot extends RobotView {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
-        m_oWifiHelper = new WifiConnectionHelper(m_oActivity, RobotViewFactory.getRobotAddressFilter(RobotType.RBT_ARDRONE));
+        m_oWifiHelper = new WifiConnectionHelper(m_oActivity, RobotViewFactory.getRobotAddressFilter(m_eRobot));
     }
     
 	@Override
@@ -51,7 +51,6 @@ public abstract class WifiRobot extends RobotView {
 					public void onClick(DialogInterface dialog, int id) {
 						btErrorPending = false;
 						dialog.cancel();
-//						connectToRobot();
 					}
 				});
 				builder.create().show();

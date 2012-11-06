@@ -157,7 +157,7 @@ public class RobotList extends Activity {
 		}
 		
 	}
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		for (ActivityResultListener listener : m_oActivityResultListener) {

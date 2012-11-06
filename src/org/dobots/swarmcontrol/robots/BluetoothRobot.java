@@ -3,16 +3,18 @@ package org.dobots.swarmcontrol.robots;
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
+import org.dobots.swarmcontrol.BluetoothConnectionListener;
 import org.dobots.swarmcontrol.R;
 
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 
-public abstract class BluetoothRobot extends RobotView {
+public abstract class BluetoothRobot extends RobotView implements BluetoothConnectionListener {
 
 	protected BluetoothConnectionHelper m_oBTHelper;
 
@@ -79,4 +81,12 @@ public abstract class BluetoothRobot extends RobotView {
     	// he has something to do with the result
     	m_oBTHelper.onActivityResult(requestCode, resultCode, data);
     }
+
+	protected void connectToRobot() {
+		// if bluetooth is not yet enabled, initBluetooth will return false
+		// and the device selection will be called in the onActivityResult
+		if (m_oBTHelper.initBluetooth())
+			m_oBTHelper.selectRobot();
+	}
+
 }

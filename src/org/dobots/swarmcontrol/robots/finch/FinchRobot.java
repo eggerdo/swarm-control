@@ -232,6 +232,30 @@ public class FinchRobot extends RobotView {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	protected void connectToRobot() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void disconnect() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void resetLayout() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void updateButtons(boolean i_bEnabled) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }

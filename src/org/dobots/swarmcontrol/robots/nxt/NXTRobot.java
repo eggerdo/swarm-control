@@ -51,7 +51,6 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 
 	private static String TAG = "NXT";
 	
-	private static final int CONNECT_ID = Menu.FIRST;
 	private static final int DEBUG_ID = CONNECT_ID + 1;
 	private static final int INVERT_ID = DEBUG_ID + 1;
 	private static final int ACCEL_ID = INVERT_ID + 1;
@@ -109,7 +108,6 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
         m_oRemoteCtrl.setProperties();
 
         updateButtons(false);
-        updateControlButtons(false);
         setDebug(false);
 
         if (m_oNxt.isConnected()) {
@@ -166,18 +164,17 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, CONNECT_ID, 1, "Connect");
-		menu.add(0, DEBUG_ID, 2, "Debug ON");
+		menu.add(0, DEBUG_ID, 2, "Debug");
 		return true;
 	}
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oRemoteCtrl.m_bControl) {
+    	if (m_oRemoteCtrl.isControlEnabled()) {
     		if (menu.findItem(INVERT_ID) == null) {
-				menu.add(0, INVERT_ID, 3, "Invert Driving (ON)");
-				menu.add(0, ACCEL_ID, 4, "Accelerometer (ON)");
-				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control (ON)");
+				menu.add(0, INVERT_ID, 3, "Invert Driving");
+				menu.add(0, ACCEL_ID, 4, "Accelerometer");
+				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control");
     		}
 		} else
 			if (menu.findItem(INVERT_ID) != null) {
@@ -186,35 +183,22 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 				menu.removeItem(ADVANCED_CONTROL_ID);
 			}
     	
-    	MenuItem item = menu.findItem(ACCEL_ID);
-    	if (item != null) {
-    		item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
-    	}
+    	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
+    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
+    	Utils.updateOnOffMenuItem(menu.findItem(DEBUG_ID), m_bDebug);
+    	Utils.updateOnOffMenuItem(menu.findItem(INVERT_ID), m_oNxt.isInverted());
     	
-    	item = menu.findItem(ADVANCED_CONTROL_ID);
-    	if (item != null) {
-    		item.setTitle("Advanced Control " + (m_oRemoteCtrl.m_bAdvancedControl ? "(OFF)" : "(ON)"));
-    	}
 		return true;
     }
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case CONNECT_ID:
-			m_oNxt.disconnect();
-			m_oSensorGatherer.initialize();
-			resetLayout();
-			updateButtons(false);
-			m_oBTHelper.selectRobot();
-			return true;
 		case DEBUG_ID:
 			setDebug(!m_bDebug);
-			item.setTitle("Debug " + (m_bDebug ? "OFF" : "ON"));
 			return true;
 		case INVERT_ID:
 			m_oNxt.setInverted();
-			item.setTitle("Invert Driving " + (m_oNxt.isInverted() ? "(OFF)" : "(ON)"));
 			return true;
 		case ACCEL_ID:
 			m_bAccelerometer = !m_bAccelerometer;
@@ -225,21 +209,18 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 				m_oNxt.moveStop();
 			}
 		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.setAdvancedControl(!m_oRemoteCtrl.m_bAdvancedControl);
+			m_oRemoteCtrl.toggleAdvancedControl();
 			break;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
 	}
-	
+
 	@Override
-	protected void connectToRobot() {
-		// if bluetooth is not yet enabled, initBluetooth will return false
-		// and the device selection will be called in the onActivityResult
-		if (m_oBTHelper.initBluetooth())
-			m_oBTHelper.selectRobot();
+	protected void disconnect() {
+		m_oNxt.disconnect();
 	}
-	
+
 	@Override
 	public void connectToRobot(BluetoothDevice i_oDevice) {
 		if (m_oBTHelper.initBluetooth()) {
@@ -392,12 +373,13 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	public void onConnect() {
 		connected = true;
 		updateButtons(true);
-//		updateButtonsAndMenu();
 	}
 	
+	@Override
 	public void onDisconnect() {
 		connected = false;
 		updateButtons(false);
+		m_oRemoteCtrl.resetLayout();
 	}
 	
 	@Override
@@ -600,10 +582,6 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 		});
 	}
 
-	public void updateControlButtons(boolean visible) {
-		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
-	}
-	
 	public void updateButtons(boolean enabled) {
 		m_oRemoteCtrl.updateButtons(enabled);
 		
@@ -628,7 +606,7 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	}
 	
 	public void resetLayout() {
-		updateControlButtons(false);
+		m_oRemoteCtrl.resetLayout();
 		
 		m_cbSensor1.setChecked(false);
 		m_spSensor1Type.setSelection(0);
@@ -650,6 +628,8 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 		
 		m_cbMotor3.setChecked(false);
 		m_spMotor3Type.setSelection(0);
+
+		m_oSensorGatherer.initialize();
 	}
 
 	public void setDebug(boolean i_bDebug) {

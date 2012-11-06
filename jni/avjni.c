@@ -66,24 +66,26 @@ AVCodecContext*     gVideoCodecCtx;
 int                 gVideoStreamIdx;
 AVFrame*            gVideoFrame;
 jobject             gBitmapRef;
-void*               gBitmapRefPixelBuffer;
 AndroidBitmapInfo   gAbi;
 struct SwsContext*  gSwsContext;
+
+void initialise(void) {
+	gFormatCtx = NULL;
+
+	//video
+	gVideoCodecCtx = NULL;
+	gVideoStreamIdx = -1;
+	gVideoFrame = NULL;
+	gBitmapRef = NULL;
+	gSwsContext = NULL;
+	memset(&gAbi, 0, sizeof(gAbi));
+}
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     LOGI(3, "JNI_OnLoad()");
 
-    gFormatCtx = NULL;
-
-    //video
-    gVideoCodecCtx = NULL;
-    gVideoStreamIdx = -1;
-    gVideoFrame = NULL;
-    gBitmapRef = NULL;
-    gBitmapRefPixelBuffer = NULL;
-    gSwsContext = NULL;
-    memset(&gAbi, 0, sizeof(gAbi));
+    initialise();
 
     return JNI_VERSION_1_6;
 }
@@ -96,6 +98,8 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved)
 JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeOpenFromURL(JNIEnv* env, jobject thiz, jstring url, jstring format)
 {
 	LOGI(3, "nativeOpenFromURL()");
+
+    initialise();
 
     avcodec_register_all();
     av_register_all();
@@ -184,7 +188,7 @@ JNIEXPORT void JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 
     if (gFormatCtx)
     {
-        avformat_close_input(&gFormatCtx);
+    	avformat_close_input(&gFormatCtx);
         gFormatCtx = NULL;
     }
 }
@@ -217,14 +221,6 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     {
         LOGE(1, "NewGlobalRef() failed");
         return -4;
-    }
-
-    int result = AndroidBitmap_lockPixels(env, gBitmapRef, &gBitmapRefPixelBuffer);
-    if (result != 0)
-    {
-        LOGE(1, "AndroidBitmap_lockPixels() failed with %d", result);
-        gBitmapRefPixelBuffer = NULL;
-        return -5;
     }
 
     if (AndroidBitmap_getInfo(env, gBitmapRef, &gAbi) != 0)
@@ -280,8 +276,10 @@ JNIEXPORT void JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (gVideoCodecCtx)
     {
         avcodec_close(gVideoCodecCtx);
-        av_free(gVideoCodecCtx);
+        // causes segmentation fault when avformat_close_input is called
+//        av_free(gVideoCodecCtx);
         gVideoCodecCtx = NULL;
+
     }
 
     sws_freeContext(gSwsContext);
@@ -289,11 +287,6 @@ JNIEXPORT void JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 
     if (gBitmapRef)
     {
-        if (gBitmapRefPixelBuffer)
-        {
-            AndroidBitmap_unlockPixels(env, gBitmapRef);
-            gBitmapRefPixelBuffer = NULL;
-        }
         (*env)->DeleteGlobalRef(env, gBitmapRef);
         gBitmapRef = NULL;
     }
@@ -313,7 +306,7 @@ int decodeFrameFromPacket(AVPacket* aPacket)
         int frameFinished = 0;
         if (avcodec_decode_video2(gVideoCodecCtx, gVideoFrame, &frameFinished, aPacket) <= 0)
         {
-            LOGE(1, "avcodec_decode_video2() decoded no frame");
+            LOGW(1, "avcodec_decode_video2() decoded no frame");
             return -1;
         }
         return VIDEO_DATA_ID;
@@ -351,38 +344,72 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 
 JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeUpdateBitmap(JNIEnv* env, jobject thiz)
 {
-//	static int sws_flags = av_get_int(sws_opts, "sws_flags", NULL);
-    gSwsContext = sws_getCachedContext(gSwsContext, gVideoCodecCtx->width, gVideoCodecCtx->height,
-    		gVideoCodecCtx->pix_fmt, gAbi.width, gAbi.height, PIX_FMT_RGB565LE, SWS_FAST_BILINEAR, NULL, NULL, NULL);
-    if (gSwsContext == 0)
-    {
-        LOGE(1, "sws_getCachedContext() failed");
-        return -1;
-    }
+    AVFrame* 	pFrame_RGB565;
+    uint8_t*    buffer_RGB565;
+    int ret;
+    int buff_size;
+    void *buffer;
+	int destWidth = gVideoCodecCtx->width;
+	int destHeight = gVideoCodecCtx->height;
 
-//    AVPicture pict;
-    AVFrame* pict;
-    pict = avcodec_alloc_frame();
-    int size = avpicture_fill((AVPicture *)pict, gBitmapRefPixelBuffer, PIX_FMT_RGB565LE, gAbi.width, gAbi.height);
+	if ((destWidth != 640) || destHeight != 360) {
+    	LOGE(1, "destWidth = %d", destWidth);
+    	LOGE(1, "destHeight = %d", destHeight);
+		ret = -5;
+		goto end;
+	}
+
+	if ((ret = AndroidBitmap_lockPixels(env, gBitmapRef, &buffer)) < 0) {
+		LOGE(1, "AndroidBitmap_lockPixels() failed ! error=%d", ret);
+		ret = -3;
+		goto end;
+	}
+
+    pFrame_RGB565 = avcodec_alloc_frame();
+    buff_size = avpicture_get_size(PIX_FMT_RGB565, destWidth, destHeight);
+    buffer_RGB565 = (uint8_t *)av_malloc(sizeof(uint8_t)*buff_size);
+
+    int size = avpicture_fill((AVPicture *)pFrame_RGB565, buffer, PIX_FMT_RGB565, destWidth, destHeight);
     if (size != gAbi.stride * gAbi.height)
     {
+    	LOGE(1, "buffersize = %d", sizeof(*buffer));
+    	LOGE(1, "destWidth = %d", destWidth);
+    	LOGE(1, "destHeight = %d", destHeight);
         LOGE(1, "size != gAbi.stride * gAbi.height");
         LOGE(1, "size = %d", size);
         LOGE(1, "gAbi.stride * gAbi.height = %d", gAbi.stride * gAbi.height);
-        return -2;
+        ret = -2;
+        goto release;
     }
 
-    int height = sws_scale(gSwsContext, (const uint8_t* const*)gVideoFrame->data, gVideoFrame->linesize, 0, gVideoCodecCtx->height, pict->data, pict->linesize);
+    gSwsContext = sws_getCachedContext(gSwsContext, destWidth, destHeight,
+    		gVideoCodecCtx->pix_fmt, gAbi.width, gAbi.height, PIX_FMT_RGB565, SWS_BICUBIC, NULL, NULL, NULL);
+    if (gSwsContext == 0)
+    {
+        LOGE(1, "sws_getCachedContext() failed");
+        ret = -1;
+        goto release;
+    }
+
+    int height = sws_scale(gSwsContext, (const uint8_t* const*)gVideoFrame->data, gVideoFrame->linesize, 0,
+    		gVideoCodecCtx->height, pFrame_RGB565->data, pFrame_RGB565->linesize);
     if (height != gAbi.height)
     {
         LOGE(1, "height != gAbi.height");
         LOGE(1, "height = %d", height);
         LOGE(1, "gAbi.height = %d", gAbi.height);
-        return -3;
+        ret = -4;
+        goto release;
     }
 
-    av_free(pict);
+    memcpy(buffer_RGB565, buffer, sizeof(uint8_t)*buff_size);
 
-    return 0;
+	release:
+    av_free(pFrame_RGB565);
+    av_free(buffer_RGB565);
+	AndroidBitmap_unlockPixels(env, gBitmapRef);
+
+    end:
+    return ret;
 }
 

@@ -29,15 +29,25 @@ public class DottySensorGatherer extends SensorGatherer {
 	TextView txtLightValue;
 	TextView txtSoundValue;
 	TextView txtBatteryValue;
-	TextView txtMotorAValue;
-	TextView txtMotorBValue;
+	TextView txtMotor1Value;
+	TextView txtMotor2Value;
+	TextView txtWheel1Value;
+	TextView txtWheel2Value;
+	TextView txtLed1Value;
+	TextView txtLed2Value;
+	TextView txtLed3Value;
 	
 	LinearLayout layDistanceValue;
 	LinearLayout layLightValue;
 	LinearLayout laySoundValue;
 	LinearLayout layBatteryValue;
-	LinearLayout layMotorAValue;
-	LinearLayout layMotorBValue;
+	LinearLayout layMotor1Value;
+	LinearLayout layMotor2Value;
+	LinearLayout layWheel1Value;
+	LinearLayout layWheel2Value;
+	LinearLayout layLed1Value;
+	LinearLayout layLed2Value;
+	LinearLayout layLed3Value;
 	
 	public DottySensorGatherer(Activity i_oActivity, Dotty i_oDotty) {
 		super(i_oActivity);
@@ -58,15 +68,25 @@ public class DottySensorGatherer extends SensorGatherer {
 		txtLightValue = (TextView) m_oActivity.findViewById(R.id.txtDotty_LightValue);
 		txtSoundValue = (TextView) m_oActivity.findViewById(R.id.txtDotty_SoundValue);
 		txtBatteryValue = (TextView) m_oActivity.findViewById(R.id.txtDotty_BatteryValue);
-		txtMotorAValue = (TextView) m_oActivity.findViewById(R.id.txtDotty_MotorSensorAValue);
-		txtMotorBValue = (TextView) m_oActivity.findViewById(R.id.txtDotty_MotorSensorBValue);
+		txtMotor1Value = (TextView) m_oActivity.findViewById(R.id.txtDotty_MotorSensor1Value);
+		txtMotor2Value = (TextView) m_oActivity.findViewById(R.id.txtDotty_MotorSensor2Value);
+		txtWheel1Value = (TextView) m_oActivity.findViewById(R.id.txtDotty_Wheel1Value);
+		txtWheel2Value = (TextView) m_oActivity.findViewById(R.id.txtDotty_Wheel2Value);
+		txtLed1Value = (TextView) m_oActivity.findViewById(R.id.txtDotty_Led1Value);
+		txtLed2Value = (TextView) m_oActivity.findViewById(R.id.txtDotty_Led2Value);
+		txtLed3Value = (TextView) m_oActivity.findViewById(R.id.txtDotty_Led3Value);
 		
 		layDistanceValue = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_DistanceValue);
 		layLightValue = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_LightValue);
 		laySoundValue = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_SoundValue);
 		layBatteryValue = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_BatteryValue);
-		layMotorAValue = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_MotorSensorAValue);
-		layMotorBValue = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_MotorSensorBValue);
+		layMotor1Value = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_MotorSensor1Value);
+		layMotor2Value = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_MotorSensor2Value);
+		layWheel1Value = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_Wheel1Value);
+		layWheel2Value = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_Wheel2Value);
+		layLed1Value = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_Led1Value);
+		layLed2Value = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_Led2Value);
+		layLed3Value = (LinearLayout) m_oActivity.findViewById(R.id.layDotty_Led3Value);
 	}
 
 	public void initialize() {
@@ -121,19 +141,38 @@ public class DottySensorGatherer extends SensorGatherer {
 					setText(txtLightValue, oData.nLight);
 					break;
 				case sensor_Motor1:
-					setText(txtMotorAValue, oData.nMotor1);
+					setText(txtMotor1Value, oData.nMotor1);
 					break;
 				case sensor_Motor2:
-					setText(txtMotorBValue, oData.nMotor2);
+					setText(txtMotor2Value, oData.nMotor2);
 					break;
 				case sensor_Sound:
 					setText(txtSoundValue, oData.nSound);
+					break;
+				case sensor_Wheel1:
+					setText(txtWheel1Value, oData.nWheel1);
+					break;
+				case sensor_Wheel2:
+					setText(txtWheel2Value, oData.nWheel2);
+					break;
+				case sensor_Led1:
+					setOnOffText(txtLed1Value, oData.bLed1ON);
+					break;
+				case sensor_Led2:
+					setOnOffText(txtLed2Value, oData.bLed2ON);
+					break;
+				case sensor_Led3:
+					setOnOffText(txtLed3Value, oData.bLed3ON);
 					break;
 				}
 			}
 		}
 		
 		m_bSensorRequestActive = false;
+	}
+	
+	private void setOnOffText(TextView i_oView, boolean i_bValue) {
+		i_oView.setText(i_bValue ? "ON" : "OFF");
 	}
 	
 	private void setText(TextView i_oView, int i_nValue) {
@@ -163,13 +202,28 @@ public class DottySensorGatherer extends SensorGatherer {
 			showLayout(layLightValue, i_bShow);
 			break;
 		case sensor_Motor1:
-			showLayout(layMotorAValue, i_bShow);
+			showLayout(layMotor1Value, i_bShow);
 			break;
 		case sensor_Motor2:
-			showLayout(layMotorBValue, i_bShow);
+			showLayout(layMotor2Value, i_bShow);
 			break;
 		case sensor_Sound:
 			showLayout(laySoundValue, i_bShow);
+			break;
+		case sensor_Wheel1:
+			showLayout(layWheel1Value, i_bShow);
+			break;
+		case sensor_Wheel2:
+			showLayout(layWheel2Value, i_bShow);
+			break;
+		case sensor_Led1:
+			showLayout(layLed1Value, i_bShow);
+			break;
+		case sensor_Led2:
+			showLayout(layLed2Value, i_bShow);
+			break;
+		case sensor_Led3:
+			showLayout(layLed3Value, i_bShow);
 			break;
 		}
 	}

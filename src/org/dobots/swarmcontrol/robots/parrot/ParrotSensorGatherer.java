@@ -10,10 +10,15 @@ import org.dobots.utility.Utils;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
+import android.graphics.Paint.Style;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,9 +38,8 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 
 	private Handler mHandler = new Handler(Looper.getMainLooper());
 
-	private boolean m_bSensorsEnabled;
-	private boolean m_bVidoeEnabled;
-	
+	private boolean m_bSensorsEnabled = false;
+	private boolean m_bVideoEnabled = true;
 	private boolean m_bVideoConnected = false;
 	
 	private TextView m_txtControlState;
@@ -48,9 +52,11 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	private TextView m_txtVY;
 	private TextView m_txtVZ;
 
-	private ImageView m_ivVideo;
 	private SurfaceView m_svVideo;
 	private ProgressBar m_pbLoading;
+	
+	private int nVideoHeight = 360;
+	private int nVideoWidth = 640;
 	
 	LinearLayout laySensors;
 	
@@ -74,8 +80,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		m_txtVY = (TextView) m_oActivity.findViewById(R.id.txtVY);
 		m_txtVZ = (TextView) m_oActivity.findViewById(R.id.txtVZ);
 
-        m_ivVideo = (ImageView) m_oActivity.findViewById(R.id.ivParrot1_Video);
-        m_svVideo = (SurfaceView) m_oActivity.findViewById(R.id.svParrot2_Video);
+        m_svVideo = (SurfaceView) m_oActivity.findViewById(R.id.svParrot_Video);
         m_pbLoading = (ProgressBar) m_oActivity.findViewById(R.id.pbLoading);
         
 		laySensors = (LinearLayout) m_oActivity.findViewById(R.id.laySensors);
@@ -83,7 +88,6 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 
 	public void initialize() {
 		m_bSensorsEnabled = false;
-		m_bVidoeEnabled = true;
 	}
 	
 	protected void execute() {
@@ -147,16 +151,20 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	@Override
     public void frameReceived(final int startX, final int startY, final int w, final int h, final
             int[] rgbArray, final int offset, final int scansize) {
-		if (!m_bVideoConnected) {
-			m_ivVideo.setVisibility(View.VISIBLE);
-			m_pbLoading.setVisibility(View.GONE);
-			m_bVideoConnected = true;
-		}
 		
-		if (m_bVidoeEnabled) {
+		if (m_bVideoEnabled) {
 			mHandler.post(new Runnable() {
 				@Override
 				public void run() {
+
+					if (!m_bVideoConnected) {
+						m_svVideo.setVisibility(View.VISIBLE);
+						m_pbLoading.setVisibility(View.GONE);
+						m_svVideo.getLayoutParams().height = nVideoHeight;
+						m_svVideo.getLayoutParams().width = nVideoWidth;
+						m_bVideoConnected = true;
+					}
+					
 					(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
 				}
 			});
@@ -185,66 +193,43 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
         protected Void doInBackground(Void... params) {
             b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
             b.setDensity(100);
+            b = Bitmap.createScaledBitmap(b, nVideoWidth, nVideoHeight, false);
             return null;
         }
         
         @Override
         protected void onPostExecute(Void param) {;
-            ((BitmapDrawable)m_ivVideo.getDrawable()).getBitmap().recycle(); 
-            m_ivVideo.setImageBitmap(b);
+        	Canvas canvas = null;
+	        try 
+	        {
+	            canvas = m_svVideo.getHolder().lockCanvas(null);
+	            if (canvas != null) {
+	            	canvas.drawBitmap(b, 0, 0, null);
+	            }
+	        }
+	        finally
+	        {
+	            if (canvas != null)
+	            {
+	            	m_svVideo.getHolder().unlockCanvasAndPost(canvas);
+	            }
+	        }
         }
     }
 
 	public void onConnect() {
-
 		m_oParrot.setNavDataListener(this);
-		if (m_oParrot.isARDrone1()) {
-			m_oParrot.setVideoListener(this);
-		} else {
-			mHandler.post(new Runnable() {
-				@Override
-				public void run() {
-					m_pbLoading.setVisibility(View.VISIBLE);
-				}
-			});
-			
-			m_oVideoProcessor = new ParrotVideoProcessor(m_oActivity, m_svVideo.getHolder());
-			m_oVideoProcessor.setOnConnect(new OnConnectEvent() {
-				
-				@Override
-				public void onConnect(boolean i_bConnected) {
-					mHandler.post(new Runnable() {
-						@Override
-						public void run() {
-							m_svVideo.setVisibility(View.VISIBLE);
-							m_pbLoading.setVisibility(View.GONE);
-							m_svVideo.getLayoutParams().height = 368;
-							m_svVideo.getLayoutParams().width = 600;
-						}
-					});
-					
-					if (!i_bConnected) {
-						Canvas canvas = m_svVideo.getHolder().lockCanvas();
-						TextView error = new TextView(m_oActivity);
-						error.setText("Video connection failed");
-						error.draw(canvas);
-						m_svVideo.getHolder().unlockCanvasAndPost(canvas);
-					}
-				}
-			});
-			m_oVideoProcessor.connect();
-		}
-		
+		enableVideo(m_bVideoEnabled);
 	}
 
 	public void onDisconnect() {
-		m_oParrot.removeVideoListener(this);
 		m_oParrot.removeNavDataListener(this);
 	}
 
 	public void close() {
 		if (m_oVideoProcessor != null) {
 			m_oVideoProcessor.close();
+			m_oVideoProcessor = null;
 		}
 	}
 	
@@ -262,6 +247,71 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		if (m_oVideoProcessor != null) {
 			m_oVideoProcessor.resumeThread();
 		}
+	}
+
+	public void enableVideo(boolean i_bVideoEnabled) {
+		m_bVideoEnabled = i_bVideoEnabled;
+		
+		if (i_bVideoEnabled) {
+			mHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					m_svVideo.setVisibility(View.GONE);
+					m_pbLoading.setVisibility(View.VISIBLE);
+				}
+			});
+		}
+		
+		if (m_oParrot.isARDrone1()) {
+
+			if (i_bVideoEnabled) {
+				m_oParrot.setVideoListener(this);
+			} else {
+				m_oParrot.removeVideoListener(this);
+			}
+				
+		} else {
+
+			if (i_bVideoEnabled) {
+
+				m_oVideoProcessor = new ParrotVideoProcessor(m_oActivity, m_svVideo.getHolder());
+				m_oVideoProcessor.setOnConnect(new OnConnectEvent() {
+					
+					@Override
+					public void onConnect(boolean i_bConnected) {
+						mHandler.post(new Runnable() {
+							@Override
+							public void run() {
+								m_svVideo.setVisibility(View.VISIBLE);
+								m_pbLoading.setVisibility(View.GONE);
+								m_svVideo.getLayoutParams().height = nVideoHeight;
+								m_svVideo.getLayoutParams().width = nVideoWidth;
+							}
+						});
+						
+						if (!i_bConnected) {
+							Canvas canvas = m_svVideo.getHolder().lockCanvas();
+							Utils.writeToCanvas(m_oActivity, canvas, "Video Connection Failed", true);
+							m_svVideo.getHolder().unlockCanvasAndPost(canvas);
+						}
+					}
+				});
+				m_oVideoProcessor.connect();
+			} else {
+				if (m_oVideoProcessor != null) {
+					m_oVideoProcessor.close();
+					m_oVideoProcessor = null;
+				}
+
+				Canvas canvas = m_svVideo.getHolder().lockCanvas();
+				Utils.writeToCanvas(m_oActivity, canvas, "Video OFF", true);
+				m_svVideo.getHolder().unlockCanvasAndPost(canvas);
+			}
+		}
+	}
+	
+	public boolean isVideoEnabled() {
+		return m_bVideoEnabled;
 	}
 
 }

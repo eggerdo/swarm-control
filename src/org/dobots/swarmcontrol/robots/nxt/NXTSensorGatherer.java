@@ -159,6 +159,8 @@ public class NXTSensorGatherer extends SensorGatherer {
 		ENXTMotorID eMotor;
 		int nResPowerSetpointID, nResTachoCountID, nResRotationCountID;
 		
+		int nInvertedFactor = m_oNxt.isInverted() ? -1 : 1;
+		
 		switch (nOutputPort) {
 		case 0:
 			eMotor = ENXTMotorID.motor_1;
@@ -190,14 +192,14 @@ public class NXTSensorGatherer extends SensorGatherer {
 
     	TextView txtRotationCount = (TextView) m_oActivity.findViewById(nResRotationCountID);
     	if (m_oMotorSensorTypes.get(eMotor) == ENXTMotorSensorType.motor_degreee) {
-	    	txtRotationCount.setText(String.valueOf(i_oMotorData.nRotationCount));
+	    	txtRotationCount.setText(String.valueOf(nInvertedFactor * i_oMotorData.nRotationCount));
     	} else {
-	    	txtRotationCount.setText(String.format("%.2f", i_oMotorData.nRotationCount / 360.0));
+	    	txtRotationCount.setText(String.format("%.2f", nInvertedFactor * i_oMotorData.nRotationCount / 360.0));
     	}
 
     	if (m_bDebug) {
 	    	TextView txtTachoCount = (TextView) m_oActivity.findViewById(nResTachoCountID);
-	    	txtTachoCount.setText(String.valueOf(i_oMotorData.nTachoCount));
+	    	txtTachoCount.setText(String.valueOf(nInvertedFactor * i_oMotorData.nTachoCount));
     	}
 
 		m_oMotorRequestActive.put(eMotor, false);

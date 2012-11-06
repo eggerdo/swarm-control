@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.UUID;
 
 import org.dobots.utility.Utils;
@@ -75,6 +77,19 @@ public class DottyTypes {
 	// disconnect command
 	public static final byte DISCONNECT = 0x0C;
 	
+	// sensor positions
+	public static final int LIGHT	 	= 0;
+	public static final int SOUND		= 1;
+	public static final int DISTANCE	= 2;
+	public static final int BATTERY 	= 3;
+	public static final int WHEEL_1		= 4;
+	public static final int WHEEL_2		= 5;
+	public static final int MOTOR_1 	= 6;
+	public static final int MOTOR_2		= 7;
+	public static final int LED_1		= 8;
+	public static final int LED_2		= 9;
+	public static final int LED_3		= 10;
+	
 	/////////////////////////////////////////////////
 	
 
@@ -93,56 +108,45 @@ public class DottyTypes {
 		}
 		
 		public CmdPackage(byte[] rgbyData) {
-			ByteArrayInputStream byte_in = new ByteArrayInputStream(rgbyData);
-			DataInputStream data_in = new DataInputStream(byte_in);
-			try {
-				nHeader 		= data_in.readUnsignedByte();
-				nTimestamp 		= Utils.ConvertEndian((short)data_in.readUnsignedShort());
-				nType			= data_in.readUnsignedByte();
-				nLength			= data_in.readUnsignedByte();
-				for (int i = 0; i < CMD_PARAM_LEN; i++) {
-					rgnParameter[i] = Utils.ConvertEndian((short)data_in.readUnsignedShort());
-				}
-				// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
-				// we read in the 16 bits together, then parse it into DirtyBit and CRC
-				short sTmp = (short) data_in.readUnsignedShort();
-				// the first bit in the sequence (bit number 15) is the DirtyBit. We convert that into a boolean
-				// for easier handling
-				bDirtyBitSet	= Utils.IsBitSet(sTmp, 15); 
-				// next we clear the DirtyBit from the short and use the result as CRC
-//				sTmp = (short) Utils.clearBit(sTmp, 15);
-//				nCRC			= Utils.LittleEndianToBigEndian(sTmp);
-				nCRC			= (short) Utils.clearBit(sTmp, 15);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			ByteBuffer buffer = ByteBuffer.wrap(rgbyData);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+			nHeader = Utils.getUnsignedByte(buffer);
+			nTimestamp = buffer.getShort();
+			nType = Utils.getUnsignedByte(buffer);
+			nLength = Utils.getUnsignedByte(buffer);
+			for (int i = 0; i < CMD_PARAM_LEN; i++) {
+				rgnParameter[i] = buffer.getShort();
 			}
+			// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
+			// we read in the 16 bits together, then parse it into DirtyBit and CRC
+			short sTmp = buffer.getShort();
+			// the first bit in the sequence (bit number 15) is the DirtyBit. We convert that into a boolean
+			// for easier handling
+			bDirtyBitSet	= Utils.IsBitSet(sTmp, 15); 
+			// next we clear the DirtyBit from the short and use the result as CRC
+//			sTmp = (short) Utils.clearBit(sTmp, 15);
+//			nCRC			= Utils.LittleEndianToBigEndian(sTmp);
+			nCRC			= (short) Utils.clearBit(sTmp, 15);
 		}
 		
 		public byte[] toByteArray() {
-			ByteArrayOutputStream byte_out = new ByteArrayOutputStream();
-			DataOutputStream data_out = new DataOutputStream(byte_out);
-			try {
-				data_out.writeByte(nHeader);
-				data_out.writeShort(Utils.ConvertEndian((short)nTimestamp));
-				data_out.writeByte(nType);
-				data_out.writeByte(nLength);
-				for (int i=0; i < CMD_PARAM_LEN; i++) {
-					data_out.writeShort(Utils.ConvertEndian((short)rgnParameter[i]));
-				}
-				// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
-				// we concatenate them and write them out together
-				short sTmp = (short)nCRC;
-				if (bDirtyBitSet) {
-					Utils.setBit(sTmp, 15);
-				} // clearing is not necessary since the bit 15 should be 0 by default
-				data_out.writeShort(sTmp);
-				return byte_out.toByteArray();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			ByteBuffer buffer = ByteBuffer.allocate(DATA_PKG_SIZE);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+			Utils.writeUnsignedByte(buffer, nHeader);
+			buffer.putShort((short)nTimestamp);
+			Utils.writeUnsignedByte(buffer, nType);
+			Utils.writeUnsignedByte(buffer, nLength);
+			for (int i=0; i < CMD_PARAM_LEN; i++) {
+				buffer.putShort((short)rgnParameter[i]);
 			}
-			return null;
+			// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
+			// we concatenate them and write them out together
+			short sTmp = (short)nCRC;
+			if (bDirtyBitSet) {
+				Utils.setBit(sTmp, 15);
+			} // clearing is not necessary since the bit 15 should be 0 by default
+			buffer.putShort(sTmp);
+			return buffer.array();
 		}
 	}
 	
@@ -217,45 +221,51 @@ public class DottyTypes {
 		int nType;
 		int nLength;
 		int rgnSensor[] = new int[DATA_PARAM_LEN];
+		boolean bDirtyBitSet;
 		int nCRC;
 		
 		public DataPackage(byte[] rgbyData) {
-			ByteArrayInputStream byte_in = new ByteArrayInputStream(rgbyData);
-			DataInputStream data_in = new DataInputStream(byte_in);
-			try {
-				nHeader 		= data_in.readUnsignedByte();
-				nTimestamp 		= Utils.ConvertEndian((short)data_in.readUnsignedShort());
-				nType			= data_in.readUnsignedByte();
-				nLength			= data_in.readUnsignedByte();
-				for (int i = 0; i < DATA_PARAM_LEN; i++) {
-					rgnSensor[i] = Utils.ConvertEndian((short)data_in.readUnsignedShort());
-				}
-				nCRC			= Utils.ConvertEndian((short)data_in.readUnsignedByte());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			ByteBuffer buffer = ByteBuffer.wrap(rgbyData);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+			nHeader = Utils.getUnsignedByte(buffer);
+			nTimestamp = buffer.getShort();
+			nType = Utils.getUnsignedByte(buffer);
+			nLength = Utils.getUnsignedByte(buffer);
+			for (int i = 0; i < DATA_PARAM_LEN; i++) {
+				rgnSensor[i] = buffer.getShort();
 			}
+			// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
+			// we read in the 16 bits together, then parse it into DirtyBit and CRC
+			short sTmp = buffer.getShort();
+			// the first bit in the sequence (bit number 15) is the DirtyBit. We convert that into a boolean
+			// for easier handling
+			bDirtyBitSet	= Utils.IsBitSet(sTmp, 15); 
+			// next we clear the DirtyBit from the short and use the result as CRC
+//			sTmp = (short) Utils.clearBit(sTmp, 15);
+//			nCRC			= Utils.LittleEndianToBigEndian(sTmp);
+			nCRC			= (short) Utils.clearBit(sTmp, 15);
 		}
 		
 		public byte[] toByteArray() {
-			ByteArrayOutputStream byte_out = new ByteArrayOutputStream();
-			DataOutputStream data_out = new DataOutputStream(byte_out);
-			try {
-				data_out.writeByte(nHeader);
-				data_out.writeShort(Utils.LittleEndianToBigEndian(nTimestamp));
-				data_out.writeByte(nType);
-				data_out.writeByte(nLength);
-				for (int i=0; i < DATA_PARAM_LEN; i++) {
-					data_out.writeShort(Utils.LittleEndianToBigEndian(rgnSensor[i]));
-				}
-				data_out.writeShort(Utils.LittleEndianToBigEndian(nCRC));
-				return byte_out.toByteArray();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			ByteBuffer buffer = ByteBuffer.allocate(DATA_PKG_SIZE);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+			Utils.writeUnsignedByte(buffer, nHeader);
+			buffer.putShort((short)nTimestamp);
+			Utils.writeUnsignedByte(buffer, nType);
+			Utils.writeUnsignedByte(buffer, nLength);
+			for (int i=0; i < DATA_PARAM_LEN; i++) {
+				buffer.putShort((short)rgnSensor[i]);
 			}
-			return null;
+			// the last 16 bits consist of 1 bit for the DirtyBit and 15 bits for the CRC
+			// we concatenate them and write them out together
+			short sTmp = (short)nCRC;
+			if (bDirtyBitSet) {
+				Utils.setBit(sTmp, 15);
+			} // clearing is not necessary since the bit 15 should be 0 by default
+			buffer.putShort(sTmp);
+			return buffer.array();
 		}
+		
 	}
 
 	public static DataPackage assembleDataPackage(byte[] i_rgbyData) {
@@ -269,24 +279,24 @@ public class DottyTypes {
 		public int nDistance;
 		public int nMotor1;
 		public int nMotor2;
-		public int nWheel1;
-		public int nWheel2;
+		public short nWheel1;
+		public short nWheel2;
 		public boolean bLed1ON;
 		public boolean bLed2ON;
 		public boolean bLed3ON;
 		
 		public SensorData(int[] i_rgnData) {
-			nSound			= i_rgnData[0];
-			nBattery		= i_rgnData[1];
-			nLight			= i_rgnData[2];
-			nDistance		= i_rgnData[3];
-			nMotor1			= i_rgnData[4];
-			nMotor2			= i_rgnData[5];
-			nWheel1			= i_rgnData[6];
-			nWheel2			= i_rgnData[7];
-			bLed1ON			= readBoolean(i_rgnData[8]);
-			bLed2ON			= readBoolean(i_rgnData[9]);
-			bLed3ON			= readBoolean(i_rgnData[10]);
+			nLight			= i_rgnData[LIGHT];
+			nSound			= i_rgnData[SOUND];
+			nDistance		= i_rgnData[DISTANCE];
+			nBattery		= i_rgnData[BATTERY];
+			nWheel1			= (short)i_rgnData[WHEEL_1];
+			nWheel2			= (short)i_rgnData[WHEEL_2];
+			nMotor1			= i_rgnData[MOTOR_1];
+			nMotor2			= i_rgnData[MOTOR_2];
+			bLed1ON			= readBoolean(i_rgnData[LED_1]);
+			bLed2ON			= readBoolean(i_rgnData[LED_2]);
+			bLed3ON			= readBoolean(i_rgnData[LED_3]);
 		}
 		
 		private boolean readBoolean(int i_nValue) {
@@ -299,22 +309,31 @@ public class DottyTypes {
 	}
 	
 	public enum EDottySensors {
-		sensor_Dist("Distance"),
-		sensor_Sound("Sound"),
-		sensor_Light("Light"),
-		sensor_Battery("Battery"),
-		sensor_Motor1("Motor 1"),
-		sensor_Motor2("Motor 2"),
-		sensor_Wheel1("Wheel 1"),
-		sensor_Wheel2("Wheel 2");
+		sensor_Dist("Distance", DISTANCE),
+		sensor_Sound("Sound", SOUND),
+		sensor_Light("Light", LIGHT),
+		sensor_Battery("Battery", BATTERY),
+		sensor_Motor1("Motor 1", MOTOR_1),
+		sensor_Motor2("Motor 2", MOTOR_2),
+		sensor_Wheel1("Wheel 1", WHEEL_1),
+		sensor_Wheel2("Wheel 2", WHEEL_2),
+		sensor_Led1("Led 1", LED_1),
+		sensor_Led2("Led 2", LED_2),
+		sensor_Led3("Led 3", LED_3);
 		String strName;
+		int nPosition;
 		
-		EDottySensors(String i_strName) {
+		EDottySensors(String i_strName, int i_nPosition) {
 			strName = i_strName;
+			nPosition = i_nPosition;
 		}
 		
 		public String toString() {
 			return strName;
+		}
+		
+		public int getPosition() {
+			return nPosition;
 		}
 	}
 	

@@ -34,8 +34,8 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 	
 	private Activity m_oActivity;
 	
-	public boolean m_bControl;
-	public boolean m_bAdvancedControl = true;
+	private boolean m_bControl;
+	private boolean m_bAdvancedControl = true;
 
 	private Button m_btnControl;
 	private Button m_btnFwd;
@@ -209,14 +209,10 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 			}
 		});
 		
+		updateButtons(false);
 		showControlButtons(false);
 	}
 	
-	public void setAdvancedControl(boolean i_bAdvancedControl) {
-		m_bAdvancedControl = i_bAdvancedControl;
-		Utils.showLayout(m_oAdvancedControl, m_bAdvancedControl);
-	}
-
 	public void showControlButtons(boolean visible) {
 		if (!visible) {
 			Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
@@ -255,13 +251,17 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 		}
 	}
 
+	final static int ROTATE_THRESHOLD = 40;
+	final static int DIRECTION_THRESHOLD_1 = 10;
+	final static int DIRECTION_THRESHOLD_2 = 30;
+	
 	@Override
 	public void onUpdate(double i_dblPercentage, double i_dblAngle) {
 		
 		if (i_dblPercentage == 0 && i_dblAngle == 0) {
 			// if percentage and angle is 0 this means the joystick was released
 			// so we stop the robot
-			m_oRemoteControlListener.onMove(Move.NONE, 0, 0);
+			onMove(Move.NONE, 0, 0);
 			lastMove = Move.NONE;
 		} else {
 
@@ -289,10 +289,10 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 				// if the last move was left (or right respectively) we use a window
 				// of +- 30 degrees, otherwise we switch to moving forward or backward
 				// depending on the angle
-				if (dblAbsAngle < 30) {
-					thisMove = Move.LEFT;
-				} else if ((180 - dblAbsAngle) < 30) {
+				if (dblAbsAngle < ROTATE_THRESHOLD) {
 					thisMove = Move.RIGHT;
+				} else if ((180 - dblAbsAngle) < ROTATE_THRESHOLD) {
+					thisMove = Move.LEFT;
 				} else if (i_dblAngle > 0) {
 					thisMove = Move.FORWARD;
 				} else if (i_dblAngle < 0) {
@@ -303,14 +303,20 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 				// if the last move was backward and the angle is within
 				// 10 degrees of 0 or 180 degrees we still move backward
 				// and cap the degree to 0 or 180 respectively
+				// if the angle is within 30 degree we rotate on the spot
+				// otherwise we change direction
 				if (i_dblAngle < 0) {
 					thisMove = Move.BACKWARD;
-				} else if (i_dblAngle < 10) {
+				} else if (i_dblAngle < DIRECTION_THRESHOLD_1) {
 					dblAbsAngle = 0;
 					thisMove = Move.BACKWARD;
-				} else if (i_dblAngle > 170) {
+				} else if (i_dblAngle > 180 - DIRECTION_THRESHOLD_1) {
 					dblAbsAngle = 180;
 					thisMove = Move.BACKWARD;
+				} else if (i_dblAngle < DIRECTION_THRESHOLD_2) {
+					thisMove = Move.RIGHT;
+				} else if (i_dblAngle > 180 - DIRECTION_THRESHOLD_2) {
+					thisMove = Move.LEFT;
 				} else {
 					thisMove = Move.FORWARD;
 				}
@@ -319,31 +325,41 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 				// if the last move was forward and the angle is within
 				// 10 degrees of 0 or 180 degrees we still move forward
 				// and cap the degree to 0 or 180 respectively
+				// if the angle is within 30 degree we rotate on the spot
+				// otherwise we change direction
 				if (i_dblAngle > 0) {
 					thisMove = Move.FORWARD;
-				} else if (i_dblAngle > -10) {
+				} else if (i_dblAngle > -DIRECTION_THRESHOLD_1) {
 					dblAbsAngle = 0;
 					thisMove = Move.FORWARD;
-				} else if (i_dblAngle < -170) {
+				} else if (i_dblAngle < -(180 - DIRECTION_THRESHOLD_1)) {
 					dblAbsAngle = 180;
 					thisMove = Move.FORWARD;
+				} else if (i_dblAngle > -DIRECTION_THRESHOLD_2) {
+					thisMove = Move.RIGHT;
+				} else if (i_dblAngle < -(180 - DIRECTION_THRESHOLD_2)) {
+					thisMove = Move.LEFT;
 				} else {
 					thisMove = Move.BACKWARD;
 				}
 				break;
 			}
 			
-			m_oRemoteControlListener.onMove(thisMove, i_dblPercentage, dblAbsAngle);
+			onMove(thisMove, i_dblPercentage, dblAbsAngle);
 			lastMove = thisMove;
 		}
 	}
-
 
 	// called by RemoteControlHelper when the joystick is used (if no other RemoteControlListener
 	// was assigned)
 	@Override
 	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
 
+		// modify the angle so that it is between -90 and +90
+		// instead of 0 and 180
+		// where -90 is left and +90 is right
+		i_dblAngle -= 90.0;
+		
 		// execute this move
 		switch(i_oMove) {
 		case NONE:
@@ -359,12 +375,12 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 			Log.i(TAG, String.format("fwd(%f, %f)", i_dblSpeed, i_dblAngle));
 			break;
 		case LEFT:
-			m_oRobot.rotateClockwise(i_dblSpeed);
-			Log.i(TAG, String.format("cw(%f)", i_dblSpeed));
-			break;
-		case RIGHT:
 			m_oRobot.rotateCounterClockwise(i_dblSpeed);
 			Log.i(TAG, String.format("c cw(%f)", i_dblSpeed));
+			break;
+		case RIGHT:
+			m_oRobot.rotateClockwise(i_dblSpeed);
+			Log.i(TAG, String.format("cw(%f)", i_dblSpeed));
 			break;
 		}
 	}
@@ -389,12 +405,12 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 			Log.i(TAG, "fwd()");
 			break;
 		case LEFT:
-			m_oRobot.rotateClockwise();
-			Log.i(TAG, "cw()");
-			break;
-		case RIGHT:
 			m_oRobot.rotateCounterClockwise();
 			Log.i(TAG, "c cw()");
+			break;
+		case RIGHT:
+			m_oRobot.rotateClockwise();
+			Log.i(TAG, "cw()");
 			break;
 		}
 	}
@@ -402,6 +418,23 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 	@Override
 	public void enableControl(boolean i_bEnable) {
 		m_oRobot.enableControl(i_bEnable);
+	}
+	
+	public boolean isControlEnabled() {
+		return m_bControl;
+	}
+
+	public void toggleAdvancedControl() {
+		m_bAdvancedControl = !m_bAdvancedControl;
+	}
+	
+	public void setAdvancedControl(boolean i_bAdvancedControl) {
+		m_bAdvancedControl = i_bAdvancedControl;
+		Utils.showLayout(m_oAdvancedControl, m_bAdvancedControl);
+	}
+
+	public boolean isAdvancedControl() {
+		return m_bAdvancedControl;
 	}
 		
 }

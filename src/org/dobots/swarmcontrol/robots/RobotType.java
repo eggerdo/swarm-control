@@ -2,10 +2,11 @@ package org.dobots.swarmcontrol.robots;
 
 public enum RobotType {
 	
+	RBT_UNKNOWN(""),
 	RBT_ROOMBA("Roomba"),
 	RBT_NXT("Mindstorm NXT"),
 	RBT_DOTTY("Dotty"), 
-	RBT_ARDRONE("AR Drone"),
+	RBT_PARROT("AR Drone"),
 	RBT_FINCH("Finch"),
 	RBT_SURVEYOR("Surveyor"),
 	RBT_TRAKR("Trakr"),

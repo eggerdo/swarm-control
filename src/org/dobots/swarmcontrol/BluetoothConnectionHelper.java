@@ -22,11 +22,14 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 	private String m_strMacFilter;
 
 	public static String MAC_FILTER = "MAC_FILTER";
+	public static String TITLE = "TITLE";
 
 	public static final int REQUEST_CONNECT_ROBOT = 1000;
 	public static final int REQUEST_ENABLE_BT = 1001;
 	
 	private BluetoothConnectionListener m_oListener;
+
+	private String m_strTitle = "";
 	
 	public BluetoothConnectionHelper(Activity i_oParent, String i_strMacFilter) {
 		m_oParent = i_oParent;
@@ -108,8 +111,14 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 		Intent serverIntent = new Intent(m_oParent, DeviceListActivity.class);
 		Bundle oParam = new Bundle();
 		oParam.putString(MAC_FILTER, m_strMacFilter);
+		oParam.putString(TITLE, m_strTitle);
 		serverIntent.putExtras(oParam);
 		m_oParent.startActivityForResult(serverIntent, REQUEST_CONNECT_ROBOT);
 	}
+	
+	public void setTitle(String i_strTitle) {
+		m_strTitle = i_strTitle;
+	}
+	
 	
 }

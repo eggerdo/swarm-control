@@ -8,8 +8,11 @@ import java.util.concurrent.TimeoutException;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 public class RoombaController {
+	
+	private static final String TAG = "RoombaCtrl";
 	
 	RoombaBluetooth m_oConnection;
 	
@@ -218,6 +221,8 @@ public class RoombaController {
 	 *  				Turn in place counter-clockwise = 1
 	 */
 	public void drive(int i_nVelocity, int i_nRadius) {
+		Log.d(TAG, String.format("drive(%d, %d)", i_nVelocity, i_nRadius));
+		
 		byte nVelocityH, nVelocityL;
 		byte nRadiusH, nRadiusL;
 		

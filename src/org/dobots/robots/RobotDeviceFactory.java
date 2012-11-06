@@ -25,7 +25,7 @@ public class RobotDeviceFactory {
 				return new NXT();
 			case RBT_DOTTY:
 				return new Dotty();
-			case RBT_ARDRONE:
+			case RBT_PARROT:
 				return new Parrot();
 			default: 		
 				throw new Exception();
@@ -40,7 +40,7 @@ public class RobotDeviceFactory {
 			return NXT.class;
 		case RBT_DOTTY:
 			return Dotty.class;
-		case RBT_ARDRONE:
+		case RBT_PARROT:
 			return Parrot.class;
 		default:
 			throw new Exception();
@@ -59,7 +59,7 @@ public class RobotDeviceFactory {
 		case RBT_DOTTY:
 			DottyRobot.connectToDotty(context, (Dotty)oRobot, i_oDevice, oListener);
 			break;
-		case RBT_ARDRONE:
+		case RBT_PARROT:
 			ParrotRobot.connectToARDrone(context, (Parrot)oRobot, "", oListener);
 		default:
 			throw new Exception();

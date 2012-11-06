@@ -120,6 +120,10 @@ public class NXTBluetooth extends BaseBluetooth {
             throw new IOException();
 
         int length = m_oInStream.read();
+        if (length < 0) {
+            throw new IOException();
+        }
+        
         length = (m_oInStream.read() << 8) + length;
         byte[] returnMessage = new byte[length];
         m_oInStream.read(returnMessage);

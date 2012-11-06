@@ -2,6 +2,8 @@ package org.dobots.robots.parrot;
 
 import java.net.InetAddress;
 
+import org.dobots.utility.Utils;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -25,6 +27,7 @@ public class ParrotVideoProcessor extends Thread {
     private Handler mHandler;
     private boolean mRun;
     private boolean mPause = false;
+	private boolean mClose = false;
     private boolean mVideoOpened;
     private SurfaceHolder m_oVideoSurface;
     
@@ -33,6 +36,7 @@ public class ParrotVideoProcessor extends Thread {
     private OnConnectEvent m_oConnectListener;
     
     private boolean m_bVideoConnected = false;
+
     
 	public ParrotVideoProcessor(Activity i_oActivity, SurfaceHolder i_oVideoSurface) {
 		super("Parrot Video Processor");
@@ -41,7 +45,7 @@ public class ParrotVideoProcessor extends Thread {
 		
 		Rect videoSize = m_oVideoSurface.getSurfaceFrame();
 //        m_bmpVideo = Bitmap.createBitmap(videoSize.width(), videoSize.height(), Bitmap.Config.RGB_565); //ARGB_8888
-      m_bmpVideo = Bitmap.createBitmap(640, 368, Bitmap.Config.RGB_565); //ARGB_8888
+      m_bmpVideo = Bitmap.createBitmap(640, 360, Bitmap.Config.RGB_565); //ARGB_8888
        
 	}
 
@@ -53,7 +57,7 @@ public class ParrotVideoProcessor extends Thread {
 
 		mRun = false;
 		
-		String strVideoAddr = String.format("http://%s:%d", ParrotTypes.ARDRONE_IP, ParrotTypes.VIDEO_PORT);
+		String strVideoAddr = String.format("http://%s:%d", ParrotTypes.PARROT_IP, ParrotTypes.VIDEO_PORT);
         if (nativeOpenFromURL(strVideoAddr, ParrotTypes.VIDEO_CODEC) != 0)
         {
             nativeClose();
@@ -111,8 +115,9 @@ public class ParrotVideoProcessor extends Thread {
                     try 
                     {
                         canvas = m_oVideoSurface.lockCanvas(null);
-                        nativeUpdateBitmap();
-                        canvas.drawBitmap(m_bmpVideo, 0, 0, null);
+                        if (nativeUpdateBitmap() == 0) {
+                        	canvas.drawBitmap(m_bmpVideo, 0, 0, null);
+                        }
                     }
                     finally
                     {
@@ -135,12 +140,17 @@ public class ParrotVideoProcessor extends Thread {
         {
             nativeClose();
         }
+        
+        mClose = true;
 
         Log.d(TAG, "leaving run()");
 	}
 	
 	public void close() {
         mRun = false;
+        while (!mClose) {
+        	Utils.waitSomeTime(20);
+        }
 	}
 	
 	public void pauseThread() {

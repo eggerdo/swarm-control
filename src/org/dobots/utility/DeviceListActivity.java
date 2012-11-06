@@ -65,6 +65,7 @@ public class DeviceListActivity extends Activity {
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     
     private String m_strMACFilter;
+    private String m_strTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,10 @@ public class DeviceListActivity extends Activity {
         
         Bundle oParam = this.getIntent().getExtras();
         m_strMACFilter = oParam.getString(BluetoothConnectionHelper.MAC_FILTER);
+        m_strTitle = oParam.getString(BluetoothConnectionHelper.TITLE);
+        if (m_strTitle != "") {
+        	setTitle(m_strTitle);
+        }
         
         if (pairedDevices.size() > 0) {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);

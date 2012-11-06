@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.WindowManager.LayoutParams;
 
 public class MultiRobotControl extends Activity implements RemoteControlListener {
+	
+	private static final String TAG = "MultiRobotControl";
 
 	private static MultiRobotControl INSTANCE;
 	
@@ -44,6 +46,7 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 		setContentView(R.layout.dancing_remotecontrol);
 		
         m_oRemoteCtrl.setProperties();
+        m_oRemoteCtrl.updateButtons(true);
 //        
 //        m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
 //        	
@@ -105,6 +108,7 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 	
 	public void enableControl(boolean i_bEnable) {
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
+//			Log.d(TAG, "Enable Control");
 			entry.oRobot.enableControl(i_bEnable);
 		}
 	}
@@ -113,6 +117,7 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 		
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
+//			Log.d(TAG, "Move Forward");
 			entry.oRobot.moveForward();
 		}
 		
@@ -122,6 +127,7 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
+//			Log.d(TAG, "Move Backward");
 			entry.oRobot.moveBackward();
 		}
 		
@@ -131,6 +137,7 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
+//			Log.d(TAG, "Rotate Counter Clockwise");
 			entry.oRobot.rotateCounterClockwise();
 		}
 		
@@ -140,6 +147,7 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 
 		int nSpeed = 50;
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
+//			Log.d(TAG, "Rotate Clockwise");
 			entry.oRobot.rotateClockwise();
 		}
 		
@@ -148,6 +156,7 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 	public static void driveStop() {
 
 		for (RobotEntry entry : DancingMain.getInstance().getRobotList()) {
+//			Log.d(TAG, "Move Stop");
 			entry.oRobot.moveStop();
 		}
 		
@@ -165,8 +174,10 @@ public class MultiRobotControl extends Activity implements RemoteControlListener
 		switch(i_oMove) {
 		case NONE:
 			driveStop();
+			break;
 		case BACKWARD:
 			driveBackward();
+			break;
 		case FORWARD:
 			driveForward();
 			break;

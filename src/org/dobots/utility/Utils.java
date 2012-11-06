@@ -1,13 +1,24 @@
 package org.dobots.utility;
 
+import java.nio.ByteBuffer;
+
 import org.dobots.swarmcontrol.SwarmControlActivity;
 
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
+import android.graphics.Paint.Style;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
@@ -56,6 +67,14 @@ public class Utils {
             result[i] = (byte) i_strText.charAt(i);
 
         return result;
+	}
+
+	public static int getUnsignedByte(ByteBuffer buffer) {
+		return buffer.get() & 0xFF;
+	}
+
+	public static void writeUnsignedByte(ByteBuffer buffer, int value) {
+		buffer.put((byte)value);
 	}
 	
 	public static String byteArrayToString(byte[] i_rgbyString) {
@@ -130,5 +149,33 @@ public class Utils {
 		oToast.show();
 	}
 
+	public static void writeToCanvas(Context context, Canvas i_oCanvas, String i_strText, boolean i_bCentered) {
+		i_oCanvas.drawColor(Color.BLACK);
+		LinearLayout layout = new LinearLayout(context);
+		if (i_bCentered) {
+			layout.setGravity(Gravity.CENTER);
+		}
+		
+		TextView text = new TextView(context);
+		text.setVisibility(View.VISIBLE);
+		text.setText(i_strText);
+		text.setTextAppearance(context, android.R.style.TextAppearance_Large);
+		layout.addView(text);
+		
+		layout.measure(i_oCanvas.getWidth(), i_oCanvas.getHeight());
+		layout.layout(0, 0, i_oCanvas.getWidth(), i_oCanvas.getHeight());
+		
+		layout.draw(i_oCanvas); 
+	}
+	
+	public static void updateOnOffMenuItem(MenuItem item, boolean i_bOn) {
+		if (item != null) {
+			if (i_bOn) {
+				item.setIcon(android.R.drawable.button_onoff_indicator_on);
+			} else {
+				item.setIcon(android.R.drawable.button_onoff_indicator_off);
+			}
+		}
+	}
 	
 }

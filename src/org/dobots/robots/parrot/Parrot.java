@@ -65,12 +65,12 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 	@Override
 	public RobotType getType() {
-		return RobotType.RBT_ARDRONE;
+		return RobotType.RBT_PARROT;
 	}
 
 	@Override
 	public String getAddress() {
-		return ParrotTypes.ARDRONE_IP;
+		return ParrotTypes.PARROT_IP;
 	}
 
 	@Override
@@ -88,20 +88,19 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 		// TODO Auto-generated method stub
 	}
 
-	private class DroneStarterNew extends AsyncTask<ARDrone, Integer, Boolean> {
+	private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
 
 		@Override
 		protected Boolean doInBackground(ARDrone... drones) {
 			try {
 				m_oController = new ARDrone(
-						InetAddress.getByName(ParrotTypes.ARDRONE_IP),
+						InetAddress.getByName(ParrotTypes.PARROT_IP),
 						10000, 60000);
 				m_oController.connect();
 				m_oController.clearEmergencySignal();
 				m_oController.waitForReady(ParrotTypes.CONNECTION_TIMEOUT);
 				m_oController.playLED(1, 10, 4);
-				m_oController
-						.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
+				m_oController.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
 				m_oController.setCombinedYawMode(true);
 				return true;
 			} catch (Exception e) {
@@ -121,19 +120,17 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 		protected void onPostExecute(Boolean success) {
 			if (success.booleanValue()) {
 				m_bConnected = true;
-				Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTED,
-						null);
+				Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTED, null);
 			} else {
 				m_bConnected = false;
-				Utils.sendMessage(m_oUiHandler,
-						MessageTypes.STATE_CONNECTERROR, null);
+				Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTERROR, null);
 			}
 		}
 	}
 
 	@Override
 	public void connect() {
-		(new DroneStarterNew()).execute(m_oController);
+		(new DroneStarter()).execute(m_oController);
 	}
 
 	public void setVideoListener(DroneVideoListener i_oListener) {
@@ -155,7 +152,11 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 	@Override
 	public void disconnect() {
 		try {
-			m_oController.disconnect();
+//			if (m_oController != null) {
+				m_oController.disconnect();
+//			}
+			m_oController = null;
+			m_bConnected = false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

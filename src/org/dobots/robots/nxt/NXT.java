@@ -44,14 +44,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	private boolean m_bPairing;
 
 	int motorLeft;
-//	private int directionLeft; // +/- 1
 	int motorRight;
-//	private boolean stopAlreadySent = false;
-//	private int directionRight; // +/- 1
-//	private int motorAction;
-//	private int directionAction; // +/- 1
-	
-//	private String programToStart;
 
 	private Handler m_oUiHandler;
 
@@ -394,18 +387,14 @@ public class NXT implements RobotDevice, BTConnectable {
 		int nBaseVelocity = calculateVelocity(i_dblSpeed);
 		int nVelocity1, nVelocity2;
 		
-		// a high radius value received means that the robot should make a small/short turn
-		// a low radius value received means that the robot should make a big/long turn
-		// that means that the actual radius from which we calculate the velocities has to be
-		// the opposite of the radius we receive
-		int nCorrectedRadius = NXTTypes.MAX_RADIUS - Math.abs(i_nRadius);
+		int nAbsRadius = Math.abs(i_nRadius);
 		
 		if (i_nRadius == 0) {
 			io_rgnVelocity[0] = nBaseVelocity;
 			io_rgnVelocity[1] = nBaseVelocity;
 		} else {
-			nVelocity1 = (int) Math.round(nBaseVelocity * (nCorrectedRadius + m_dblAxleWidth) / (nCorrectedRadius + m_dblAxleWidth / 2.0));
-			nVelocity2 = (int) Math.round(nBaseVelocity * nCorrectedRadius / (nCorrectedRadius + m_dblAxleWidth / 2.0));
+			nVelocity1 = (int) Math.round(nBaseVelocity * (nAbsRadius + m_dblAxleWidth) / (nAbsRadius + m_dblAxleWidth / 2.0));
+			nVelocity2 = (int) Math.round(nBaseVelocity * nAbsRadius / (nAbsRadius + m_dblAxleWidth / 2.0));
 			
 			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
 			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
@@ -433,23 +422,6 @@ public class NXT implements RobotDevice, BTConnectable {
 		}
 	}
 
-//	private int calculateLeftVelocity(double i_dblSpeed, int i_nRadius) {
-//		int nBaseVelocity = calculateVelocity(i_dblSpeed);
-//		int nLeftVelocity;
-//		if (i_nRadius > 0) { // we turn right
-//			nLeftVelocity = (int) Math.round(nBaseVelocity * (i_nRadius + m_dblAxleWidth) / (i_nRadius + m_dblAxleWidth / 2.0));
-//		} else { // we turn left
-//			nLeftVelocity = (int) Math.round(nBaseVelocity * i_nRadius / (i_nRadius + m_dblAxleWidth / 2.0));
-//		}
-//		return nLeftVelocity;
-//	}
-//	
-//	private int calculateRightVelocity(double i_dblSpeed, int i_nRadius) {
-//		// calculateRightVelocity is the inverse of calculateLeftVelocity, i.e. 
-//		// calculateRightVelocity(i_nRadius) = calculateLeftVelocity(-i_nRadius) and vice versa
-//		return calculateLeftVelocity(i_dblSpeed, -i_nRadius);
-//	}
-
 	private void setMotorSpeed(ENXTMotorID i_eMotor, int i_nVelocity) {
 		sendCmdMessage(NXTTypes.SET_OUTPUT_STATE, MsgTypes.assembleMotorSpeedMsg(i_eMotor, i_nVelocity * m_nInvertFactor));
 	}
@@ -471,6 +443,7 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	@Override
 	public void moveForward(double i_dblSpeed, int i_nRadius) {
+		Log.d(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		i_nRadius = capRadius(i_nRadius);
 		
@@ -485,7 +458,8 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 
 	public void moveForward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = i_dblAngle - 90.0;
+		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
+		
 		int nRadius = (int)(NXTTypes.MAX_RADIUS / 90.0 * dblAngle);
 		
 		moveForward(i_dblSpeed, nRadius);
@@ -505,6 +479,8 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	@Override
 	public void moveBackward(double i_dblSpeed, int i_nRadius) {
+		Log.d(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
+		
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		i_nRadius = capRadius(i_nRadius);
 
@@ -515,7 +491,8 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 
 	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = i_dblAngle - 90.0;
+		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
+		
 		int nRadius = (int)(NXTTypes.MAX_RADIUS / 90.0 * dblAngle);
 		
 		moveBackward(i_dblSpeed, nRadius);

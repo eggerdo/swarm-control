@@ -193,26 +193,26 @@
         android:background="#FF909090" />
 
     <LinearLayout
-        android:id="@+id/layDotty_MotorSensorA"
+        android:id="@+id/layDotty_MotorSensor1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <CheckBox
-            android:id="@+id/cbDotty_MotorSensorA"
+            android:id="@+id/cbDotty_MotorSensor1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="@string/dotty_motorsensora" />
+            android:text="@string/dotty_motorsensor1" />
 
         <LinearLayout
-            android:id="@+id/layDotty_MotorSensorAValue"
+            android:id="@+id/layDotty_MotorSensor1Value"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:visibility="gone" >
 
             <TextView
-                android:id="@+id/lblDotty_MotorSensorAValue"
+                android:id="@+id/lblDotty_MotorSensor1Value"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginRight="10dp"
@@ -220,7 +220,7 @@
                 android:text="@string/dotty_value" />
 
             <TextView
-                android:id="@+id/txtDotty_MotorSensorAValue"
+                android:id="@+id/txtDotty_MotorSensor1Value"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical" />
@@ -233,26 +233,26 @@
         android:background="#FF909090" />
 
     <LinearLayout
-        android:id="@+id/layDotty_MotorSensorB"
+        android:id="@+id/layDotty_MotorSensor2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <CheckBox
-            android:id="@+id/cbDotty_MotorSensorB"
+            android:id="@+id/cbDotty_MotorSensor2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="@string/dotty_motorsensorb" />
+            android:text="@string/dotty_motorsensor2" />
 
         <LinearLayout
-            android:id="@+id/layDotty_MotorSensorBValue"
+            android:id="@+id/layDotty_MotorSensor2Value"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:visibility="gone" >
 
             <TextView
-                android:id="@+id/lblDotty_MotorSensorBValue"
+                android:id="@+id/lblDotty_MotorSensor2Value"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginRight="10dp"
@@ -260,13 +260,213 @@
                 android:text="@string/dotty_value" />
 
             <TextView
-                android:id="@+id/txtDotty_MotorSensorBValue"
+                android:id="@+id/txtDotty_MotorSensor2Value"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical" />
         </LinearLayout>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <LinearLayout
+        android:id="@+id/layDotty_Wheel1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/cbDotty_Wheel1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/dotty_wheel1" />
+
+        <LinearLayout
+            android:id="@+id/layDotty_Wheel1Value"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/lblDotty_Wheel1Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical"
+                android:text="@string/dotty_value" />
+
+            <TextView
+                android:id="@+id/txtDotty_Wheel1Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <LinearLayout
+        android:id="@+id/layDotty_Wheel2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/cbDotty_Wheel2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/dotty_wheel2" />
+
+        <LinearLayout
+            android:id="@+id/layDotty_Wheel2Value"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/lblDotty_Wheel2Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical"
+                android:text="@string/dotty_value" />
+
+            <TextView
+                android:id="@+id/txtDotty_Wheel2Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <LinearLayout
+        android:id="@+id/layDotty_Led1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/cbDotty_Led1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/dotty_led1" />
+
+        <LinearLayout
+            android:id="@+id/layDotty_Led1Value"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/lblDotty_Led1Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical"
+                android:text="@string/dotty_value" />
+
+            <TextView
+                android:id="@+id/txtDotty_Led1Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <LinearLayout
+        android:id="@+id/layDotty_Led2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/cbDotty_Led2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/dotty_led2" />
+
+        <LinearLayout
+            android:id="@+id/layDotty_Led2Value"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/lblDotty_Led2Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical"
+                android:text="@string/dotty_value" />
+
+            <TextView
+                android:id="@+id/txtDotty_Led2Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <LinearLayout
+        android:id="@+id/layDotty_Led3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/cbDotty_Led3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/dotty_led3" />
+
+        <LinearLayout
+            android:id="@+id/layDotty_Led3Value"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/lblDotty_Led3Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical"
+                android:text="@string/dotty_value" />
+
+            <TextView
+                android:id="@+id/txtDotty_Led3Value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+    </LinearLayout>
+    
     <View
         android:layout_width="match_parent"
         android:layout_height="2dip"

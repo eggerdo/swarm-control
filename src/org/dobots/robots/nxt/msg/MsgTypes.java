@@ -102,7 +102,14 @@ public class MsgTypes {
 		public byte[] rgbyRawData;
 		
 		public RawDataMsg(byte[] i_rgbyData) {
-			rgbyRawData = Arrays.copyOf(i_rgbyData, i_rgbyData.length);
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD) {
+				rgbyRawData = Arrays.copyOf(i_rgbyData, i_rgbyData.length);
+			} else {
+				rgbyRawData = new byte[i_rgbyData.length];
+				for (int i = 0; i < i_rgbyData.length; i++) {
+					rgbyRawData[i] = i_rgbyData[i];
+				}
+			}
 		}
 		
 	}

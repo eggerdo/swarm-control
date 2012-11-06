@@ -48,23 +48,28 @@ public class JoystickSurfaceThread extends Thread {
 
 			//DRAW
 			Canvas canvas = null;
-			synchronized (m_oSurfaceHolder) {
-				try {
-					//lock canvas so nothing else can use it
-					canvas = m_oSurfaceHolder.lockCanvas(null);
-					//clear the screen with the black painter.
-					//reset the canvas
-					canvas.drawColor(Color.BLACK);
-					//This is where we draw the joystick
-					m_oJoystick.doDraw(canvas);
-				} finally {
-					// do this in a finally so that if an exception is thrown
-					// during the above, we don't leave the Surface in an
-					// inconsistent state
-					if (canvas != null) {
-						m_oSurfaceHolder.unlockCanvasAndPost(canvas);
+			try	{
+				synchronized (m_oSurfaceHolder) {
+					try {
+						//lock canvas so nothing else can use it
+						canvas = m_oSurfaceHolder.lockCanvas(null);
+						//clear the screen with the black painter.
+						//reset the canvas
+						canvas.drawColor(Color.BLACK);
+						//This is where we draw the joystick
+						m_oJoystick.doDraw(canvas);
+					} finally {
+						// do this in a finally so that if an exception is thrown
+						// during the above, we don't leave the Surface in an
+						// inconsistent state
+						if (canvas != null) {
+							m_oSurfaceHolder.unlockCanvasAndPost(canvas);
+						}
 					}
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
 			}
 
 			//SLEEP

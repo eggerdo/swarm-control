@@ -1,5 +1,9 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
+import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
@@ -325,5 +329,10 @@ public class RoombaSensorGatherer extends SensorGatherer {
 		}
 		
 	}
+	
+	public void initialize() {
+		setSensor(ERoombaSensorPackages.sensPkg_None);
+	}
+	
 
 }

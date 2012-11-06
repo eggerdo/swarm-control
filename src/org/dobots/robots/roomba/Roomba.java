@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 import org.dobots.robots.RobotDevice;
+import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaModes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
@@ -319,6 +320,20 @@ public class Roomba implements RobotDevice {
 		oRoombaCtrl.drive(nVelocity, i_nRadius);
 	}
 	
+	static final int STRAIGHT_THRESHOLD = 10;
+
+	@Override
+	public void moveForward(double i_dblSpeed, double i_dblAngle) {
+		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
+		
+		if (Math.abs(dblAngle) < STRAIGHT_THRESHOLD) {
+			moveForward(i_dblSpeed);
+		} else {
+			int nRadius = (int)(RoombaTypes.MAX_RADIUS / 90.0 * dblAngle);
+			moveForward(i_dblSpeed, nRadius);
+		}
+	}
+
 	public void moveBackward(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
@@ -333,7 +348,19 @@ public class Roomba implements RobotDevice {
 		
 		oRoombaCtrl.drive(-nVelocity, i_nRadius);
 	}
-	
+
+	@Override
+	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
+		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
+
+		if (Math.abs(dblAngle) < STRAIGHT_THRESHOLD) {
+			moveBackward(i_dblSpeed);
+		} else {
+			int nRadius = (int)(RoombaTypes.MAX_RADIUS / 90.0 * dblAngle);
+			moveBackward(i_dblSpeed, nRadius);
+		}
+	}
+
 	public void rotateClockwise(double i_dblSpeed) {
 		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
@@ -517,18 +544,6 @@ public class Roomba implements RobotDevice {
 	@Override
 	public double getBaseSped() {
 		return m_dblBaseSpeed;
-	}
-
-	@Override
-	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void moveForward(double i_dblSpeed, double i_dblAngle) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

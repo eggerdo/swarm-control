@@ -51,32 +51,31 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="20dp" />
 	    
-	    <ProgressBar 
-		    android:id="@+id/pbLoading" 
-		    android:indeterminate="true" 
-		    android:indeterminateBehavior="repeat" 
-		    android:layout_width="100dp" 
-		    android:layout_height="100dp"
-		    android:layout_marginTop="53dp"
-		    android:layout_marginBottom="53dp"
-		    android:layout_marginLeft="75dp"
-		    android:layout_marginRight="75dp"
-		    android:layout_gravity="center"
-		    android:visibility="invisible" />
-	    
-	    <ImageView
-	        android:id="@+id/ivParrot1_Video"
+	    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:id="@+id/layVideo"
 	        android:layout_width="249dp"
 	        android:layout_height="206dp"
+	        android:orientation="vertical"
 	        android:layout_gravity="center"
-			android:visibility="gone" />
-	
-	    <SurfaceView
-	        android:id="@+id/svParrot2_Video"
-	        android:layout_width="249dp"
-	        android:layout_height="206dp"
-	        android:layout_gravity="center"
-			android:visibility="gone" />
+	        >
+		        
+		    <ProgressBar 
+			    android:id="@+id/pbLoading" 
+			    android:indeterminate="true" 
+			    android:indeterminateBehavior="repeat" 
+			    android:layout_width="100dp" 
+			    android:layout_height="100dp"
+			    android:layout_gravity="center"
+			    android:visibility="gone" />
+		    
+		    <SurfaceView
+		        android:id="@+id/svParrot_Video"
+		        android:layout_width="249dp"
+		        android:layout_height="206dp"
+		        android:layout_gravity="center"
+				android:visibility="visible" />
+		    
+	    </FrameLayout>
 	    
 	    <include
 	        android:id="@+id/layRemoteControl"

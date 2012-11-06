@@ -2,6 +2,8 @@ package org.dobots.swarmcontrol.robots.parrot;
 
 import java.net.UnknownHostException;
 
+import org.dobots.robots.BaseWifi;
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.parrot.Parrot;
 import org.dobots.robots.parrot.ParrotTypes;
 import org.dobots.robots.parrot.ParrotVideoProcessor;
@@ -14,10 +16,16 @@ import org.dobots.swarmcontrol.robots.WifiRobot;
 import org.dobots.utility.OnButtonPress;
 import org.dobots.utility.Utils;
 
+import com.codeminders.ardrone.ARDrone.VideoChannel;
+
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,13 +37,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.codeminders.ardrone.ARDrone.VideoChannel;
-
 public class ParrotRobot extends WifiRobot {
 
 	private static String TAG = "Parrot";
 	
-	private static final int CONNECT_ID = Menu.FIRST;
+	private static final int VIDEO_ID = CONNECT_ID + 1;
 
 	private boolean connected;
 	
@@ -43,8 +49,6 @@ public class ParrotRobot extends WifiRobot {
 
 	private ParrotSensorGatherer m_oSensorGatherer;
 
-//	private RemoteControlHelper m_oRemoteCtrl;
-	
 //	private Button m_btnCalibrate;
 	
 	private double m_dblSpeed;
@@ -69,6 +73,7 @@ public class ParrotRobot extends WifiRobot {
     private EditText edtKp, edtKd, edtKi;
 
 	private Button m_btnEmergency;
+
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -157,98 +162,95 @@ public class ParrotRobot extends WifiRobot {
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, CONNECT_ID, 1, "Connect");
+		menu.add(0, VIDEO_ID, 2, "Video");
 		return true;
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case CONNECT_ID:
-			m_oParrot.disconnect();
-			resetLayout();
-			updateButtons(false);
-			connectToRobot(2000);
+		case VIDEO_ID:
+			m_oSensorGatherer.enableVideo(!m_oSensorGatherer.isVideoEnabled());
 			return true;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
-	public void connectToRobot(int delay) {
+	public void disconnect() {
+		m_oParrot.disconnect();
+	}
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+    	Utils.updateOnOffMenuItem(menu.findItem(VIDEO_ID), m_oSensorGatherer.isVideoEnabled());
+    	
+    	return true;
+    }
+
+	@Override
+	public void connectToRobot() {
 		if (m_oWifiHelper.initWifi()) {
 			connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
 			
-			uiHandler.postDelayed(new Runnable() {
+			uiHandler.post(new Runnable() {
 				@Override
 				public void run() {
 					m_oParrot.connect();
 				}
-			}, delay);
+			});
 		}
 	}
-	
-	@Override
-	public void connectToRobot() {
-		connectToRobot(0);
-	}
 
-	public static void connectToARDrone(final Activity m_oOwner, Parrot i_oARDrone, String i_strAddress, final ConnectListener i_oConnectListener) {
-//		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
-//		
-//		if (i_oARDrone.getConnection() != null) {
-//			try {
-//				i_oARDrone.getConnection().destroyConnection();
-//			}
-//			catch (IOException e) { }
-//		}
-//		
-//		i_oARDrone.setConnection(new ARDroneWifi());
-//		i_oARDrone.connect();
-//		i_oARDrone.setHandler(new Handler() {
-//			@Override
-//			public void handleMessage(Message msg) {
-//				switch (msg.what) {
-//				case BaseWifi.DISPLAY_TOAST:
-//					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
-//					break;
-//				case BaseWifi.STATE_CONNECTED:
-//					connectingProgress.dismiss();
-//					i_oConnectListener.onConnect(true);
-////					updateButtonsAndMenu();
-//					break;
-//
-//				case BaseWifi.STATE_CONNECTERROR_PAIRING:
-//					connectingProgress.dismiss();
-//					i_oConnectListener.onConnect(false);
-//					break;
-//
-//				case BaseWifi.STATE_CONNECTERROR:
-//					connectingProgress.dismiss();
-//				case BaseWifi.STATE_RECEIVEERROR:
-//				case BaseWifi.STATE_SENDERROR:
-//					i_oConnectListener.onConnect(false);
-//
-////					if (btErrorPending == false) {
-////						btErrorPending = true;
-//						// inform the user of the error with an AlertDialog
-//						AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
-//						builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
-//						.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-//						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//							//                            @Override
-//							public void onClick(DialogInterface dialog, int id) {
-////								btErrorPending = false;
-//								dialog.cancel();
-//							}
-//						});
-//						builder.create().show();
-////					}
-//
-//					break;
-//				}
-//			}
-//		});
+	public static void connectToARDrone(final Activity m_oOwner, Parrot i_oParrot, String i_strAddress, final ConnectListener i_oConnectListener) {
+		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
+		
+		if (i_oParrot.isConnected()) {
+			i_oParrot.disconnect();
+		}
+		
+		i_oParrot.connect();
+		i_oParrot.setHandler(new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case MessageTypes.DISPLAY_TOAST:
+					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
+					break;
+				case MessageTypes.STATE_CONNECTED:
+					connectingProgress.dismiss();
+					i_oConnectListener.onConnect(true);
+//					updateButtonsAndMenu();
+					break;
+
+				case MessageTypes.STATE_CONNECTERROR_PAIRING:
+					connectingProgress.dismiss();
+					i_oConnectListener.onConnect(false);
+					break;
+
+				case MessageTypes.STATE_CONNECTERROR:
+					connectingProgress.dismiss();
+				case MessageTypes.STATE_RECEIVEERROR:
+				case MessageTypes.STATE_SENDERROR:
+					i_oConnectListener.onConnect(false);
+
+					// inform the user of the error with an AlertDialog
+					AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
+					builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
+					.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+					});
+					builder.create().show();
+
+					break;
+				}
+			}
+		});
 	}
 	
 	@Override
@@ -457,7 +459,7 @@ public class ParrotRobot extends WifiRobot {
 		}
 	}
 
-	private void resetLayout() {
+	protected void resetLayout() {
 //        m_oRemoteCtrl.resetLayout();
         
         updateButtons(false);

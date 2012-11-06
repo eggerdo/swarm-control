@@ -58,8 +58,13 @@ public class DottyRobot extends BluetoothRobot {
 	private CheckBox m_cbLight;
 	private CheckBox m_cbSound;
 	private CheckBox m_cbBattery;
-	private CheckBox m_cbMotorA;
-	private CheckBox m_cbMotorB;
+	private CheckBox m_cbMotor1;
+	private CheckBox m_cbMotor2;
+	private CheckBox m_cbWheel1;
+	private CheckBox m_cbWheel2;
+	private CheckBox m_cbLed1;
+	private CheckBox m_cbLed2;
+	private CheckBox m_cbLed3;
 
 	private EditText m_edtInterval;
 	
@@ -69,8 +74,6 @@ public class DottyRobot extends BluetoothRobot {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-
-        updateButtons(false);
         
     	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
     	if (nIndex == -1) {
@@ -78,9 +81,7 @@ public class DottyRobot extends BluetoothRobot {
 	        connectToRobot();
     	} else {
     		m_oDotty = (Dotty) RobotInventory.getInstance().getRobot(nIndex);
-    		if (m_oDotty.isConnected()) {
-    			updateButtons(true);
-    		}
+    		
     		m_bKeepAlive = true;
     	}
     	m_oDotty.setHandler(uiHandler);
@@ -90,15 +91,12 @@ public class DottyRobot extends BluetoothRobot {
 
 		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oDotty, null);
         m_oRemoteCtrl.setProperties();
+
+        updateButtons(false);
         
-//        m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
-//			
-//			@Override
-//			public void buttonPressed(boolean i_bDown) {
-//				m_oDotty.enableControl(i_bDown);
-//			}
-//		});
-        
+        if (m_oDotty.isConnected()) {
+			updateButtons(true);
+		}
     }
     
     public void setNXT(Dotty i_oNxt) {
@@ -129,8 +127,13 @@ public class DottyRobot extends BluetoothRobot {
         m_cbLight = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Light);
         m_cbSound = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Sound);
         m_cbBattery = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Battery);
-        m_cbMotorA = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_MotorSensorA);
-        m_cbMotorB = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_MotorSensorB);
+        m_cbMotor1 = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_MotorSensor1);
+        m_cbMotor2 = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_MotorSensor2);
+        m_cbWheel1 = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Wheel1);
+        m_cbWheel2 = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Wheel2);
+        m_cbLed1 = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Led1);
+        m_cbLed2 = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Led2);
+        m_cbLed3 = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Led3);
         
         CheckBox cbSensor;
         for (EDottySensors eSensor : EDottySensors.values()) {
@@ -145,14 +148,29 @@ public class DottyRobot extends BluetoothRobot {
         		cbSensor = m_cbLight;
         		break;
         	case sensor_Motor1:
-        		cbSensor = m_cbMotorA;
+        		cbSensor = m_cbMotor1;
         		break;
         	case sensor_Motor2:
-        		cbSensor = m_cbMotorB;
+        		cbSensor = m_cbMotor2;
         		break;
         	case sensor_Sound:
         		cbSensor = m_cbSound;
         		break;
+			case sensor_Wheel1:
+				cbSensor = m_cbWheel1;
+				break;
+			case sensor_Wheel2:
+				cbSensor = m_cbWheel2;
+				break;
+			case sensor_Led1:
+				cbSensor = m_cbLed1;
+				break;
+			case sensor_Led2:
+				cbSensor = m_cbLed2;
+				break;
+			case sensor_Led3:
+				cbSensor = m_cbLed3;
+				break;
     		default:
     			continue;
         	}
@@ -177,8 +195,13 @@ public class DottyRobot extends BluetoothRobot {
 		        m_cbLight.setChecked(isChecked);
 		        m_cbSound.setChecked(isChecked);
 		        m_cbBattery.setChecked(isChecked);
-		        m_cbMotorA.setChecked(isChecked);
-		        m_cbMotorB.setChecked(isChecked);
+		        m_cbMotor1.setChecked(isChecked);
+		        m_cbMotor2.setChecked(isChecked);
+		        m_cbWheel1.setChecked(isChecked);
+		        m_cbWheel2.setChecked(isChecked);
+		        m_cbLed1.setChecked(isChecked);
+		        m_cbLed2.setChecked(isChecked);
+		        m_cbLed3.setChecked(isChecked);
 			}
 		});
 		
@@ -258,47 +281,44 @@ public class DottyRobot extends BluetoothRobot {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oRemoteCtrl.m_bControl) {
+    	if (m_oRemoteCtrl.isControlEnabled()) {
     		if (menu.findItem(ADVANCED_CONTROL_ID) == null) {
-				menu.add(0, ADVANCED_CONTROL_ID, 3, "Advanced Control (ON)");
+				menu.add(0, ADVANCED_CONTROL_ID, 2, "Advanced Control");
     		}
 		} else
 			if (menu.findItem(ADVANCED_CONTROL_ID) != null) {
 				menu.removeItem(ADVANCED_CONTROL_ID);
 			}
-    	
-    	MenuItem item = menu.findItem(ADVANCED_CONTROL_ID);
-    	if (item != null) {
-    		item.setTitle("Advanced Control " + (m_oRemoteCtrl.m_bAdvancedControl ? "(ON)" : "(OFF)"));
-    	}
-		return true;
+
+    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
+
+    	return true;
     }
     
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case CONNECT_ID:
-			m_oDotty.disconnect();
-			m_oSensorGatherer.initialize();
-			resetLayout();
-			m_oBTHelper.selectRobot();
-			return true;
 		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.setAdvancedControl(!m_oRemoteCtrl.m_bAdvancedControl);
+			m_oRemoteCtrl.toggleAdvancedControl();
 			return true;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	private void resetLayout() {
+	protected void resetLayout() {
 		m_cbAll.setChecked(false);
         m_cbDistance.setChecked(false);
         m_cbLight.setChecked(false);
         m_cbSound.setChecked(false);
         m_cbBattery.setChecked(false);
-        m_cbMotorA.setChecked(false);
-        m_cbMotorB.setChecked(false);
+        m_cbMotor1.setChecked(false);
+        m_cbMotor2.setChecked(false);
+        m_cbWheel1.setChecked(false);
+        m_cbWheel2.setChecked(false);
+        m_cbLed1.setChecked(false);
+        m_cbLed2.setChecked(false);
+        m_cbLed3.setChecked(false);
         
         m_oRemoteCtrl.resetLayout();
         
@@ -306,36 +326,44 @@ public class DottyRobot extends BluetoothRobot {
         m_bStreaming = false;
         
         updateButtons(false);
+
+		m_oSensorGatherer.initialize();
 	}
 	
 	public void updateButtons(boolean enabled) {
+		m_oRemoteCtrl.updateButtons(enabled);
+		
+		m_btnStreaming.setEnabled(enabled);
+		m_edtInterval.setEnabled(enabled);
+		
 		m_cbAll.setEnabled(enabled);
 		m_cbDistance.setEnabled(enabled);
 		m_cbBattery.setEnabled(enabled);
 		m_cbLight.setEnabled(enabled);
-		m_cbMotorA.setEnabled(enabled);
-		m_cbMotorB.setEnabled(enabled);
+		m_cbMotor1.setEnabled(enabled);
+		m_cbMotor2.setEnabled(enabled);
 		m_cbSound.setEnabled(enabled);
+        m_cbWheel1.setEnabled(enabled);
+        m_cbWheel2.setEnabled(enabled);
+        m_cbLed1.setEnabled(enabled);
+        m_cbLed2.setEnabled(enabled);
+        m_cbLed3.setEnabled(enabled);
 	}
 
 	@Override
 	protected void onConnect() {
 		updateButtons(true);
-		m_oRemoteCtrl.updateButtons(true);
 	}
 	
 	@Override
 	protected void onDisconnect() {
 		updateButtons(false);
-		m_oRemoteCtrl.updateButtons(false);
+		m_oRemoteCtrl.resetLayout();
 	}
 
 	@Override
-	protected void connectToRobot() {
-		// if bluetooth is not yet enabled, initBluetooth will return false
-		// and the device selection will be called in the onActivityResult
-		if (m_oBTHelper.initBluetooth())
-			m_oBTHelper.selectRobot();
+	protected void disconnect() {
+		m_oDotty.disconnect();
 	}
 	
 	@Override

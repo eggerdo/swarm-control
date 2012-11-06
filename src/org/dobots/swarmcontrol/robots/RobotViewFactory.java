@@ -39,7 +39,7 @@ public class RobotViewFactory {
 			return NXTRobot.class;
 		case RBT_DOTTY:
 			return DottyRobot.class;
-		case RBT_ARDRONE:
+		case RBT_PARROT:
 			return ParrotRobot.class;
 		default:
 			return RobotView.class;
@@ -54,7 +54,7 @@ public class RobotViewFactory {
 			return NXTTypes.MAC_FILTER;
 		case RBT_DOTTY:
 			return DottyTypes.MAC_FILTER;
-		case RBT_ARDRONE:
+		case RBT_PARROT:
 			return ParrotTypes.SSID_Filter;
 		default:
 			return "";

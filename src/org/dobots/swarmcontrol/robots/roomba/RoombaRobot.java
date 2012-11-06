@@ -8,6 +8,8 @@ import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
+import org.dobots.swarmcontrol.RemoteControlHelper.Move;
+import org.dobots.swarmcontrol.RemoteControlListener;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
@@ -36,7 +38,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-public class RoombaRobot extends BluetoothRobot {
+public class RoombaRobot extends BluetoothRobot implements RemoteControlListener {
 	
 	private static String TAG = "Roomba";
 
@@ -89,7 +91,7 @@ public class RoombaRobot extends BluetoothRobot {
 		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 		m_dblSpeed = m_oRoomba.getBaseSped();
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRoomba, null);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRoomba, this);
         m_oRemoteCtrl.setProperties();
 
     	updateButtons(false);
@@ -107,16 +109,15 @@ public class RoombaRobot extends BluetoothRobot {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, CONNECT_ID, 1, "Connect");
 		return true;
 	}
 	   
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oRemoteCtrl.m_bControl) {
+    	if (m_oRemoteCtrl.isControlEnabled()) {
     		if (menu.findItem(ACCEL_ID) == null) {
-				menu.add(0, ACCEL_ID, 2, "Accelerometer (ON)");
-				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control (ON)");
+				menu.add(0, ACCEL_ID, 2, "Accelerometer");
+				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control");
     		}
 		} else
 			if (menu.findItem(ACCEL_ID) != null) {
@@ -124,25 +125,15 @@ public class RoombaRobot extends BluetoothRobot {
 				menu.removeItem(ADVANCED_CONTROL_ID);
 			}
 
-    	MenuItem item = menu.findItem(ACCEL_ID);
-    	if (item != null) {
-    		item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
-    	}
-
-    	item = menu.findItem(ADVANCED_CONTROL_ID);
-    	if (item != null) {
-    		item.setTitle("Advanced Control " + (m_oRemoteCtrl.m_bAdvancedControl ? "(OFF)" : "(ON)"));
-    	}
+    	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
+    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
+    	
 		return true;
     }
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case CONNECT_ID:
-			shutDown();
-			m_oBTHelper.selectRobot();
-			return true;
 		case ACCEL_ID:
 			m_bAccelerometer = !m_bAccelerometer;
 			item.setTitle("Accelerometer " + (m_bAccelerometer ? "(OFF)" : "(ON)"));
@@ -153,7 +144,7 @@ public class RoombaRobot extends BluetoothRobot {
 				m_oRoomba.moveStop();
 			}
 		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.setAdvancedControl(!m_oRemoteCtrl.m_bAdvancedControl);
+			m_oRemoteCtrl.toggleAdvancedControl();
 			break;
 		}
 
@@ -256,32 +247,31 @@ public class RoombaRobot extends BluetoothRobot {
 	public void onDisconnect() {
 		updatePowerButton(false);
 		updateButtons(false);
+		m_oRemoteCtrl.resetLayout();
+		oSensorGatherer.stopThread();
 	}
 
 	public void updateControlButtons(boolean visible) {
-//		m_oActivity.findViewById(R.id.btnMainBrush).setEnabled(visible);
-//		m_oActivity.findViewById(R.id.btnSideBrush).setEnabled(visible);
-//		m_oActivity.findViewById(R.id.btnVacuum).setEnabled(visible);
 		m_btnCalibrate.setEnabled(visible);
 		
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layBrushes), visible);
-		
 		Utils.showLayout((LinearLayout)m_oActivity.findViewById(R.id.layRemoteControl), visible);
 	}
 
 	public void updateButtons(boolean enabled) {
+		m_oRemoteCtrl.updateButtons(enabled);
+		
 		m_btnClean.setEnabled(enabled);
 		m_btnStop.setEnabled(enabled);
 		m_btnDock.setEnabled(enabled);
-//		m_btnPower.setEnabled(enabled);
 		m_spSensors.setEnabled(enabled);
 	}
 
-	protected void connectToRobot() {
-		// if bluetooth is not yet enabled, initBluetooth will return false
-		// and the device selection will be called in the onActivityResult
-		if (m_oBTHelper.initBluetooth())
-			m_oBTHelper.selectRobot();
+	@Override
+	protected void disconnect() {
+		updatePowerButton(false);
+		updateControlButtons(false);
+		m_oRoomba.disconnect();
 	}
 
 	public void connectToRobot(BluetoothDevice i_oDevice) {
@@ -413,6 +403,12 @@ public class RoombaRobot extends BluetoothRobot {
 		i_oRoomba.connect();
 	}
 
+	public void resetLayout() {
+		m_oRemoteCtrl.resetLayout();
+		
+		oSensorGatherer.initialize();
+	}
+	
 	@Override
 	public void shutDown() {
     	updateButtons(false);
@@ -424,8 +420,6 @@ public class RoombaRobot extends BluetoothRobot {
 		if (m_oRoomba.isConnected() && !m_bKeepAlive) {
 			m_oRoomba.disconnect();
 		}
-		
-		m_oBTHelper.disableBluetooth();
 	}
 
 	@Override
@@ -569,5 +563,21 @@ public class RoombaRobot extends BluetoothRobot {
 	public static String getMacFilter() {
 		return RoombaTypes.MAC_FILTER;
 	}
-	
+
+	@Override
+	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
+		m_oRemoteCtrl.onMove(i_oMove, i_dblSpeed, i_dblAngle);
+	}
+
+	@Override
+	public void onMove(Move i_oMove) {
+		m_oRemoteCtrl.onMove(i_oMove);
+	}
+
+	@Override
+	public void enableControl(boolean i_bEnable) {
+		m_oRemoteCtrl.enableControl(i_bEnable);
+		updateControlButtons(i_bEnable);
+	}
+
 }

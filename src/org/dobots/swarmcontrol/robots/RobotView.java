@@ -22,14 +22,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract class RobotView extends Activity implements AccelerometerListener, BluetoothConnectionListener {
+public abstract class RobotView extends Activity implements AccelerometerListener {
 
+	protected static final int CONNECT_ID = Menu.FIRST;
+	
 	protected static String TAG = "RobotDevice";
 	
 	protected Activity m_oActivity;
@@ -107,7 +111,30 @@ public abstract class RobotView extends Activity implements AccelerometerListene
 			AccelerometerManager.startListening(this);
 		}
 	}
+	
 
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(0, CONNECT_ID, 1, "Connect");
+		
+		return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case CONNECT_ID:
+			disconnect();
+			resetLayout();
+			updateButtons(false);
+			connectToRobot();
+			return true;
+		}
+		
+		return super.onMenuItemSelected(featureId, item);
+    }
+    
 	@Override
 	public void onAccelerationChanged(float x, float y, float z, boolean tx) {
 		if (tx && m_bAccelerometer) {
@@ -265,13 +292,12 @@ public abstract class RobotView extends Activity implements AccelerometerListene
 		reusableToast.show();
 	}
 
-	protected void connectToRobot() {
-		// has to be implemented by child class
-	}
-
-	public void connectToRobot(BluetoothDevice i_oDevice) {
-		// has to be implemented by child class
-	}
+	protected abstract void connectToRobot();
+	
+	protected abstract void disconnect();
+	
+	protected abstract void resetLayout();
+	protected abstract void updateButtons(boolean i_bEnabled);
 	
 	public static String getMacFilter() {
 		// has to be implemented by child class

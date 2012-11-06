@@ -2,14 +2,12 @@ package org.dobots.robots.parrot;
 
 public class ParrotTypes {
 
-	public static final int PORT = 80;
-	
 	public static final String SSID_Filter = "ardrone";
 
     public static final long CONNECTION_TIMEOUT = 10000;
 
-//    final static byte[] ARDRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
-    public static final String ARDRONE_IP = "192.168.1.1";
+    public static final String PARROT_IP = "192.168.1.1";
+	public static final int PORT = 80;
     
     public static final int VIDEO_PORT = 5555;
     

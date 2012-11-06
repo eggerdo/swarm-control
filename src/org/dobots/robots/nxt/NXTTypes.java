@@ -63,7 +63,8 @@ public class NXTTypes {
     public static final String OUI_LEGO = "00:16:53";
     
     public static int MAX_VELOCITY = 100;
-    public static int MAX_RADIUS = 2000;
+//    public static int MAX_RADIUS = 2000;
+    public static int MAX_RADIUS = 1000;
 	public static int STRAIGHT = 32768;
 	public static int CLOCKWISE = -1;
 	public static int COUNTER_CLOCKWISE = 1;

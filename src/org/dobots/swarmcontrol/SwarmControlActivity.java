@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
+import org.dobots.swarmcontrol.behaviours.racing.Racing;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
 
@@ -48,6 +49,7 @@ public class SwarmControlActivity extends Activity {
 	private enum SwarmAction {
 		sa_Nothing(""),
 		sa_Dance("Dance"),
+		sa_Race("Race"),
 		sa_Search("Search"),
 		sa_March("March"),
 		sa_Play("Play"),
@@ -100,8 +102,8 @@ public class SwarmControlActivity extends Activity {
         TextView changelog = (TextView) findViewById(R.id.lblChangeLog);
         changelog.setText(CHANGELOG);
         
-        showRobot(RobotType.RBT_ARDRONE);
-//        showBehaviour(SwarmAction.sa_Dance);
+//        showRobot(RobotType.RBT_PARROT);
+//        showBehaviour(SwarmAction.sa_Race);
         
 //        Intent intent = new Intent(SwarmControlActivity.this, Test.class);
 //		startActivity(intent);
@@ -183,9 +185,14 @@ public class SwarmControlActivity extends Activity {
 //	}
 	
 	public void showBehaviour(SwarmAction eAction) {
+		Intent intent = null;
 		switch(eAction) {
 		case sa_Dance:
-			Intent intent = new Intent(SwarmControlActivity.this, DancingMain.class);
+			intent = new Intent(SwarmControlActivity.this, DancingMain.class);
+			startActivity(intent);
+			break;
+		case sa_Race:
+			intent = new Intent(SwarmControlActivity.this, Racing.class);
 			startActivity(intent);
 			break;
 		}

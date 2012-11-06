@@ -156,9 +156,6 @@ public class RoombaBluetooth extends BaseBluetooth implements BluetoothConnectio
 			}
 		}
 		
-//		for (int i = 0; i < nReceivedBytes; i++) {
-//			results[i] = buffer[i];
-//		}
 		return buffer;
 	}
 	
