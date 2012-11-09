@@ -546,4 +546,14 @@ public class Roomba implements RobotDevice {
 		return m_dblBaseSpeed;
 	}
 
+	@Override
+	public void moveLeft() {
+		// not available
+	}
+
+	@Override
+	public void moveRight() {
+		// not available
+	}
+
 }

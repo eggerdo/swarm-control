@@ -7,9 +7,11 @@ import org.dobots.robots.RobotDevice;
 import org.dobots.robots.RobotDeviceFactory;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.roomba.Roomba;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.BluetoothConnectionListener;
 import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.ConnectionHelper;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.SwarmControlActivity;
@@ -43,9 +45,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RobotList extends Activity {
+public class RobotList extends BaseActivity {
 
-	private Activity m_oActivity;
+	private BaseActivity m_oActivity;
 
 	private ArrayList<ActivityResultListener> m_oActivityResultListener;
 	
@@ -63,7 +65,7 @@ public class RobotList extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		this.m_oActivity = this;
+		m_oActivity = this;
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
 		m_oActivityResultListener = new ArrayList<ActivityResultListener>();
@@ -158,13 +160,6 @@ public class RobotList extends Activity {
 		
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		for (ActivityResultListener listener : m_oActivityResultListener) {
-			listener.onActivityResult(requestCode, resultCode, data);
-		}
-	}
-	
 	public class RobotEntry {
 		
 		RobotDevice oRobot;
@@ -189,10 +184,10 @@ public class RobotList extends Activity {
 
 	private class RobotListAdapter extends ArrayAdapter<RobotEntry> {
 		
-		private final Activity context;
+		private final BaseActivity context;
 		private final List<RobotEntry> list;
 		
-		public RobotListAdapter(Activity context, List<RobotEntry> list) {
+		public RobotListAdapter(BaseActivity context, List<RobotEntry> list) {
 			super(context, R.layout.dancing_robot, list);
 			this.context = context;
 			this.list = list;
@@ -226,36 +221,19 @@ public class RobotList extends Activity {
 					@Override
 					public void onClick(View v) {
 						final RobotEntry oEntry = (RobotEntry) viewHolder.btnConnect.getTag();
-						final BluetoothConnectionHelper oBTHelper = new BluetoothConnectionHelper(context, RobotViewFactory.getRobotAddressFilter(oEntry.eType));
-						oBTHelper.SetOnConnectListener(new BluetoothConnectionListener() {
-							
-							@Override
-							public void connectToRobot(BluetoothDevice i_oDevice) {
-								
-								ConnectListener oListener = new ConnectListener() {
-									@Override
-									public void onConnect(boolean i_bConnected) {
-										viewHolder.lblRobotStatus.setText(i_bConnected ? "Connected" : "Disconnected");
-										viewHolder.btnGoto.setEnabled(i_bConnected);
-										if (i_bConnected) {
-											viewHolder.lblRobotAddr.setText(oEntry.oRobot.getAddress());
-										}
-									}
-								};
-
-								try {
-									RobotDeviceFactory.connectToRobot(context, oEntry.oRobot, i_oDevice, oListener);
-								} catch (Exception e) {
-									Toast.makeText(m_oActivity, "Robot not available", Toast.LENGTH_LONG);
-								}
-								m_oActivityResultListener.remove(oBTHelper);
-							}
-						});
-						m_oActivityResultListener.add(oBTHelper);
 						
-						if (oBTHelper.initBluetooth()) {
-							oBTHelper.selectRobot();
-						}
+						ConnectListener oListener = new ConnectListener() {
+							@Override
+							public void onConnect(boolean i_bConnected) {
+								viewHolder.lblRobotStatus.setText(i_bConnected ? "Connected" : "Disconnected");
+								viewHolder.btnGoto.setEnabled(i_bConnected);
+								if (i_bConnected) {
+									viewHolder.lblRobotAddr.setText(oEntry.oRobot.getAddress());
+								}
+							}
+						};
+						
+						ConnectionHelper.establishConnection(context, oEntry.oRobot, oListener);
 					}
 				});
 				

@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.behaviours.racing;
 import java.io.IOException;
 
 import org.dobots.robots.RobotDevice;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.RobotInventory;
@@ -18,7 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
 
-public class RacingRobot extends Activity implements JoystickListener {
+public class RacingRobot extends BaseActivity implements JoystickListener {
 
 	private static final String TAG = "RacingRobot";
 	
@@ -26,7 +27,7 @@ public class RacingRobot extends Activity implements JoystickListener {
 	private static final int ROBOT_ID = CONNECT_ID + 1;
 	
 	private RobotDevice m_oRobot;
-	private Activity m_oActivity;
+	private BaseActivity m_oActivity;
 	
 	private Move lastMove = Move.NONE;
 

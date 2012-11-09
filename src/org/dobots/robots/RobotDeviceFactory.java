@@ -47,23 +47,4 @@ public class RobotDeviceFactory {
 		}
 	}
 
-	public static void connectToRobot(Activity context, RobotDevice oRobot,
-			BluetoothDevice i_oDevice, ConnectListener oListener) throws Exception {
-		switch (oRobot.getType()) {
-		case RBT_NXT:
-			NXTRobot.connectToNXT(context, (NXT)oRobot, i_oDevice, oListener);
-			break;
-		case RBT_ROOMBA:
-			RoombaRobot.connectToRoomba(context, (Roomba)oRobot, i_oDevice, oListener);
-			break;
-		case RBT_DOTTY:
-			DottyRobot.connectToDotty(context, (Dotty)oRobot, i_oDevice, oListener);
-			break;
-		case RBT_PARROT:
-			ParrotRobot.connectToARDrone(context, (Parrot)oRobot, "", oListener);
-		default:
-			throw new Exception();
-		}
-	}
-
 }

@@ -1,21 +1,16 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
-import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
-import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
-import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
-import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage1;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage2;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage3;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 
-import android.app.Activity;
 import android.graphics.Color;
-import android.os.Handler;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -26,7 +21,7 @@ public class RoombaSensorGatherer extends SensorGatherer {
 
 	private SensorPackage m_oSensorData;
 	
-	public RoombaSensorGatherer(Activity i_oActivity, Roomba i_oRoomba) {
+	public RoombaSensorGatherer(BaseActivity i_oActivity, Roomba i_oRoomba) {
 		super(i_oActivity);
 		m_oRoomba = i_oRoomba;
 		
@@ -39,7 +34,7 @@ public class RoombaSensorGatherer extends SensorGatherer {
 	public void execute() {
 		if (m_bEnabled && m_oRoomba.isPowerOn()) {
 			m_oSensorData = m_oRoomba.getSensors(m_eSensor);
-			m_oHandler.postDelayed(m_oGUIUpdater, 10);
+			m_oUiHandler.postDelayed(m_oGUIUpdater, 10);
 		} else {
 			m_oSensorData = null;
 		}
@@ -59,7 +54,7 @@ public class RoombaSensorGatherer extends SensorGatherer {
 		oSensorPackage3.setLayoutParams(new TableLayout.LayoutParams(0, 0));
 		
 		if (eSensorPkg == ERoombaSensorPackages.sensPkg_None) {
-			m_oHandler.removeCallbacks(m_oGUIUpdater);
+			m_oUiHandler.removeCallbacks(m_oGUIUpdater);
 			m_bEnabled = false;
 		} else {
 			switch (eSensorPkg) {
@@ -75,7 +70,7 @@ public class RoombaSensorGatherer extends SensorGatherer {
 			}
 	
 			setSensor(eSensorPkg);
-			m_oHandler.postDelayed(m_oGUIUpdater, 100);
+			m_oUiHandler.postDelayed(m_oGUIUpdater, 100);
 			m_bEnabled = true;
 		}
 	}

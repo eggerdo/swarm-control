@@ -1,16 +1,19 @@
 package org.dobots.swarmcontrol.robots;
 
+import org.dobots.swarmcontrol.BaseActivity;
+
 import android.app.Activity;
 import android.os.Handler;
+import android.os.Looper;
 
 public class SensorGatherer extends Thread {
 
 	private volatile boolean m_bStopped = false;
 	private volatile boolean m_bPaused = false;
 	
-	protected Handler m_oHandler;
+	protected Handler m_oUiHandler;
 	protected Runnable m_oGUIUpdater;
-	protected Activity m_oActivity;
+	protected BaseActivity m_oActivity;
 	
 	protected boolean m_bEnabled = false;
 	
@@ -18,10 +21,10 @@ public class SensorGatherer extends Thread {
 //		// why?
 //	}
 	
-	public SensorGatherer(Activity i_oActivity) {
+	public SensorGatherer(BaseActivity i_oActivity) {
 		m_oActivity = i_oActivity;
 
-		m_oHandler = new Handler();
+		m_oUiHandler = new Handler(Looper.getMainLooper());
 	}
 	
 	public void stopThread() {

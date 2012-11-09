@@ -6,6 +6,7 @@ import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
 import org.dobots.robots.dotty.DottyTypes.SensorData;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.Utils;
@@ -49,7 +50,7 @@ public class DottySensorGatherer extends SensorGatherer {
 	LinearLayout layLed2Value;
 	LinearLayout layLed3Value;
 	
-	public DottySensorGatherer(Activity i_oActivity, Dotty i_oDotty) {
+	public DottySensorGatherer(BaseActivity i_oActivity, Dotty i_oDotty) {
 		super(i_oActivity);
 		m_oDotty = i_oDotty;
 		

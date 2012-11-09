@@ -13,6 +13,7 @@ import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.robots.nxt.NXTTypes.MotorData;
 import org.dobots.robots.nxt.NXTTypes.SensorData;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.Utils;
@@ -43,7 +44,7 @@ public class NXTSensorGatherer extends SensorGatherer {
 	private EnumMap<ENXTMotorID, Boolean> m_oMotorRequestActive; // TODO should be solved with timeouts
 	
 	
-	public NXTSensorGatherer(Activity i_oActivity, NXT i_oNxt) {
+	public NXTSensorGatherer(BaseActivity i_oActivity, NXT i_oNxt) {
 		super(i_oActivity);
 		m_oNxt = i_oNxt;
 		

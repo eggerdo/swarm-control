@@ -3,10 +3,12 @@ package org.dobots.robots.parrot;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeoutException;
 
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.RobotDevice;
 import org.dobots.robots.parrot.ParrotTypes.ParrotMove;
+import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.utility.Utils;
 
@@ -19,17 +21,20 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardrone.ARDrone.State;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.ardrone.DroneStatusChangeListener;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
+import com.codeminders.ardrone.NavData.CtrlState;
+import com.codeminders.ardrone.NavData.FlyingState;
 import com.codeminders.ardrone.NavDataListener;
 
-public class Parrot implements RobotDevice, DroneStatusChangeListener {
+public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataListener, ConnectListener {
 
 	private static String TAG = "Parrot";
 
-	private Handler mHandler = new Handler(Looper.getMainLooper());
+//	private Handler mHandler = new Handler(Looper.getMainLooper());
 
 	private Handler m_oRepeatMoveHandler = new Handler();
 	private boolean m_bRepeat = false;
@@ -40,23 +45,20 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 	private boolean m_bConnected = false;
 
-	private int m_nWaitID;
-	private Object receiveEvent = this;
-	private boolean m_bMessageReceived = false;
-
 	private double m_dblBaseSpeed = 40.0;
 
 	private VideoChannel m_eVideoChannel = ARDrone.VideoChannel.HORIZONTAL_ONLY;
+	
+	private Parrot m_oInstance;
+	
+	private FlyingState flyingState;
+	private CtrlState controlState;
+	private Object state_mutex = new Object();
+	
+	private Object move_mutex = new Object();
 
 	public Parrot() {
-		// m_oController = new
-		// ARDrone(InetAddress.getByAddress(ParrotTypes.ARDRONE_IP), 10000,
-		// 60000);
-
-		// m_oReceiver = new ARDroneReceiver();
-		// m_oReceiver.start();
-
-		// m_oDroneStarter = new DroneStarter();
+		m_oInstance = this;
 	}
 
 	public void setHandler(Handler i_oHandler) {
@@ -76,7 +78,9 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 	@Override
 	public void destroy() {
 		try {
-			m_oController.disconnect();
+			if (m_oController != null) {
+				m_oController.disconnect();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,15 +97,14 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 		@Override
 		protected Boolean doInBackground(ARDrone... drones) {
 			try {
-				m_oController = new ARDrone(
-						InetAddress.getByName(ParrotTypes.PARROT_IP),
-						10000, 60000);
+				m_oController = new ARDrone(InetAddress.getByName(ParrotTypes.PARROT_IP), 10000, 60000);
 				m_oController.connect();
 				m_oController.clearEmergencySignal();
 				m_oController.waitForReady(ParrotTypes.CONNECTION_TIMEOUT);
 				m_oController.playLED(1, 10, 4);
 				m_oController.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
 				m_oController.setCombinedYawMode(true);
+				m_oController.addNavDataListener(m_oInstance);
 				return true;
 			} catch (Exception e) {
 				try {
@@ -150,11 +153,50 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 	}
 
 	@Override
+	public void navDataReceived(NavData nd) {
+		synchronized(state_mutex) {
+			flyingState = nd.getFlyingState();
+			controlState = nd.getControlState();
+			state_mutex.notifyAll();
+		}
+	}
+	
+	public void waitForState(FlyingState i_oState, long i_lTimeout) throws TimeoutException {
+
+        long since = System.currentTimeMillis();
+        synchronized(state_mutex)
+        {
+            while(true)
+            {
+            	if (flyingState == i_oState) {
+            		return; // OK, state reached
+            	} else if ((System.currentTimeMillis() - since) >= i_lTimeout) {
+            		// timeout
+            		throw new TimeoutException();
+            	}
+            	
+                long p = Math.min(i_lTimeout - (System.currentTimeMillis() - since), i_lTimeout);
+                if(p > 0)
+                {
+                    try
+                    {
+                        state_mutex.wait(p);
+                    } catch(InterruptedException e)
+                    {
+                        // Ignore
+                    }
+                }
+            }
+        }
+	}
+	
+
+	@Override
 	public void disconnect() {
 		try {
-//			if (m_oController != null) {
+			if (m_oController != null) {
 				m_oController.disconnect();
-//			}
+			}
 			m_oController = null;
 			m_bConnected = false;
 		} catch (IOException e) {
@@ -204,50 +246,59 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 	private void startMove(ParrotMove i_eMove, double i_dblSpeed,
 			boolean i_bRepeat) {
-		Runnable runner;
-		switch (i_eMove) {
-		case MOVE_BWD:
-			runner = new MoveBackwardsRunnable(i_dblSpeed);
-			break;
-		case MOVE_FWD:
-			runner = new MoveForwardsRunnable(i_dblSpeed);
-			break;
-		case MOVE_DOWN:
-			runner = new DecreaseAltitudeRunnable(i_dblSpeed);
-			break;
-		case MOVE_UP:
-			runner = new IncreaseAltitudeRunnable(i_dblSpeed);
-			break;
-		case MOVE_LEFT:
-			runner = new MoveLeftRunnable(i_dblSpeed);
-			break;
-		case MOVE_RIGHT:
-			runner = new MoveRightRunnable(i_dblSpeed);
-			break;
-		case ROTATE_LEFT:
-			runner = new RotateCounterClockwiseRunnable(i_dblSpeed);
-			break;
-		case ROTATE_RIGHT:
-			runner = new RotateClockwiseRunnable(i_dblSpeed);
-			break;
-		default:
-			return;
+		stopRepeatedMove();
+
+		synchronized (move_mutex) {
+			Runnable runner;
+			switch (i_eMove) {
+			case MOVE_BWD:
+				runner = new MoveBackwardsRunnable(i_dblSpeed);
+				break;
+			case MOVE_FWD:
+				runner = new MoveForwardsRunnable(i_dblSpeed);
+				break;
+			case MOVE_DOWN:
+				runner = new DecreaseAltitudeRunnable(i_dblSpeed);
+				break;
+			case MOVE_UP:
+				runner = new IncreaseAltitudeRunnable(i_dblSpeed);
+				break;
+			case MOVE_LEFT:
+				runner = new MoveLeftRunnable(i_dblSpeed);
+				break;
+			case MOVE_RIGHT:
+				runner = new MoveRightRunnable(i_dblSpeed);
+				break;
+			case ROTATE_LEFT:
+				runner = new RotateCounterClockwiseRunnable(i_dblSpeed);
+				break;
+			case ROTATE_RIGHT:
+				runner = new RotateClockwiseRunnable(i_dblSpeed);
+				break;
+			default:
+				return;
+			}
+			m_oRepeatMoveHandler.post(runner);
+			m_bRepeat = i_bRepeat;
 		}
-		m_bRepeat = i_bRepeat;
-		m_oRepeatMoveHandler.post(runner);
 	}
 
 	private void stopRepeatedMove() {
 		Log.d(TAG, "done");
 		m_bRepeat = false;
-		hover();
+		m_oRepeatMoveHandler.removeCallbacksAndMessages(null);
 	}
 
 	public void takeOff() {
 		try {
-			m_oController.clearEmergencySignal();
-			m_oController.trim();
-			m_oController.takeOff();
+			stopRepeatedMove();
+			
+			synchronized (move_mutex) {
+				
+				m_oController.clearEmergencySignal();
+				m_oController.trim();
+				m_oController.takeOff();
+			}
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -255,7 +306,12 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 	public void land() {
 		try {
-			m_oController.land();
+			stopRepeatedMove();
+			
+			synchronized (move_mutex) {
+				
+				m_oController.land();
+			}
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -269,6 +325,8 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 	}
 
 	public void setAltitude(double i_dblSetpoint) {
+		stopRepeatedMove();
+		
 		ctrl = new AltitudeControl(i_dblSetpoint);
 		ctrl.start();
 	}
@@ -376,7 +434,6 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 	}
 
 	// Increase Altitude
-
 	public void increaseAltitude(double i_dblSpeed) {
 		startMove(ParrotMove.MOVE_UP, i_dblSpeed, true);
 	}
@@ -391,11 +448,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "increase");
-			doIncreaseAltitude(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(new IncreaseAltitudeRunnable(
-						dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "increase");
+				doIncreaseAltitude(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(new IncreaseAltitudeRunnable(
+							dblSpeed), 100);
+				}
 			}
 		}
 	}
@@ -424,11 +483,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "decrease");
-			doDecreaseAltitude(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(new DecreaseAltitudeRunnable(
-						dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "decrease");
+				doDecreaseAltitude(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(new DecreaseAltitudeRunnable(
+							dblSpeed), 100);
+				}
 			}
 		}
 	};
@@ -453,7 +514,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 	@Override
 	public void enableControl(boolean i_bEnable) {
-		// m_oController.control(i_bEnable);
+//		 m_oController.control(i_bEnable);
 	}
 
 	private double capSpeed(double io_dblSpeed) {
@@ -490,11 +551,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "move fwd");
-			doMoveForward(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(new MoveForwardsRunnable(
-						dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "move fwd");
+				doMoveForward(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(new MoveForwardsRunnable(
+							dblSpeed), 100);
+				}
 			}
 		}
 	}
@@ -537,11 +600,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "move bwd");
-			doMoveBackward(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(new MoveBackwardsRunnable(
-						dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "move bwd");
+				doMoveBackward(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(new MoveBackwardsRunnable(
+							dblSpeed), 100);
+				}
 			}
 		}
 	}
@@ -585,11 +650,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "move left");
-			doMoveLeft(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(
-						new MoveLeftRunnable(dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "move left");
+				doMoveLeft(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(
+							new MoveLeftRunnable(dblSpeed), 100);
+				}
 			}
 		}
 	}
@@ -620,11 +687,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "move right");
-			doMoveRight(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(
-						new MoveRightRunnable(dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "move right");
+				doMoveRight(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(
+							new MoveRightRunnable(dblSpeed), 100);
+				}
 			}
 		}
 	}
@@ -656,11 +725,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "rotate right");
-			doRrotateClockwise(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(new RotateClockwiseRunnable(
-						dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "rotate right");
+				doRrotateClockwise(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(new RotateClockwiseRunnable(
+							dblSpeed), 100);
+				}
 			}
 		}
 	}
@@ -693,11 +764,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 		@Override
 		public void run() {
-			Log.d(TAG, "rotate left");
-			doRotateCounterClockwise(dblSpeed);
-			if (m_bRepeat) {
-				m_oRepeatMoveHandler.postDelayed(
-						new RotateCounterClockwiseRunnable(dblSpeed), 100);
+			synchronized (move_mutex) {
+				Log.d(TAG, "rotate left");
+				doRotateCounterClockwise(dblSpeed);
+				if (m_bRepeat) {
+					m_oRepeatMoveHandler.postDelayed(
+							new RotateCounterClockwiseRunnable(dblSpeed), 100);
+				}
 			}
 		}
 	}
@@ -718,6 +791,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 	@Override
 	public void moveStop() {
 		stopRepeatedMove();
+		hover();
 	}
 
 	// Execute Circle
@@ -729,38 +803,46 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 
 	@Override
 	public void moveForward() {
-		moveForward(m_dblBaseSpeed);
+//		moveForward(m_dblBaseSpeed);
+		moveForward(15);
 	}
 
 	@Override
 	public void moveBackward() {
-		moveBackward(m_dblBaseSpeed);
+		moveBackward(15);
+//		moveBackward(m_dblBaseSpeed);
 	}
 
 	public void moveLeft() {
-		moveLeft(m_dblBaseSpeed);
+//		moveLeft(m_dblBaseSpeed);
+		moveLeft(15);
 	}
 
 	public void moveRight() {
-		moveRight(m_dblBaseSpeed);
+		moveRight(15);
+//		moveRight(m_dblBaseSpeed);
 	}
 
 	@Override
 	public void rotateCounterClockwise() {
-		rotateCounterClockwise(m_dblBaseSpeed);
+//		rotateCounterClockwise(m_dblBaseSpeed);
+		rotateCounterClockwise(50);
 	}
 
 	@Override
 	public void rotateClockwise() {
-		rotateClockwise(m_dblBaseSpeed);
+		rotateClockwise(50);
+//		rotateClockwise(m_dblBaseSpeed);
 	}
 
 	public void increaseAltitude() {
-		increaseAltitude(m_dblBaseSpeed);
+//		increaseAltitude(m_dblBaseSpeed);
+		increaseAltitude(40);
 	}
 
 	public void decreaseAltitude() {
-		decreaseAltitude(m_dblBaseSpeed);
+//		decreaseAltitude(m_dblBaseSpeed);
+		decreaseAltitude(40);
 	}
 
 	@Override
@@ -779,7 +861,16 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener {
 	}
 
 	public boolean isARDrone1() {
-		return m_oController.isARDrone1();
+		if (m_oController != null) {
+			return m_oController.isARDrone1();
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public void onConnect(boolean i_bConnected) {
+		m_bConnected = i_bConnected;
 	}
 
 }

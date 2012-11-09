@@ -8,9 +8,11 @@ import java.util.Set;
 
 import org.dobots.robots.RobotDevice;
 import org.dobots.robots.RobotDeviceFactory;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.BluetoothConnectionListener;
 import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.ConnectionHelper;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.behaviours.ActivityResultListener;
@@ -32,7 +34,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-public class Racing extends Activity {
+public class Racing extends BaseActivity {
 
 	private static final int SETUP_ID = Menu.FIRST;
 	
@@ -60,22 +62,18 @@ public class Racing extends Activity {
 		
 	}
 	
-	private Activity m_oActivity;
+	private BaseActivity m_oActivity;
 	private Spinner m_spRobotChoice;
 	private RobotDevice m_oRobot;
 	private int m_nInventoryIndex;
 	
 	private EnumMap<RaceRobot, BluetoothDevice> m_oAddress = null;
 
-	private ArrayList<ActivityResultListener> m_oActivityResultListener;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		m_oActivity = this;
-		
-		m_oActivityResultListener = new ArrayList<ActivityResultListener>();
 		
 		setProperties();
 	
@@ -140,7 +138,7 @@ public class Racing extends Activity {
 				
 				BluetoothDevice oDevice = m_oAddress.get(eRobot);
 				try {
-					RobotDeviceFactory.connectToRobot(m_oActivity, m_oRobot, oDevice, oListener);
+					ConnectionHelper.connectToBluetoothRobot(m_oActivity, m_oRobot, oDevice, oListener);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -175,7 +173,7 @@ public class Racing extends Activity {
 
 	private void setup() {
 		
-		m_oAddress = new EnumMap<RaceRobot, BluetoothDevice>(RaceRobot.class);
+//		m_oAddress = new EnumMap<RaceRobot, BluetoothDevice>(RaceRobot.class);
 		
 		Set<RaceRobot> racingRobotSet = EnumSet.allOf(RaceRobot.class);
 		Iterator<RaceRobot> rrIterator = racingRobotSet.iterator();
@@ -199,7 +197,6 @@ public class Racing extends Activity {
 			@Override
 			public void connectToRobot(BluetoothDevice i_oDevice) {
 				m_oAddress.put(eRobot, i_oDevice);
-				m_oActivityResultListener.remove(oBTHelper);
 				if (iter.hasNext()) {
 					RaceRobot nextRobot = iter.next();
 					setupRobot(nextRobot, iter);
@@ -208,7 +205,6 @@ public class Racing extends Activity {
 				}
 			}
 		});
-		m_oActivityResultListener.add(oBTHelper);
 		
 		oBTHelper.setTitle(eRobot.toString());
 		if (oBTHelper.initBluetooth()) {
@@ -216,13 +212,6 @@ public class Racing extends Activity {
 		}
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		for (ActivityResultListener listener : m_oActivityResultListener) {
-			listener.onActivityResult(requestCode, resultCode, data);
-		}
-	}
-	
 	private void showRobotRaceView(int i_nIndex) {
 		Intent intent = new Intent(this, RacingRobot.class);
 		intent.putExtra("InventoryIndex", i_nIndex);

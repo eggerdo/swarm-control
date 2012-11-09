@@ -1,55 +1,46 @@
 package org.dobots.robots.parrot;
 
-import java.net.InetAddress;
-
+import org.dobots.swarmcontrol.BaseActivity;
+import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-import android.view.SurfaceHolder;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
 
 public class ParrotVideoProcessor extends Thread {
-	
-	public interface OnConnectEvent {
-		public void onConnect(boolean i_bConnected);
-	}
 
 	private static final String TAG = "Parrot Video";
 
-    private final static int VIDEO_DATA_ID = 1;
-    
     private Bitmap m_bmpVideo;
-    private Handler mHandler;
-    private boolean mRun;
+    private boolean mRun = false;
     private boolean mPause = false;
 	private boolean mClose = false;
-    private boolean mVideoOpened;
-    private SurfaceHolder m_oVideoSurface;
+
+    private ImageView m_oImage;
     
-    private Activity m_oActivity;
+    private BaseActivity m_oActivity;
     
-    private OnConnectEvent m_oConnectListener;
+    private ConnectListener m_oConnectListener;
     
     private boolean m_bVideoConnected = false;
-
     
-	public ParrotVideoProcessor(Activity i_oActivity, SurfaceHolder i_oVideoSurface) {
+	private Handler m_oUiHandler = new Handler(Looper.getMainLooper());
+	
+	public ParrotVideoProcessor(BaseActivity i_oActivity, ImageView i_oImage) {
 		super("Parrot Video Processor");
 		m_oActivity = i_oActivity;
-		m_oVideoSurface = i_oVideoSurface;
+		m_oImage = i_oImage;
 		
-		Rect videoSize = m_oVideoSurface.getSurfaceFrame();
-//        m_bmpVideo = Bitmap.createBitmap(videoSize.width(), videoSize.height(), Bitmap.Config.RGB_565); //ARGB_8888
-      m_bmpVideo = Bitmap.createBitmap(640, 360, Bitmap.Config.RGB_565); //ARGB_8888
-       
+		m_bmpVideo = Bitmap.createBitmap(ParrotTypes.VIDEO_WIDTH, ParrotTypes.VIDEO_HEIGHT, Bitmap.Config.RGB_565); //ARGB_8888
+		m_oImage.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
+		m_oImage.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
+		m_oImage.setImageBitmap(m_bmpVideo);
 	}
 
-	public void setOnConnect(OnConnectEvent i_oListener) {
+	public void setOnConnect(ConnectListener i_oListener) {
 		m_oConnectListener = i_oListener;
 	}
 	
@@ -58,7 +49,8 @@ public class ParrotVideoProcessor extends Thread {
 		mRun = false;
 		
 		String strVideoAddr = String.format("http://%s:%d", ParrotTypes.PARROT_IP, ParrotTypes.VIDEO_PORT);
-        if (nativeOpenFromURL(strVideoAddr, ParrotTypes.VIDEO_CODEC) != 0)
+		
+        if (nativeOpenFromURL(strVideoAddr, ParrotTypes.VIDEO_CODEC) != ParrotTypes.SUCCESS)
         {
             nativeClose();
             Log.i(TAG, "nativeOpen() failed, throwing RuntimeException");
@@ -66,8 +58,7 @@ public class ParrotVideoProcessor extends Thread {
             return;
         }
 
-        mVideoOpened = nativeOpenVideo(m_bmpVideo) == 0;
-        if (!mVideoOpened) 
+        if (nativeOpenVideo(m_bmpVideo) != ParrotTypes.SUCCESS) 
         {
             nativeCloseVideo();
 	        Log.i(TAG, "unable to open a stream, throwing RuntimeException");
@@ -103,43 +94,32 @@ public class ParrotVideoProcessor extends Thread {
 				}
         		continue;
         	}
-    		if (nativeDecodeFrame() == VIDEO_DATA_ID)
+        	
+        	int nResult = nativeDecodeFrame();
+    		if (nResult == ParrotTypes.SUCCESS)
             {
     			if (!m_bVideoConnected) {
     		        m_oConnectListener.onConnect(true);
     			}
-    			
-                Canvas canvas = null;
-                try
-                {
-                    try 
-                    {
-                        canvas = m_oVideoSurface.lockCanvas(null);
-                        if (nativeUpdateBitmap() == 0) {
-                        	canvas.drawBitmap(m_bmpVideo, 0, 0, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (canvas != null)
-                        {
-                        	m_oVideoSurface.unlockCanvasAndPost(canvas);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                	Log.e(TAG, "fatal error");
-                }
+
+    			if (nativeUpdateBitmap() == ParrotTypes.SUCCESS) {
+    				m_oUiHandler.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// image must be updated by GUI thread (main thread)
+							m_oImage.invalidate();
+						}
+					});
+    			}
+            } else if (nResult == ParrotTypes.READ_FRAME_FAILED) {
+            	mRun = false;
+            	m_oConnectListener.onConnect(false);
             }
         }
         
-        //once again synchronise nativeClose() with
-        //nativeCloseVideo()/nativeOpenVideo() from setSurfaceSize()
-        synchronized (m_oVideoSurface)
-        {
-            nativeClose();
-        }
+        // close video
+        nativeClose();
         
         mClose = true;
 

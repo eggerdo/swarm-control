@@ -35,23 +35,7 @@ public class WifiConnectionHelper{
 				m_oWifiManager.setWifiEnabled(true);
 			}
 				
-			WifiInfo oInfo = m_oWifiManager.getConnectionInfo();
-			if (oInfo != null) {
-				String strSsid = oInfo.getSSID();
-				if (strSsid != null) {
-					if (strSsid.contains(m_strSSID_Filter)) {
-						return true;
-					} else {
-						showAlertDialog("WiFi Error", 
-								"Wrong WiFi connection!\n"
-								+ "It should be a connection starting with " + m_strSSID_Filter + ".");
-					}
-				} else {
-					showAlertDialog("Wifi Error", 
-							"Not possible to determine the name of your Wifi connection. "
-							+ "Make sure you are connected!");
-				}
-			}
+			return checkConnection();
 		}
 		
 		return false;
@@ -71,14 +55,22 @@ public class WifiConnectionHelper{
 		builder.create().show();
 	}
 
-	public boolean checkConnection() {
-		if (m_oWifiManager != null) {
-			WifiInfo info = m_oWifiManager.getConnectionInfo();
-			if (info != null) {
-				String ssid = info.getSSID();
-				if (ssid != null) 
-					if (ssid.contains(m_strSSID_Filter)) 
-						return true;
+	private boolean checkConnection() {
+		WifiInfo oInfo = m_oWifiManager.getConnectionInfo();
+		if (oInfo != null) {
+			String strSsid = oInfo.getSSID();
+			if (strSsid != null) {
+				if (strSsid.contains(m_strSSID_Filter)) {
+					return true;
+				} else {
+					showAlertDialog("WiFi Error", 
+							"Wrong WiFi connection!\n"
+							+ "It should be a connection starting with " + m_strSSID_Filter + ".");
+				}
+			} else {
+				showAlertDialog("Wifi Error", 
+						"Not possible to determine the name of your Wifi connection. "
+						+ "Make sure you are connected!");
 			}
 		}
 		return false;

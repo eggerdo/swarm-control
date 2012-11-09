@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.robots;
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.RobotDevice;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.BluetoothConnectionListener;
 import org.dobots.swarmcontrol.ConnectListener;
@@ -30,13 +31,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract class RobotView extends Activity implements AccelerometerListener {
+public abstract class RobotView extends BaseActivity implements AccelerometerListener {
 
 	protected static final int CONNECT_ID = Menu.FIRST;
 	
 	protected static String TAG = "RobotDevice";
 	
-	protected Activity m_oActivity;
+	protected BaseActivity m_oActivity;
 	protected RobotType m_eRobot;
 
 	protected String m_strMacAddress = "";

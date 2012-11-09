@@ -1,10 +1,22 @@
 package org.dobots.utility;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.dobots.swarmcontrol.SwarmControlActivity;
+import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
+import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,10 +25,12 @@ import android.graphics.Paint.Style;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -148,6 +162,16 @@ public class Utils {
     	Toast oToast = Toast.makeText(SwarmControlActivity.getContext(), textToShow, duration);
 		oToast.show();
 	}
+    
+    public static void writeToImageView(Context context, ImageView i_oImage, String i_strText, boolean i_bCentered) {
+    	Bitmap bmp = i_oImage.getDrawingCache();
+    	if (bmp == null) {
+    		bmp = Bitmap.createBitmap(i_oImage.getWidth(), i_oImage.getHeight(), Bitmap.Config.RGB_565);
+    	}
+		Canvas canvas = new Canvas(bmp);
+		Utils.writeToCanvas(context, canvas, i_strText, i_bCentered);
+		i_oImage.setImageBitmap(bmp);
+    }
 
 	public static void writeToCanvas(Context context, Canvas i_oCanvas, String i_strText, boolean i_bCentered) {
 		i_oCanvas.drawColor(Color.BLACK);
@@ -165,7 +189,7 @@ public class Utils {
 		layout.measure(i_oCanvas.getWidth(), i_oCanvas.getHeight());
 		layout.layout(0, 0, i_oCanvas.getWidth(), i_oCanvas.getHeight());
 		
-		layout.draw(i_oCanvas); 
+		layout.draw(i_oCanvas);
 	}
 	
 	public static void updateOnOffMenuItem(MenuItem item, boolean i_bOn) {
@@ -178,4 +202,63 @@ public class Utils {
 		}
 	}
 	
+
+	public static void waitForTaskCompletion(Collection<Callable<Object>> tasks) {
+				
+		ExecutorService es = Executors.newCachedThreadPool();
+		
+		try {
+			es.invokeAll(tasks);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static boolean waitForTaskCompletionWithResult(Collection<Callable<Object>> tasks) {
+		
+		ExecutorService es = Executors.newCachedThreadPool();
+		
+		try {
+			for (Future<Object> future : es.invokeAll(tasks)) {
+				future.get();
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+	
+	////// Alternative, does not care about success
+//	public void waitForTasksCompletion() {
+//		
+//		ExecutorService es = Executors.newCachedThreadPool();
+//		
+//		for (final RobotEntry entry : DancingMain.getInstance().getRobotList()) {
+//				es.execute(new Runnable() {
+//					
+//					@Override
+//					public void run() {
+//						...
+//					}
+//				});
+//		}
+//		
+//		es.shutdown();
+//		try {
+//			es.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//	}
 }

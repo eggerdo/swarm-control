@@ -57,7 +57,24 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 //the canvas must be locked before calling this function
 JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeUpdateBitmap(JNIEnv* env, jobject thiz);
 
-#define VIDEO_DATA_ID   1
+#define SUCCESS	 				0
+#define NOTHING_FOUND 			-1
+#define READ_FRAME_FAILED		-2
+#define NO_FRAME_DECODED		-3
+#define INVALID_ARGUMENTS		-4
+#define OPEN_INPUT_FAILED		-5
+#define STREAM_INFO_FAILED		-6
+#define NOT_CLOSED				-7
+#define ALLOC_FRAME_FAILED		-8
+#define BITMAP_REF_FAILED		-9
+#define BITMAP_INFO_FAILED		-10
+#define VIDEO_STREAM_NOT_FOUND	-11
+#define DECODER_NOT_FOUND		-12
+#define CODEC_OPEN_FAILED		-13
+#define CODEC_DIMENSION_ERROR	-14
+#define FILL_PICTURE_FAILED		-15
+#define GET_SWCONTEXT_FAILED	-16
+#define SCALE_FAILED			-17
 
 AVFormatContext*    gFormatCtx;
 
@@ -109,7 +126,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 	if (mUrl == 0)
 	{
 		LOGE(1, "failed to retrieve url");
-		return -1;
+		return INVALID_ARGUMENTS;
 	}
 
 	LOGI(3, "opening %s", mUrl);
@@ -118,7 +135,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 	if (mFormat == 0)
 	{
 		LOGE(1, "failed to retrieve format");
-		return -1;
+		return INVALID_ARGUMENTS;
 	}
 
 	// for network streams we have to define the expected format otherwise
@@ -133,7 +150,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (result != 0)
     {
     	LOGE(1, "avformat_open_input() failed");
-        return -2;
+        return OPEN_INPUT_FAILED;
     }
 
 //    if (avformat_find_stream_info(gFormatCtx, NULL) < 0)
@@ -142,7 +159,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 //        return -3;
 //    }
 
-    return 0;
+    return SUCCESS;
 }
 
 JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeOpenFromFile(JNIEnv* env, jobject thiz, jstring mediafile)
@@ -156,7 +173,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (mfileName == 0)
     {
     	LOGE(1, "failed to retrieve media file name");
-        return -1;
+        return INVALID_ARGUMENTS;
     }
 
     LOGI(3, "opening %s", mfileName);
@@ -168,16 +185,16 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (result != 0)
     {
     	LOGE(1, "avformat_open_input() failed");
-        return -2;
+        return OPEN_INPUT_FAILED;
     }
 
     if (avformat_find_stream_info(gFormatCtx, NULL) < 0)
     {
     	LOGE(1, "av_find_stream_info() failed");
-        return -3;
+        return STREAM_INFO_FAILED;
     }
 
-    return 0;
+    return SUCCESS;
 }
 
 JNIEXPORT void JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeClose(JNIEnv* env, jobject thiz)
@@ -200,33 +217,33 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (gVideoFrame)
     {
         LOGE(1, "call nativeCloseVideo() before calling this function");
-        return -1;
+        return NOT_CLOSED;
     }
 
     if ((*env)->IsSameObject(env, bitmap, NULL))
     {
         LOGE(1, "invalid arguments");
-        return -2;
+        return INVALID_ARGUMENTS;
     }
 
     gVideoFrame = avcodec_alloc_frame();
     if (gVideoFrame == 0)
     {
         LOGE(1, "avcodec_alloc_frame() failed");
-        return -3;
+        return ALLOC_FRAME_FAILED;
     }
 
     gBitmapRef = (*env)->NewGlobalRef(env, bitmap); //lock the bitmap preventing the garbage collector from destructing it
     if (gBitmapRef == NULL)
     {
         LOGE(1, "NewGlobalRef() failed");
-        return -4;
+        return BITMAP_REF_FAILED;
     }
 
     if (AndroidBitmap_getInfo(env, gBitmapRef, &gAbi) != 0)
     {
         LOGE(1, "AndroidBitmap_getInfo() failed");
-        return -6;
+        return BITMAP_INFO_FAILED;
     }
 
     LOGI(3, "bitmap width: %d", gAbi.width);
@@ -244,7 +261,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (videoStreamIdx == -1)
     {
         LOGE(1, "video stream not found");
-        return -7;
+        return VIDEO_STREAM_NOT_FOUND;
     }
 
     gVideoCodecCtx = gFormatCtx->streams[videoStreamIdx]->codec;
@@ -252,7 +269,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (!videoCodec)
     {
         LOGE(1, "avcodec_find_decoder() failed to find decoder");
-        return -8;
+        return DECODER_NOT_FOUND;
     }
 
     if (videoCodec->capabilities & CODEC_CAP_TRUNCATED)
@@ -261,12 +278,12 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (avcodec_open2(gVideoCodecCtx, videoCodec, NULL) != 0)
     {
         LOGE(1, "avcodec_open2() failed");
-        return -9;
+        return CODEC_OPEN_FAILED;
     }
 
     //all good, set index so that nativeProcess() can now recognise the video stream
     gVideoStreamIdx = videoStreamIdx;
-    return 0;
+    return SUCCESS;
 }
 
 JNIEXPORT void JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeCloseVideo(JNIEnv* env, jobject thiz)
@@ -307,12 +324,12 @@ int decodeFrameFromPacket(AVPacket* aPacket)
         if (avcodec_decode_video2(gVideoCodecCtx, gVideoFrame, &frameFinished, aPacket) <= 0)
         {
             LOGW(1, "avcodec_decode_video2() decoded no frame");
-            return -1;
+            return NO_FRAME_DECODED;
         }
-        return VIDEO_DATA_ID;
+        return SUCCESS;
     }
 
-    return 0;
+    return NOTHING_FOUND;
 }
 
 JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeDecodeFrame(JNIEnv* env, jobject thiz)
@@ -323,31 +340,24 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     int i;
     for (i = 0; i < gFormatCtx->nb_streams; ++i)
     {
-        //av_init_packet(&packet);
         if (av_read_frame(gFormatCtx, &packet) != 0)
         {
             LOGE(1, "av_read_frame() failed");
-            return -1;
+            return READ_FRAME_FAILED;
         }
 
-        int ret = decodeFrameFromPacket(&packet);
+        int result = decodeFrameFromPacket(&packet);
         av_free_packet(&packet);
-        if (ret != 0) //an error or a frame decoded
-            return ret;
-
-//        av_free_packet(&packet);
-//        return 3;
+        return result;
     }
 
-    return 0;
+    return NOTHING_FOUND;
 }
 
 JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_nativeUpdateBitmap(JNIEnv* env, jobject thiz)
 {
     AVFrame* 	pFrame_RGB565;
-    uint8_t*    buffer_RGB565;
-    int ret;
-    int buff_size;
+    int result;
     void *buffer;
 	int destWidth = gVideoCodecCtx->width;
 	int destHeight = gVideoCodecCtx->height;
@@ -355,19 +365,16 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 	if ((destWidth != 640) || destHeight != 360) {
     	LOGE(1, "destWidth = %d", destWidth);
     	LOGE(1, "destHeight = %d", destHeight);
-		ret = -5;
+		result = CODEC_DIMENSION_ERROR;
 		goto end;
 	}
 
-	if ((ret = AndroidBitmap_lockPixels(env, gBitmapRef, &buffer)) < 0) {
-		LOGE(1, "AndroidBitmap_lockPixels() failed ! error=%d", ret);
-		ret = -3;
+	if ((result = AndroidBitmap_lockPixels(env, gBitmapRef, &buffer)) < 0) {
+		LOGE(1, "AndroidBitmap_lockPixels() failed ! error=%d", result);
 		goto end;
 	}
 
     pFrame_RGB565 = avcodec_alloc_frame();
-    buff_size = avpicture_get_size(PIX_FMT_RGB565, destWidth, destHeight);
-    buffer_RGB565 = (uint8_t *)av_malloc(sizeof(uint8_t)*buff_size);
 
     int size = avpicture_fill((AVPicture *)pFrame_RGB565, buffer, PIX_FMT_RGB565, destWidth, destHeight);
     if (size != gAbi.stride * gAbi.height)
@@ -378,7 +385,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
         LOGE(1, "size != gAbi.stride * gAbi.height");
         LOGE(1, "size = %d", size);
         LOGE(1, "gAbi.stride * gAbi.height = %d", gAbi.stride * gAbi.height);
-        ret = -2;
+        result = FILL_PICTURE_FAILED;
         goto release;
     }
 
@@ -387,7 +394,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
     if (gSwsContext == 0)
     {
         LOGE(1, "sws_getCachedContext() failed");
-        ret = -1;
+        result = GET_SWCONTEXT_FAILED;
         goto release;
     }
 
@@ -398,18 +405,17 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
         LOGE(1, "height != gAbi.height");
         LOGE(1, "height = %d", height);
         LOGE(1, "gAbi.height = %d", gAbi.height);
-        ret = -4;
+        result = SCALE_FAILED;
         goto release;
     }
 
-    memcpy(buffer_RGB565, buffer, sizeof(uint8_t)*buff_size);
+    result = SUCCESS;
 
 	release:
     av_free(pFrame_RGB565);
-    av_free(buffer_RGB565);
 	AndroidBitmap_unlockPixels(env, gBitmapRef);
 
     end:
-    return ret;
+    return result;
 }
 

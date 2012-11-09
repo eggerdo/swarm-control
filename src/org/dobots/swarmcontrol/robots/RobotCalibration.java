@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.robots;
 import org.dobots.robots.RobotDevice;
 import org.dobots.robots.RobotDevice.OnFinishListener;
 import org.dobots.robots.nxt.NXT;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.SwarmControlActivity;
@@ -20,7 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class RobotCalibration extends Activity {
+public class RobotCalibration extends BaseActivity {
 	
 	private RobotDevice m_oRobot;
 	
@@ -30,7 +31,7 @@ public class RobotCalibration extends Activity {
 	private Button m_btnCalibrateSave;
 	private Button m_btnCalibrateDiscard;
 	
-	private Activity m_oActivity;
+	private BaseActivity m_oActivity;
 	
 	private double m_dblSpeed;
 

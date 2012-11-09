@@ -650,4 +650,14 @@ public class NXT implements RobotDevice, BTConnectable {
 		return m_dblBaseSpeed;
 	}
 
+	@Override
+	public void moveLeft() {
+		// not available
+	}
+
+	@Override
+	public void moveRight() {
+		// not available
+	}
+
 }

@@ -22,6 +22,8 @@ public interface RobotDevice {
 	public boolean isConnected();
 	
 	// drive methods
+	
+	// enable robot to receive remote control commands (if necessary)
 	public void enableControl(boolean i_bEnable);
 	
 	public void moveForward(double i_dblSpeed);
@@ -47,5 +49,7 @@ public interface RobotDevice {
 	public void moveBackward();
 	public void rotateCounterClockwise();
 	public void rotateClockwise();
+	public void moveLeft();
+	public void moveRight();
 	
 }

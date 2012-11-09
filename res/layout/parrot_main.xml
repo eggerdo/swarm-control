@@ -39,12 +39,6 @@
 	            android:layout_height="wrap_content"
 	            android:text="@string/ardrone_camera" />
 
-	        <Button
-	            android:id="@+id/btnEmergency"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="Emergency" />
-
 	    </LinearLayout>
 	
 	    <View
@@ -52,12 +46,11 @@
 	        android:layout_height="20dp" />
 	    
 	    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	        android:id="@+id/layVideo"
-	        android:layout_width="249dp"
-	        android:layout_height="206dp"
+	        android:id="@+id/layParrot_Video"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
 	        android:orientation="vertical"
-	        android:layout_gravity="center"
-	        >
+	        android:layout_gravity="center" >
 		        
 		    <ProgressBar 
 			    android:id="@+id/pbLoading" 
@@ -68,10 +61,10 @@
 			    android:layout_gravity="center"
 			    android:visibility="gone" />
 		    
-		    <SurfaceView
-		        android:id="@+id/svParrot_Video"
-		        android:layout_width="249dp"
-		        android:layout_height="206dp"
+		    <ImageView
+		        android:id="@+id/ivParrot_Video"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"
 		        android:layout_gravity="center"
 				android:visibility="visible" />
 		    

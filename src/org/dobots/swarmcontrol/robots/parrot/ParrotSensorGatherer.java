@@ -1,26 +1,20 @@
 package org.dobots.swarmcontrol.robots.parrot;
 
 import org.dobots.robots.parrot.Parrot;
+import org.dobots.robots.parrot.ParrotTypes;
 import org.dobots.robots.parrot.ParrotVideoProcessor;
-import org.dobots.robots.parrot.ParrotVideoProcessor.OnConnectEvent;
+import org.dobots.swarmcontrol.BaseActivity;
+import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Paint.Align;
-import android.graphics.Paint.Style;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Gravity;
-import android.view.SurfaceView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -30,7 +24,7 @@ import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
 
-public class ParrotSensorGatherer extends SensorGatherer implements NavDataListener, DroneVideoListener {
+public class ParrotSensorGatherer extends SensorGatherer implements NavDataListener, DroneVideoListener, ConnectListener {
 
 	private Parrot m_oParrot;
 
@@ -41,6 +35,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	private boolean m_bSensorsEnabled = false;
 	private boolean m_bVideoEnabled = true;
 	private boolean m_bVideoConnected = false;
+	private boolean m_bVideoScaled = false;
 	
 	private TextView m_txtControlState;
 	private TextView m_txtBattery;
@@ -52,15 +47,12 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	private TextView m_txtVY;
 	private TextView m_txtVZ;
 
-	private SurfaceView m_svVideo;
+	private ImageView m_ivVideo;
 	private ProgressBar m_pbLoading;
-	
-	private int nVideoHeight = 360;
-	private int nVideoWidth = 640;
 	
 	LinearLayout laySensors;
 	
-	public ParrotSensorGatherer(Activity i_oActivity, Parrot i_oARDrone) {
+	public ParrotSensorGatherer(BaseActivity i_oActivity, Parrot i_oARDrone) {
 		super(i_oActivity);
 		m_oParrot = i_oARDrone;
 		
@@ -79,8 +71,13 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		m_txtVX = (TextView) m_oActivity.findViewById(R.id.txtVX);
 		m_txtVY = (TextView) m_oActivity.findViewById(R.id.txtVY);
 		m_txtVZ = (TextView) m_oActivity.findViewById(R.id.txtVZ);
+		
+		((FrameLayout)m_oActivity.findViewById(R.id.layParrot_Video)).getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
 
-        m_svVideo = (SurfaceView) m_oActivity.findViewById(R.id.svParrot_Video);
+        m_ivVideo = (ImageView) m_oActivity.findViewById(R.id.ivParrot_Video);
+		m_ivVideo.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
+		m_ivVideo.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
+		
         m_pbLoading = (ProgressBar) m_oActivity.findViewById(R.id.pbLoading);
         
 		laySensors = (LinearLayout) m_oActivity.findViewById(R.id.laySensors);
@@ -137,10 +134,10 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	}
 	
 	public void showSensors(boolean i_bShow) {
-		showLayout(laySensors, i_bShow);
+		showView(laySensors, i_bShow);
 	}
 	
-	private void showLayout(View v, boolean i_bShow) {
+	private void showView(View v, boolean i_bShow) {
 		if (i_bShow) {
 			v.setVisibility(View.VISIBLE);
 		} else {
@@ -158,11 +155,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 				public void run() {
 
 					if (!m_bVideoConnected) {
-						m_svVideo.setVisibility(View.VISIBLE);
-						m_pbLoading.setVisibility(View.GONE);
-						m_svVideo.getLayoutParams().height = nVideoHeight;
-						m_svVideo.getLayoutParams().width = nVideoWidth;
-						m_bVideoConnected = true;
+						showVideoLoading(false);
 					}
 					
 					(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
@@ -193,33 +186,29 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
         protected Void doInBackground(Void... params) {
             b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
             b.setDensity(100);
-            b = Bitmap.createScaledBitmap(b, nVideoWidth, nVideoHeight, false);
+            if (m_bVideoScaled) {
+            	w = ParrotTypes.VIDEO_WIDTH;
+            	h = ParrotTypes.VIDEO_HEIGHT;
+            	b = Bitmap.createScaledBitmap(b, w, h, false);
+            }
             return null;
         }
         
         @Override
-        protected void onPostExecute(Void param) {;
-        	Canvas canvas = null;
-	        try 
-	        {
-	            canvas = m_svVideo.getHolder().lockCanvas(null);
-	            if (canvas != null) {
-	            	canvas.drawBitmap(b, 0, 0, null);
-	            }
-	        }
-	        finally
-	        {
-	            if (canvas != null)
-	            {
-	            	m_svVideo.getHolder().unlockCanvasAndPost(canvas);
-	            }
-	        }
+        protected void onPostExecute(Void param) {
+        	Bitmap oldBitmap = m_ivVideo.getDrawingCache();
+        	if (oldBitmap != null) {
+        		oldBitmap.recycle();
+        	}
+            m_ivVideo.setImageBitmap(b);
+            m_ivVideo.getLayoutParams().width = w;
+            m_ivVideo.getLayoutParams().height = h;
         }
     }
 
 	public void onConnect() {
 		m_oParrot.setNavDataListener(this);
-		enableVideo(m_bVideoEnabled);
+		setVideoEnabled(m_bVideoEnabled);
 	}
 
 	public void onDisconnect() {
@@ -248,18 +237,26 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 			m_oVideoProcessor.resumeThread();
 		}
 	}
+	
+	private void showVideoLoading(final boolean i_bShow) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				m_bVideoConnected = !i_bShow;
+				showView(m_ivVideo, !i_bShow);
+				showView(m_pbLoading, i_bShow);
+			}
+		});
+	}
 
-	public void enableVideo(boolean i_bVideoEnabled) {
+	public void setVideoEnabled(boolean i_bVideoEnabled) {
+		
 		m_bVideoEnabled = i_bVideoEnabled;
 		
 		if (i_bVideoEnabled) {
-			mHandler.post(new Runnable() {
-				@Override
-				public void run() {
-					m_svVideo.setVisibility(View.GONE);
-					m_pbLoading.setVisibility(View.VISIBLE);
-				}
-			});
+			showVideoLoading(true);
+		} else {
+			Utils.writeToImageView(m_oActivity, m_ivVideo, "Video OFF", true);
 		}
 		
 		if (m_oParrot.isARDrone1()) {
@@ -274,44 +271,45 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 
 			if (i_bVideoEnabled) {
 
-				m_oVideoProcessor = new ParrotVideoProcessor(m_oActivity, m_svVideo.getHolder());
-				m_oVideoProcessor.setOnConnect(new OnConnectEvent() {
-					
-					@Override
-					public void onConnect(boolean i_bConnected) {
-						mHandler.post(new Runnable() {
-							@Override
-							public void run() {
-								m_svVideo.setVisibility(View.VISIBLE);
-								m_pbLoading.setVisibility(View.GONE);
-								m_svVideo.getLayoutParams().height = nVideoHeight;
-								m_svVideo.getLayoutParams().width = nVideoWidth;
-							}
-						});
-						
-						if (!i_bConnected) {
-							Canvas canvas = m_svVideo.getHolder().lockCanvas();
-							Utils.writeToCanvas(m_oActivity, canvas, "Video Connection Failed", true);
-							m_svVideo.getHolder().unlockCanvasAndPost(canvas);
-						}
-					}
-				});
+				m_oVideoProcessor = new ParrotVideoProcessor(m_oActivity, m_ivVideo);
+				m_oVideoProcessor.setOnConnect(this);
 				m_oVideoProcessor.connect();
+				
 			} else {
 				if (m_oVideoProcessor != null) {
 					m_oVideoProcessor.close();
 					m_oVideoProcessor = null;
 				}
-
-				Canvas canvas = m_svVideo.getHolder().lockCanvas();
-				Utils.writeToCanvas(m_oActivity, canvas, "Video OFF", true);
-				m_svVideo.getHolder().unlockCanvasAndPost(canvas);
 			}
 		}
 	}
-	
+
+	@Override
+	public void onConnect(boolean i_bConnected) {
+		showVideoLoading(false);
+		
+		if (!i_bConnected) {
+			m_oUiHandler.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					Utils.writeToImageView(m_oActivity, m_ivVideo, "Video Connection Failed", true);
+				}
+			});
+		}
+		
+	}
+
 	public boolean isVideoEnabled() {
 		return m_bVideoEnabled;
+	}
+
+	public boolean isVideoScaled() {
+		return m_bVideoScaled;
+	}
+
+	public void setVideoScaled(boolean i_bScaled) {
+		m_bVideoScaled = i_bScaled;
 	}
 
 }

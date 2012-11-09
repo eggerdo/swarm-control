@@ -1,32 +1,26 @@
 package org.dobots.swarmcontrol.robots.parrot;
 
-import java.net.UnknownHostException;
-
-import org.dobots.robots.BaseWifi;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.parrot.Parrot;
-import org.dobots.robots.parrot.ParrotTypes;
-import org.dobots.robots.parrot.ParrotVideoProcessor;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
+import org.dobots.swarmcontrol.RemoteControlListener;
 import org.dobots.swarmcontrol.RobotInventory;
+import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.WifiRobot;
-import org.dobots.utility.OnButtonPress;
 import org.dobots.utility.Utils;
-
-import com.codeminders.ardrone.ARDrone.VideoChannel;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -37,11 +31,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ParrotRobot extends WifiRobot {
+import com.codeminders.ardrone.ARDrone.VideoChannel;
+
+public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 
 	private static String TAG = "Parrot";
 	
 	private static final int VIDEO_ID = CONNECT_ID + 1;
+	private static final int VIDEO_SCALE_ID = VIDEO_ID + 1;
 
 	private boolean connected;
 	
@@ -49,10 +46,12 @@ public class ParrotRobot extends WifiRobot {
 
 	private ParrotSensorGatherer m_oSensorGatherer;
 
+	private RemoteControlHelper m_oRemoteCtrl;
+	
 //	private Button m_btnCalibrate;
 	
 	private double m_dblSpeed;
-	
+
 	private Button m_btnLand;
 	private Button m_btnTakeOff;
 	private Button m_btnUp;
@@ -72,7 +71,7 @@ public class ParrotRobot extends WifiRobot {
 
     private EditText edtKp, edtKd, edtKi;
 
-	private Button m_btnEmergency;
+//	private Button m_btnEmergency;
 
 	
     @Override
@@ -87,28 +86,24 @@ public class ParrotRobot extends WifiRobot {
     	} else {
     		m_oParrot = (Parrot) RobotInventory.getInstance().getRobot(nIndex);
         	m_oParrot.setHandler(uiHandler);
-    		if (m_oParrot.isConnected()) {
-    			updateButtons(true);
-    		}
     		m_bKeepAlive = true;
     	}
 
 		m_oSensorGatherer = new ParrotSensorGatherer(this, m_oParrot);
 		m_dblSpeed = m_oParrot.getBaseSped();
 
-//		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oParrot, null);
-//        m_oRemoteCtrl.setProperties();
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oParrot, this);
+        m_oRemoteCtrl.setProperties();
+        m_oRemoteCtrl.setAdvancedControl(false);
 
         updateButtons(false);
-        
-//        m_oRemoteCtrl.setControlPressListener(new OnButtonPress() {
-//			
-//			@Override
-//			public void buttonPressed(boolean i_bDown) {
-//				m_bControl = !m_bControl;
-//				m_oParrot.enableControl(m_bControl);
-//			}
-//		});
+
+		if (m_oParrot.isConnected()) {
+			updateButtons(true);
+			// inform the sensor gatherer that we are connected so that
+			// the video can be started
+			m_oSensorGatherer.onConnect();
+		}
     }
 
     @Override
@@ -170,8 +165,10 @@ public class ParrotRobot extends WifiRobot {
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case VIDEO_ID:
-			m_oSensorGatherer.enableVideo(!m_oSensorGatherer.isVideoEnabled());
+			m_oSensorGatherer.setVideoEnabled(!m_oSensorGatherer.isVideoEnabled());
 			return true;
+		case VIDEO_SCALE_ID:
+			m_oSensorGatherer.setVideoScaled(!m_oSensorGatherer.isVideoScaled());
 		}
 
 		return super.onMenuItemSelected(featureId, item);
@@ -179,12 +176,20 @@ public class ParrotRobot extends WifiRobot {
 	
 	public void disconnect() {
 		m_oParrot.disconnect();
+		m_oSensorGatherer.close();
 	}
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	
+    	if (m_oParrot.isConnected() && m_oParrot.isARDrone1()) {
+    		if (menu.findItem(VIDEO_SCALE_ID) == null) {
+    			menu.add(0, VIDEO_SCALE_ID, 3, "Zoom Video");
+    		}
+    	}
 
     	Utils.updateOnOffMenuItem(menu.findItem(VIDEO_ID), m_oSensorGatherer.isVideoEnabled());
+    	Utils.updateOnOffMenuItem(menu.findItem(VIDEO_SCALE_ID), m_oSensorGatherer.isVideoScaled());
     	
     	return true;
     }
@@ -203,7 +208,7 @@ public class ParrotRobot extends WifiRobot {
 		}
 	}
 
-	public static void connectToARDrone(final Activity m_oOwner, Parrot i_oParrot, String i_strAddress, final ConnectListener i_oConnectListener) {
+	public static void connectToARDrone(final Activity m_oOwner, Parrot i_oParrot, final ConnectListener i_oConnectListener) {
 		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
 		
 		if (i_oParrot.isConnected()) {
@@ -300,14 +305,14 @@ public class ParrotRobot extends WifiRobot {
 //			}
 //		});
         
-        m_btnEmergency = (Button) findViewById(R.id.btnEmergency);
-        m_btnEmergency.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				m_oParrot.sendEmergencySignal();
-			}
-		});
+//        m_btnEmergency = (Button) findViewById(R.id.btnEmergency);
+//        m_btnEmergency.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				m_oParrot.sendEmergencySignal();
+//			}
+//		});
         
         m_edtAltitude = (EditText) findViewById(R.id.edtAltitude);
         
@@ -365,6 +370,7 @@ public class ParrotRobot extends WifiRobot {
 			@Override
 			public void onClick(View v) {
 				m_oParrot.land();
+				Log.i(TAG, "land()");
 			}
 		});
         
@@ -374,6 +380,7 @@ public class ParrotRobot extends WifiRobot {
 			@Override
 			public void onClick(View v) {
 				m_oParrot.takeOff();
+				Log.i(TAG, "takeOff()");
 			}
 		});
         
@@ -386,9 +393,11 @@ public class ParrotRobot extends WifiRobot {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
 					m_oParrot.moveStop();
+					Log.i(TAG, "stop()");
 					break;
 				case MotionEvent.ACTION_DOWN:
 					m_oParrot.increaseAltitude();
+					Log.i(TAG, "lift()");
 					break;
 				}
 				return true;
@@ -404,9 +413,11 @@ public class ParrotRobot extends WifiRobot {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
 					m_oParrot.moveStop();
+					Log.i(TAG, "stop()");
 					break;
 				case MotionEvent.ACTION_DOWN:
 					m_oParrot.decreaseAltitude();
+					Log.i(TAG, "lower()");
 					break;
 				}
 				return true;
@@ -422,8 +433,10 @@ public class ParrotRobot extends WifiRobot {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
 					m_oParrot.moveStop();
+					Log.i(TAG, "stop()");
 					break;
 				case MotionEvent.ACTION_DOWN:
+					Log.i(TAG, "c cw()");
 					m_oParrot.rotateCounterClockwise();
 					break;
 				}
@@ -440,8 +453,10 @@ public class ParrotRobot extends WifiRobot {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
 					m_oParrot.moveStop();
+					Log.i(TAG, "stop()");
 					break;
 				case MotionEvent.ACTION_DOWN:
+					Log.i(TAG, "cw()");
 					m_oParrot.rotateClockwise();
 					break;
 				}
@@ -460,16 +475,55 @@ public class ParrotRobot extends WifiRobot {
 	}
 
 	protected void resetLayout() {
-//        m_oRemoteCtrl.resetLayout();
+        m_oRemoteCtrl.resetLayout();
         
         updateButtons(false);
 	}
 
 	public void updateButtons(boolean enabled) {
-//		m_oRemoteCtrl.updateButtons(enabled);
+		m_oRemoteCtrl.updateButtons(enabled);
 		
 		m_btnCamera.setEnabled(enabled);
 		m_btnSensors.setEnabled(enabled);
+	}
+
+	@Override
+	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMove(Move i_oMove) {
+
+		// execute this move
+		switch(i_oMove) {
+		case NONE:
+			m_oParrot.moveStop();
+			Log.i(TAG, "stop()");
+			break;
+		case BACKWARD:
+			m_oParrot.moveBackward();
+			Log.i(TAG, "bwd()");
+			break;
+		case FORWARD:
+			m_oParrot.moveForward();
+			Log.i(TAG, "fwd()");
+			break;
+		case LEFT:
+			m_oParrot.moveLeft();
+			Log.i(TAG, "left()");
+			break;
+		case RIGHT:
+			m_oParrot.moveRight();
+			Log.i(TAG, "right()");
+			break;
+		}
+	}
+
+	@Override
+	public void enableControl(boolean i_bEnable) {
+		m_oRemoteCtrl.enableControl(i_bEnable);
 	}
 	
 }

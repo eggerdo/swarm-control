@@ -6,7 +6,10 @@ import org.dobots.utility.DeviceListActivity;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,7 +17,7 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 	
 	public static String TAG = "BTHelper";
 
-	private Activity m_oParent;
+	private BaseActivity m_oParent;
 	
 	private BluetoothAdapter m_oBTAdapter;
 	
@@ -31,7 +34,7 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 
 	private String m_strTitle = "";
 	
-	public BluetoothConnectionHelper(Activity i_oParent, String i_strMacFilter) {
+	public BluetoothConnectionHelper(BaseActivity i_oParent, String i_strMacFilter) {
 		m_oParent = i_oParent;
 		m_strMacFilter = i_strMacFilter;
 	}
@@ -50,7 +53,7 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 			if (!m_oBTAdapter.isEnabled()) {
 				m_bBTOnByUs = true;
 				Intent oEnableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				m_oParent.startActivityForResult(oEnableBTIntent, REQUEST_ENABLE_BT);
+				m_oParent.startActivityForResult(oEnableBTIntent, REQUEST_ENABLE_BT, this);
 				return false;
 			} else
 				return true;
@@ -113,12 +116,11 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 		oParam.putString(MAC_FILTER, m_strMacFilter);
 		oParam.putString(TITLE, m_strTitle);
 		serverIntent.putExtras(oParam);
-		m_oParent.startActivityForResult(serverIntent, REQUEST_CONNECT_ROBOT);
+		m_oParent.startActivityForResult(serverIntent, REQUEST_CONNECT_ROBOT, this);
 	}
 	
 	public void setTitle(String i_strTitle) {
 		m_strTitle = i_strTitle;
 	}
-	
 	
 }
