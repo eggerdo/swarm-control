@@ -28,6 +28,8 @@ public class ParrotVideoProcessor extends Thread {
     private boolean m_bVideoConnected = false;
     
 	private Handler m_oUiHandler = new Handler(Looper.getMainLooper());
+
+	private int m_nErrorCount = 0;
 	
 	public ParrotVideoProcessor(BaseActivity i_oActivity, ImageView i_oImage) {
 		super("Parrot Video Processor");
@@ -46,8 +48,6 @@ public class ParrotVideoProcessor extends Thread {
 	
 	public void connect() {
 
-		mRun = false;
-		
 		String strVideoAddr = String.format("http://%s:%d", ParrotTypes.PARROT_IP, ParrotTypes.VIDEO_PORT);
 		
         if (nativeOpenFromURL(strVideoAddr, ParrotTypes.VIDEO_CODEC) != ParrotTypes.SUCCESS)
@@ -66,9 +66,19 @@ public class ParrotVideoProcessor extends Thread {
             return;
         }
 
-        mRun = true;
-
-        start();
+        startProcess();
+	}
+	
+	private void startProcess() {
+		
+		if (!mRun) {
+			mRun = true;
+			start();
+		} else if (mPause) {
+			// nothing to do
+			mPause = false;
+		}
+		
 	}
 	
 	public void run() {
@@ -95,14 +105,18 @@ public class ParrotVideoProcessor extends Thread {
         		continue;
         	}
         	
-        	int nResult = nativeDecodeFrame();
+        	int nResult;
+        	nResult = nativeDecodeFrame();
     		if (nResult == ParrotTypes.SUCCESS)
             {
     			if (!m_bVideoConnected) {
     		        m_oConnectListener.onConnect(true);
     			}
 
-    			if (nativeUpdateBitmap() == ParrotTypes.SUCCESS) {
+    			nResult = nativeUpdateBitmap();
+    			if (nResult == ParrotTypes.SUCCESS) {
+					m_nErrorCount = 0;
+					
     				m_oUiHandler.post(new Runnable() {
 						
 						@Override
@@ -111,11 +125,61 @@ public class ParrotVideoProcessor extends Thread {
 							m_oImage.invalidate();
 						}
 					});
-    			}
+    			} else if (nResult == ParrotTypes.CODEC_DIMENSION_ERROR) {
+
+    				// NOTE: I have spent several days trying to find out why the ffmpeg library
+    				// suddenly crashes after some time but without success. I tried recompiling
+    				// the library without success. The only thing I found out is that it always
+    				// happens after receiving some erroneous frames which result in codec dimensions
+    				// that don't correspond with the 640x360. To avoid crashes of the whole app because
+    				// of that I now close the library if the codec dimension error is detected and
+    				// then reconnect to continue displaying the video which seems to work so far.
+    				m_nErrorCount++;
+    				if (m_nErrorCount >= 3) {
+	                	nativeClose();
+	                	
+	                	Utils.waitSomeTime(200);
+	                	
+	                	connect();
+	                	
+	                	m_nErrorCount = 0;
+    				}
+    			} else if (nResult == ParrotTypes.BITMAP_LOCKPIXELS_FAILED) {
+    				m_nErrorCount++;
+    				if (m_nErrorCount >= 3) {
+    					m_bmpVideo = null;
+    					mPause = true;
+
+    					m_oUiHandler.post(new Runnable() {
+							
+							@Override
+							public void run() {
+		    					m_bmpVideo = Bitmap.createBitmap(ParrotTypes.VIDEO_WIDTH, ParrotTypes.VIDEO_HEIGHT, Bitmap.Config.RGB_565); //ARGB_8888
+		    					m_oImage.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
+		    					m_oImage.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
+		    					m_oImage.setImageBitmap(m_bmpVideo);
+		    					
+		    					nativeClose();
+			                	
+			                	Utils.waitSomeTime(200);
+			                	
+			                	connect();
+			                	
+			                	m_nErrorCount = 0;
+			                	
+		    					mPause = false;
+							}
+						});
+    				}
+                }
             } else if (nResult == ParrotTypes.READ_FRAME_FAILED) {
-            	mRun = false;
-            	m_oConnectListener.onConnect(false);
-            }
+
+				m_nErrorCount++;
+				if (m_nErrorCount >= 3) {
+	            	mRun = false;
+	            	m_oConnectListener.onConnect(false);
+				}
+            } 
         }
         
         // close video

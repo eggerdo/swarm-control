@@ -76,6 +76,8 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 #define GET_SWCONTEXT_FAILED	-16
 #define SCALE_FAILED			-17
 
+#define BITMAP_LOCKPIXELS_FAILED -3
+
 AVFormatContext*    gFormatCtx;
 
 //video
@@ -358,6 +360,7 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 {
     AVFrame* 	pFrame_RGB565;
     int result;
+    int bmpResult;
     void *buffer;
 	int destWidth = gVideoCodecCtx->width;
 	int destHeight = gVideoCodecCtx->height;
@@ -365,13 +368,12 @@ JNIEXPORT jint JNICALL Java_org_dobots_robots_parrot_ParrotVideoProcessor_native
 	if ((destWidth != 640) || destHeight != 360) {
     	LOGE(1, "destWidth = %d", destWidth);
     	LOGE(1, "destHeight = %d", destHeight);
-		result = CODEC_DIMENSION_ERROR;
-		goto end;
+		return CODEC_DIMENSION_ERROR;
 	}
 
-	if ((result = AndroidBitmap_lockPixels(env, gBitmapRef, &buffer)) < 0) {
-		LOGE(1, "AndroidBitmap_lockPixels() failed ! error=%d", result);
-		goto end;
+	if ((bmpResult = AndroidBitmap_lockPixels(env, gBitmapRef, &buffer)) < 0) {
+		LOGE(1, "AndroidBitmap_lockPixels() failed ! error=%d", bmpResult);
+		return bmpResult;
 	}
 
     pFrame_RGB565 = avcodec_alloc_frame();
