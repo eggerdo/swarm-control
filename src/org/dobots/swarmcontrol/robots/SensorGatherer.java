@@ -5,6 +5,7 @@ import org.dobots.swarmcontrol.BaseActivity;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.TextView;
 
 public class SensorGatherer extends Thread {
 
@@ -59,4 +60,22 @@ public class SensorGatherer extends Thread {
 	protected void execute() {
 		// needs to be defined by child class
 	}
+	
+
+	protected void setText(TextView i_oView, String i_strValue) {
+		i_oView.setText(i_strValue);
+	}
+	
+	protected void setText(TextView i_oView, int i_nValue) {
+		i_oView.setText(String.valueOf(i_nValue));
+	}
+
+	protected void setText(TextView i_oView, float i_fValue) {
+		i_oView.setText(String.valueOf(i_fValue));
+	}
+
+	protected void setOnOffText(TextView i_oView, boolean i_bValue) {
+		i_oView.setText(i_bValue ? "ON" : "OFF");
+	}
+
 }

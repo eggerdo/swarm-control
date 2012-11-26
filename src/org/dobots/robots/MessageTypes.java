@@ -10,4 +10,6 @@ public class MessageTypes {
     public static final int STATE_SENDERROR = 1004;
     public static final int STATE_CONNECTERROR_PAIRING = 1005;
     
+    public static final int USER = 1100;
+    
 }

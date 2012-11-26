@@ -4,7 +4,7 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="8" />
+    <uses-sdk android:minSdkVersion="10" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -26,12 +26,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.dobots.utility.DeviceListActivity"
-			android:label="@string/select_device"
-			android:screenOrientation="portrait" 
-			android:theme="@android:style/Theme.Dialog"
-			android:configChanges="keyboardHidden|orientation">
-		</activity>
+        
+        <!-- Robot Activities -->
 		<activity android:name="org.dobots.swarmcontrol.robots.RobotDevice"
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.roomba.RoombaRobot"
@@ -40,8 +36,16 @@
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.nxt.NXTRobot"
 			android:screenOrientation="portrait" ></activity>
-		<activity android:name=".behaviours.Dancing"
-			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.dotty.DottyRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.parrot.ParrotRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.roboscooper.RoboScooperRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.spykee.SpykeeRobot"
+		    android:screenOrientation="portrait" ></activity>
+		
+        <!-- Behaviour Activities -->
 		<activity android:name=".behaviours.dancing.DancingMain"
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".behaviours.dancing.RobotList"
@@ -50,11 +54,18 @@
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".behaviours.dancing.MultiRobotControl"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="org.dobots.chat.ChatClient"></activity>
-		<activity android:name=".robots.dotty.DottyRobot"
-		    android:screenOrientation="portrait" ></activity>
-		<activity android:name=".robots.parrot.ParrotRobot"
-		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.racing.Racing"
+			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.racing.RacingRobot"
+			android:screenOrientation="portrait" ></activity>
+		
+        <!-- Additional Activities, Dialogs, etc -->
+        <activity android:name="org.dobots.utility.DeviceListActivity"
+			android:label="@string/select_device"
+			android:screenOrientation="portrait" 
+			android:theme="@android:style/Theme.Dialog"
+			android:configChanges="keyboardHidden|orientation">
+		</activity>
 		<activity android:name="org.dobots.utility.FeedbackDialog"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
@@ -69,10 +80,6 @@
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name=".behaviours.racing.Racing"
-			android:screenOrientation="portrait" ></activity>
-		<activity android:name=".behaviours.racing.RacingRobot"
-			android:screenOrientation="portrait" ></activity>
     </application>
 
 </manifest>

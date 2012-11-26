@@ -94,6 +94,7 @@ public abstract class BaseBluetooth extends Thread {
         try {
             if (m_oSocket != null) {
                 connected = false;
+                stopThread();
                 m_oSocket.close();
                 m_oSocket = null;
             }

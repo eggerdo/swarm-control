@@ -123,11 +123,6 @@ public class Dotty implements RobotDevice {
 		m_oController.destroyConnection();
 	}
 
-	@Override
-	public void setConnection() {
-		// TODO Auto-generated method stub
-	}
-	
 	public void setConnection(DottyBluetooth i_oConnection) {
 		i_oConnection.setReceiveHandler(m_oReceiver.getHandler());
 		m_oController.setConnection(i_oConnection);

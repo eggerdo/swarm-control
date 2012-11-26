@@ -288,13 +288,6 @@ public class NXT implements RobotDevice, BTConnectable {
 		return connected;
 	}
 
-
-	@Override
-	public void setConnection() {
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public void connect() {
 		connected = false;       
@@ -306,6 +299,9 @@ public class NXT implements RobotDevice, BTConnectable {
 	@Override
 	public void disconnect() {
 		sendCmdMessage(NXTTypes.DISCONNECT);
+		while (isConnected()) {
+			Utils.waitSomeTime(10);
+		}
 	}
 	
 	public void setConnection(NXTBluetooth i_oConnection) {

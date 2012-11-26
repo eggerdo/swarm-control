@@ -1,7 +1,9 @@
 package org.dobots.swarmcontrol.robots.parrot;
 
 import org.dobots.robots.MessageTypes;
+import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.parrot.Parrot;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
@@ -10,11 +12,14 @@ import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.WifiRobot;
+import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
+import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -73,6 +78,13 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 
 //	private Button m_btnEmergency;
 
+	public ParrotRobot(BaseActivity i_oOwner) {
+		super(i_oOwner);
+	}
+	
+	public ParrotRobot() {
+		super();
+	}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,11 +93,11 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
     	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
     	if (nIndex == -1) {
 			m_oParrot = new Parrot();
-	    	m_oParrot.setHandler(uiHandler);
+	    	m_oParrot.setHandler(m_oUiHandler);
 	        connectToRobot();
     	} else {
     		m_oParrot = (Parrot) RobotInventory.getInstance().getRobot(nIndex);
-        	m_oParrot.setHandler(uiHandler);
+        	m_oParrot.setHandler(m_oUiHandler);
     		m_bKeepAlive = true;
     	}
 
@@ -197,9 +209,9 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 	@Override
 	public void connectToRobot() {
 		if (m_oWifiHelper.initWifi()) {
-			connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
+			showConnectingDialog();
 			
-			uiHandler.post(new Runnable() {
+			m_oUiHandler.post(new Runnable() {
 				@Override
 				public void run() {
 					m_oParrot.connect();
@@ -208,56 +220,26 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 		}
 	}
 
-	public static void connectToARDrone(final Activity m_oOwner, Parrot i_oParrot, final ConnectListener i_oConnectListener) {
-		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
+	public static void connectToARDrone(final BaseActivity m_oOwner, Parrot i_oParrot, final ConnectListener i_oConnectListener) {
+		ParrotRobot m_oRobot = new ParrotRobot(m_oOwner) {
+			public void onConnect() {
+				i_oConnectListener.onConnect(true);
+			};
+			public void onDisconnect() {
+				i_oConnectListener.onConnect(false);
+			};
+		};
+		
+		m_oRobot.showConnectingDialog();
 		
 		if (i_oParrot.isConnected()) {
 			i_oParrot.disconnect();
 		}
-		
+
+		i_oParrot.setHandler(m_oRobot.getUIHandler());
 		i_oParrot.connect();
-		i_oParrot.setHandler(new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				switch (msg.what) {
-				case MessageTypes.DISPLAY_TOAST:
-					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
-					break;
-				case MessageTypes.STATE_CONNECTED:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(true);
-//					updateButtonsAndMenu();
-					break;
-
-				case MessageTypes.STATE_CONNECTERROR_PAIRING:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(false);
-					break;
-
-				case MessageTypes.STATE_CONNECTERROR:
-					connectingProgress.dismiss();
-				case MessageTypes.STATE_RECEIVEERROR:
-				case MessageTypes.STATE_SENDERROR:
-					i_oConnectListener.onConnect(false);
-
-					// inform the user of the error with an AlertDialog
-					AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
-					builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
-					.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-						public void onClick(DialogInterface dialog, int id) {
-							dialog.cancel();
-						}
-					});
-					builder.create().show();
-
-					break;
-				}
-			}
-		});
 	}
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

@@ -2,26 +2,23 @@ package org.dobots.robots.parrot;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.concurrent.TimeoutException;
 
 import org.dobots.robots.MessageTypes;
+import org.dobots.robots.MoveRepeater;
+import org.dobots.robots.MoveRepeater.MoveCommand;
+import org.dobots.robots.MoveRepeater.MoveRepeaterListener;
 import org.dobots.robots.RobotDevice;
-import org.dobots.robots.parrot.ParrotTypes.ParrotMove;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.utility.Utils;
 
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
-import android.text.format.Time;
 import android.util.Log;
 
 import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.ARDrone.State;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.ardrone.DroneStatusChangeListener;
 import com.codeminders.ardrone.DroneVideoListener;
@@ -30,14 +27,9 @@ import com.codeminders.ardrone.NavData.CtrlState;
 import com.codeminders.ardrone.NavData.FlyingState;
 import com.codeminders.ardrone.NavDataListener;
 
-public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataListener, ConnectListener {
+public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataListener, ConnectListener, MoveRepeaterListener {
 
 	private static String TAG = "Parrot";
-
-//	private Handler mHandler = new Handler(Looper.getMainLooper());
-
-	private Handler m_oRepeatMoveHandler = new Handler();
-	private boolean m_bRepeat = false;
 
 	private ARDrone m_oController;
 
@@ -55,10 +47,12 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 	private CtrlState controlState;
 	private Object state_mutex = new Object();
 	
-	private Object move_mutex = new Object();
+	private MoveRepeater m_oRepeater;
 
 	public Parrot() {
 		m_oInstance = this;
+		
+		m_oRepeater = new MoveRepeater(this, 100);
 	}
 
 	public void setHandler(Handler i_oHandler) {
@@ -82,14 +76,8 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 				m_oController.disconnect();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public void setConnection() {
-		// TODO Auto-generated method stub
 	}
 
 	private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
@@ -200,7 +188,6 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 			m_oController = null;
 			m_bConnected = false;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -214,7 +201,6 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		try {
 			m_oController.sendEmergencySignal();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -224,7 +210,6 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 			m_oController.selectVideoChannel(i_oChannel);
 			m_eVideoChannel = i_oChannel;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -244,56 +229,13 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		return m_eVideoChannel;
 	}
 
-	private void startMove(ParrotMove i_eMove, double i_dblSpeed,
-			boolean i_bRepeat) {
-		stopRepeatedMove();
-
-		synchronized (move_mutex) {
-			Runnable runner;
-			switch (i_eMove) {
-			case MOVE_BWD:
-				runner = new MoveBackwardsRunnable(i_dblSpeed);
-				break;
-			case MOVE_FWD:
-				runner = new MoveForwardsRunnable(i_dblSpeed);
-				break;
-			case MOVE_DOWN:
-				runner = new DecreaseAltitudeRunnable(i_dblSpeed);
-				break;
-			case MOVE_UP:
-				runner = new IncreaseAltitudeRunnable(i_dblSpeed);
-				break;
-			case MOVE_LEFT:
-				runner = new MoveLeftRunnable(i_dblSpeed);
-				break;
-			case MOVE_RIGHT:
-				runner = new MoveRightRunnable(i_dblSpeed);
-				break;
-			case ROTATE_LEFT:
-				runner = new RotateCounterClockwiseRunnable(i_dblSpeed);
-				break;
-			case ROTATE_RIGHT:
-				runner = new RotateClockwiseRunnable(i_dblSpeed);
-				break;
-			default:
-				return;
-			}
-			m_oRepeatMoveHandler.post(runner);
-			m_bRepeat = i_bRepeat;
-		}
-	}
-
-	private void stopRepeatedMove() {
-		Log.d(TAG, "done");
-		m_bRepeat = false;
-		m_oRepeatMoveHandler.removeCallbacksAndMessages(null);
-	}
-
+	// Take Off -----------------------------------------------------------
+	
 	public void takeOff() {
 		try {
-			stopRepeatedMove();
+			m_oRepeater.stopMove();
 			
-			synchronized (move_mutex) {
+			synchronized (m_oRepeater.getMutex()) {
 				
 				m_oController.clearEmergencySignal();
 				m_oController.trim();
@@ -303,12 +245,14 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 			e.printStackTrace();
 		}
 	}
+	
+	// Land --------------------------------------------------------------
 
 	public void land() {
 		try {
-			stopRepeatedMove();
+			m_oRepeater.stopMove();
 			
-			synchronized (move_mutex) {
+			synchronized (m_oRepeater.getMutex()) {
 				
 				m_oController.land();
 			}
@@ -316,6 +260,8 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 			e.printStackTrace();
 		}
 	}
+	
+	// Altitude Control ------------------------------------------------
 
 	private AltitudeControl ctrl;
 
@@ -325,7 +271,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 	}
 
 	public void setAltitude(double i_dblSetpoint) {
-		stopRepeatedMove();
+		m_oRepeater.stopMove();
 		
 		ctrl = new AltitudeControl(i_dblSetpoint);
 		ctrl.start();
@@ -378,9 +324,9 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 								"Altitude: %f, Error:%f, Speed: %f",
 								oNavData.getAltitude(), dblError, dblSpeed));
 						if ((dblSpeed > 0) && (dblSpeed <= 100)) {
-							doIncreaseAltitude(dblSpeed);
+							executeMoveUp(dblSpeed);
 						} else if ((dblSpeed < 0) && (dblSpeed >= -100)) {
-							doDecreaseAltitude(-dblSpeed);
+							executeMoveDown(-dblSpeed);
 						} else {
 							Log.d(TAG, "Fatal Error");
 						}
@@ -433,33 +379,18 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		}
 	}
 
-	// Increase Altitude
+	// Increase Altitude ------------------------------------------------------
+
+	public void increaseAltitude() {
+//		increaseAltitude(m_dblBaseSpeed);
+		increaseAltitude(40);
+	}
+
 	public void increaseAltitude(double i_dblSpeed) {
-		startMove(ParrotMove.MOVE_UP, i_dblSpeed, true);
+		m_oRepeater.startMove(MoveCommand.MOVE_UP, i_dblSpeed, true);
 	}
 
-	class IncreaseAltitudeRunnable implements Runnable {
-
-		private double dblSpeed;
-
-		public IncreaseAltitudeRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "increase");
-				doIncreaseAltitude(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(new IncreaseAltitudeRunnable(
-							dblSpeed), 100);
-				}
-			}
-		}
-	}
-
-	private void doIncreaseAltitude(double i_dblSpeed) {
+	private void executeMoveUp(double i_dblSpeed) {
 		try {
 			m_oController.move(0f, 0f, (float) i_dblSpeed / 100f, 0f);
 		} catch (IOException e) {
@@ -467,34 +398,18 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		}
 	}
 
-	// Decrease Altitude
+	// Decrease Altitude ------------------------------------------------------
 
-	public void decreaseAltitude(double i_dblSpeed) {
-		startMove(ParrotMove.MOVE_DOWN, i_dblSpeed, true);
+	public void decreaseAltitude() {
+//		decreaseAltitude(m_dblBaseSpeed);
+		decreaseAltitude(40);
 	}
 
-	class DecreaseAltitudeRunnable implements Runnable {
+	public void decreaseAltitude(double i_dblSpeed) {
+		m_oRepeater.startMove(MoveCommand.MOVE_DOWN, i_dblSpeed, true);
+	}
 
-		private double dblSpeed;
-
-		public DecreaseAltitudeRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "decrease");
-				doDecreaseAltitude(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(new DecreaseAltitudeRunnable(
-							dblSpeed), 100);
-				}
-			}
-		}
-	};
-
-	public void doDecreaseAltitude(double i_dblSpeed) {
+	public void executeMoveDown(double i_dblSpeed) {
 		try {
 			m_oController.move(0f, 0f, -(float) i_dblSpeed / 100f, 0f);
 		} catch (IOException e) {
@@ -502,7 +417,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		}
 	}
 
-	// Hover
+	// Hover ------------------------------------------------------
 
 	public void hover() {
 		try {
@@ -514,7 +429,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 
 	@Override
 	public void enableControl(boolean i_bEnable) {
-//		 m_oController.control(i_bEnable);
+		// nothing to do
 	}
 
 	private double capSpeed(double io_dblSpeed) {
@@ -534,272 +449,59 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		return io_nRadius;
 	}
 
-	// Move Forward
 
 	@Override
-	public void moveForward(double i_dblSpeed) {
-		startMove(ParrotMove.MOVE_FWD, i_dblSpeed, true);
-	}
-
-	class MoveForwardsRunnable implements Runnable {
-
-		private double dblSpeed;
-
-		public MoveForwardsRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "move fwd");
-				doMoveForward(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(new MoveForwardsRunnable(
-							dblSpeed), 100);
-				}
-			}
-		}
-	}
-
-	public void doMoveForward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		try {
-			m_oController.move(0f, -(float) i_dblSpeed / 100f, 0f, 0f);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void onDoMove(MoveCommand i_eMove, double i_dblSpeed) {
+		switch(i_eMove) {
+		case MOVE_BWD:
+			executeMoveBackward(i_dblSpeed);
+			break;
+		case MOVE_FWD:
+			executeMoveForward(i_dblSpeed);
+			break;
+		case MOVE_LEFT:
+			executeMoveLeft(i_dblSpeed);
+			break;
+		case MOVE_RIGHT:
+			executeMoveRight(i_dblSpeed);
+			break;
+		case MOVE_UP:
+			executeMoveUp(i_dblSpeed);
+			break;
+		case MOVE_DOWN:
+			executeMoveDown(i_dblSpeed);
+			break;
+		case ROTATE_LEFT:
+			executeRotateCounterClockwise(i_dblSpeed);
+			break;
+		case ROTATE_RIGHT:
+			executeRotateClockwise(i_dblSpeed);
+			break;
+		default:
+			Log.d(TAG, "Move not available");
+			return;
 		}
 	}
 
 	@Override
-	public void moveForward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
-	}
-
-	@Override
-	public void moveForward(double i_dblSpeed, double i_dblAngle) {
-		// TODO Auto-generated method stub
-	}
-	
-	// Move Backward
-
-	@Override
-	public void moveBackward(double i_dblSpeed) {
-		startMove(ParrotMove.MOVE_BWD, i_dblSpeed, true);
-	}
-
-	class MoveBackwardsRunnable implements Runnable {
-
-		private double dblSpeed;
-
-		public MoveBackwardsRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "move bwd");
-				doMoveBackward(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(new MoveBackwardsRunnable(
-							dblSpeed), 100);
-				}
-			}
+	public void onDoMove(MoveCommand i_eMove, double i_dblSpeed, int i_nRadius) {
+		switch(i_eMove) {
+		case MOVE_BWD:
+			executeMoveBackward(i_dblSpeed, i_nRadius);
+			break;
+		case MOVE_FWD:
+			executeMoveForward(i_dblSpeed, i_nRadius);
+			break;
+		case MOVE_LEFT:
+			executeMoveLeft(i_dblSpeed, i_nRadius);
+			break;
+		case MOVE_RIGHT:
+			executeMoveRight(i_dblSpeed, i_nRadius);
+			break;
 		}
 	}
 
-	public void doMoveBackward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		try {
-			m_oController.move(0f, (float) i_dblSpeed / 100f, 0f, 0f);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void moveBackward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
-
-	}
-
-	@Override
-	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
-		
-	}
-
-
-	// Move Left
-
-	public void moveLeft(double i_dblSpeed) {
-		startMove(ParrotMove.MOVE_LEFT, i_dblSpeed, true);
-	}
-
-	class MoveLeftRunnable implements Runnable {
-
-		private double dblSpeed;
-
-		public MoveLeftRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "move left");
-				doMoveLeft(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(
-							new MoveLeftRunnable(dblSpeed), 100);
-				}
-			}
-		}
-	}
-
-	public void doMoveLeft(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		try {
-			m_oController.move(-(float) i_dblSpeed / 100f, 0f, 0f, 0f);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	// Move Right
-
-	public void moveRight(double i_dblSpeed) {
-		startMove(ParrotMove.MOVE_RIGHT, i_dblSpeed, true);
-	}
-
-	class MoveRightRunnable implements Runnable {
-
-		private double dblSpeed;
-
-		public MoveRightRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "move right");
-				doMoveRight(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(
-							new MoveRightRunnable(dblSpeed), 100);
-				}
-			}
-		}
-	}
-
-	public void doMoveRight(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		try {
-			m_oController.move((float) i_dblSpeed / 100f, 0f, 0f, 0f);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	// Rotate Right / Clockwise
-
-	@Override
-	public void rotateClockwise(double i_dblSpeed) {
-		startMove(ParrotMove.ROTATE_RIGHT, i_dblSpeed, true);
-	}
-
-	class RotateClockwiseRunnable implements Runnable {
-
-		private double dblSpeed;
-
-		public RotateClockwiseRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "rotate right");
-				doRrotateClockwise(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(new RotateClockwiseRunnable(
-							dblSpeed), 100);
-				}
-			}
-		}
-	}
-
-	public void doRrotateClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-
-		try {
-			m_oController.move(0, 0, 0, (float) i_dblSpeed / 100f);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	// Rotate Left / Counterclockwise
-
-	@Override
-	public void rotateCounterClockwise(double i_dblSpeed) {
-		startMove(ParrotMove.ROTATE_LEFT, i_dblSpeed, true);
-	}
-
-	class RotateCounterClockwiseRunnable implements Runnable {
-
-		private double dblSpeed;
-
-		public RotateCounterClockwiseRunnable(double i_dblSpeed) {
-			dblSpeed = i_dblSpeed;
-		}
-
-		@Override
-		public void run() {
-			synchronized (move_mutex) {
-				Log.d(TAG, "rotate left");
-				doRotateCounterClockwise(dblSpeed);
-				if (m_bRepeat) {
-					m_oRepeatMoveHandler.postDelayed(
-							new RotateCounterClockwiseRunnable(dblSpeed), 100);
-				}
-			}
-		}
-	}
-
-	public void doRotateCounterClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-
-		try {
-			m_oController.move(0, 0, 0, -(float) i_dblSpeed / 100f);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	// Move Stop
-
-	@Override
-	public void moveStop() {
-		stopRepeatedMove();
-		hover();
-	}
-
-	// Execute Circle
-
-	@Override
-	public void executeCircle(double i_nTime, double i_nSpeed) {
-		// TODO Auto-generated method stub
-	}
+	// Move Forward ------------------------------------------------------
 
 	@Override
 	public void moveForward() {
@@ -808,20 +510,173 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 	}
 
 	@Override
+	public void moveForward(double i_dblSpeed) {
+		m_oRepeater.startMove(MoveCommand.MOVE_FWD, i_dblSpeed, true);
+	}
+
+	private void executeMoveForward(double i_dblSpeed) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		try {
+			m_oController.move(0f, -(float) i_dblSpeed / 100f, 0f, 0f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void moveForward(double i_dblSpeed, int i_nRadius) {
+		m_oRepeater.startMove(MoveCommand.MOVE_FWD, i_dblSpeed, i_nRadius, true);
+	}
+
+	@Override
+	public void moveForward(double i_dblSpeed, double i_dblAngle) {
+		// TODO Auto-generated method stub
+	}
+	
+	private void executeMoveForward(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		i_nRadius = capRadius(i_nRadius);
+
+		// TODO implement movement in two directions at the same time
+	}
+	
+	// Move Backward ------------------------------------------------------
+
+	@Override
 	public void moveBackward() {
 		moveBackward(15);
 //		moveBackward(m_dblBaseSpeed);
 	}
+
+	@Override
+	public void moveBackward(double i_dblSpeed) {
+		m_oRepeater.startMove(MoveCommand.MOVE_BWD, i_dblSpeed, true);
+	}
+
+	public void executeMoveBackward(double i_dblSpeed) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		try {
+			m_oController.move(0f, (float) i_dblSpeed / 100f, 0f, 0f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void moveBackward(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		i_nRadius = capRadius(i_nRadius);
+		
+		m_oRepeater.startMove(MoveCommand.MOVE_BWD, i_dblSpeed, i_nRadius, true);
+	}
+
+	@Override
+	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
+		// TODO Auto-generated method stub
+	}
+
+	private void executeMoveBackward(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		i_nRadius = capRadius(i_nRadius);
+
+		// TODO implement movement in two directions at the same time
+	}
+	
+
+	// Move Left ------------------------------------------------------
 
 	public void moveLeft() {
 //		moveLeft(m_dblBaseSpeed);
 		moveLeft(15);
 	}
 
+	public void moveLeft(double i_dblSpeed) {
+		m_oRepeater.startMove(MoveCommand.MOVE_LEFT, i_dblSpeed, true);
+	}
+
+	public void executeMoveLeft(double i_dblSpeed) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		try {
+			m_oController.move(-(float) i_dblSpeed / 100f, 0f, 0f, 0f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void moveLeft(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		i_nRadius = capRadius(i_nRadius);
+
+		m_oRepeater.startMove(MoveCommand.MOVE_LEFT, i_dblSpeed, i_nRadius, true);
+	}
+
+	private void executeMoveLeft(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		i_nRadius = capRadius(i_nRadius);
+
+		// TODO implement movement in two directions at the same time
+	}
+	
+
+	// Move Right ------------------------------------------------------
+
 	public void moveRight() {
 		moveRight(15);
 //		moveRight(m_dblBaseSpeed);
 	}
+
+	public void moveRight(double i_dblSpeed) {
+		m_oRepeater.startMove(MoveCommand.MOVE_RIGHT, i_dblSpeed, true);
+	}
+
+	public void executeMoveRight(double i_dblSpeed) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		try {
+			m_oController.move((float) i_dblSpeed / 100f, 0f, 0f, 0f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void moveRight(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		i_nRadius = capRadius(i_nRadius);
+
+		m_oRepeater.startMove(MoveCommand.MOVE_RIGHT, i_dblSpeed, i_nRadius, true);
+	}
+
+	private void executeMoveRight(double i_dblSpeed, int i_nRadius) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+		i_nRadius = capRadius(i_nRadius);
+
+		// TODO implement movement in two directions at the same time
+	}
+	
+	
+	// Rotate Right / Clockwise -----------------------------------------
+
+	@Override
+	public void rotateClockwise() {
+		rotateClockwise(50);
+//		rotateClockwise(m_dblBaseSpeed);
+	}
+
+	@Override
+	public void rotateClockwise(double i_dblSpeed) {
+		m_oRepeater.startMove(MoveCommand.ROTATE_RIGHT, i_dblSpeed, true);
+	}
+
+	public void executeRotateClockwise(double i_dblSpeed) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+
+		try {
+			m_oController.move(0, 0, 0, (float) i_dblSpeed / 100f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Rotate Left / Counterclockwise ------------------------------------
 
 	@Override
 	public void rotateCounterClockwise() {
@@ -830,19 +685,89 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 	}
 
 	@Override
-	public void rotateClockwise() {
-		rotateClockwise(50);
-//		rotateClockwise(m_dblBaseSpeed);
+	public void rotateCounterClockwise(double i_dblSpeed) {
+		m_oRepeater.startMove(MoveCommand.ROTATE_LEFT, i_dblSpeed, true);
 	}
 
-	public void increaseAltitude() {
-//		increaseAltitude(m_dblBaseSpeed);
-		increaseAltitude(40);
+	public void executeRotateCounterClockwise(double i_dblSpeed) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
+
+		try {
+			m_oController.move(0, 0, 0, -(float) i_dblSpeed / 100f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void decreaseAltitude() {
-//		decreaseAltitude(m_dblBaseSpeed);
-		decreaseAltitude(40);
+	// Move Stop ------------------------------------------------------
+
+	@Override
+	public void moveStop() {
+		m_oRepeater.stopMove();
+		hover();
+	}
+	
+	// Genearl Move ------------------------------------------------------ 
+	
+	// Note: the move is repeated until moveStop() is called!
+	public void move(double i_dblLeftRightTilt, double i_dblFrontBackTilt,
+			double i_dblVerticalSpeed, double i_dblAngularSpeed) {
+		m_oRepeater.startMove(new GeneralMoveRunner(i_dblLeftRightTilt, i_dblFrontBackTilt, i_dblVerticalSpeed, i_dblAngularSpeed), true);
+	}
+	
+	class GeneralMoveRunner extends MoveRepeater.MoveRunnable {
+		
+		private double dblLeftRightTilt;
+		private double dblFrontBackTilt;
+		private double dblVerticalSpeed;
+		private double dblAngularSpeed;
+		
+		public GeneralMoveRunner(double i_dblLeftRightTilt, double i_dblFrontBackTilt,
+				double i_dblVerticalSpeed, double i_dblAngularSpeed) {
+			m_oRepeater.super();
+			
+			dblAngularSpeed = i_dblAngularSpeed;
+			dblFrontBackTilt = i_dblFrontBackTilt;
+			dblLeftRightTilt = i_dblLeftRightTilt;
+			dblVerticalSpeed = i_dblVerticalSpeed;
+		}
+		
+		public GeneralMoveRunner clone() {
+			GeneralMoveRunner clone = new GeneralMoveRunner(this.dblLeftRightTilt, this.dblFrontBackTilt, this.dblVerticalSpeed, this.dblAngularSpeed);
+			clone.oHandler = this.oHandler;
+			clone.nInterval = this.nInterval;
+			return clone;
+		}
+		
+		@Override
+		public void run() {
+			synchronized (m_oRepeater.getMutex()) {
+				Log.d(TAG, "Move");
+				executeMove(dblLeftRightTilt, dblFrontBackTilt, dblVerticalSpeed, dblAngularSpeed);
+				if (m_oRepeater.isRepeating()) {
+					oHandler.postDelayed(this.clone(), nInterval);
+				}
+			}
+		}
+	}
+	
+	private void executeMove(double i_dblLeftRightTilt, double i_dblFrontBackTilt,
+			double i_dblVerticalSpeed, double i_dblAngularSpeed) {
+
+		try {
+			m_oController.move((float) i_dblLeftRightTilt, (float) i_dblFrontBackTilt, 
+					(float) i_dblVerticalSpeed, (float) i_dblAngularSpeed);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	// Execute Circle ------------------------------------------------------
+
+	@Override
+	public void executeCircle(double i_nTime, double i_nSpeed) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

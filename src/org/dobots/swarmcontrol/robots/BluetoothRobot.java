@@ -1,13 +1,12 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.BluetoothConnectionListener;
 import org.dobots.swarmcontrol.R;
 
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,12 +21,36 @@ public abstract class BluetoothRobot extends RobotView implements BluetoothConne
 	protected BluetoothSocket m_oSocket = null;
 	protected boolean m_bBTOnByUs = false;
 
-    @Override
+	public BluetoothRobot(BaseActivity i_oOwner) {
+		super(i_oOwner);
+	}
+
+    public BluetoothRobot() {
+		super();
+	}
+
+	@Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
 		m_oBTHelper = new BluetoothConnectionHelper(this, RobotViewFactory.getRobotAddressFilter(m_eRobot));
 		m_oBTHelper.SetOnConnectListener(this);
+    }
+
+    protected void onConnectError() {
+		// inform the user of the error with an AlertDialog
+		AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
+		builder.setTitle(m_oActivity.getResources().getString(R.string.bt_error_dialog_title))
+		.setMessage(m_oActivity.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
+		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			//                            @Override
+			public void onClick(DialogInterface dialog, int id) {
+				btErrorPending = false;
+				dialog.cancel();
+//				m_oBTHelper.selectRobot();
+			}
+		});
+		builder.create().show();
     }
     
 	@Override
@@ -35,40 +58,9 @@ public abstract class BluetoothRobot extends RobotView implements BluetoothConne
 		super.handleUIMessage(msg);
 		
 		switch (msg.what) {
-		case MessageTypes.STATE_CONNECTED:
-			connectingProgressDialog.dismiss();
-			onConnect();
-	//			updateButtonsAndMenu();
-			break;
-	
 		case MessageTypes.STATE_CONNECTERROR_PAIRING:
 			connectingProgressDialog.dismiss();
-			break;
-	
-		case MessageTypes.STATE_CONNECTERROR:
-			connectingProgressDialog.dismiss();
-		case MessageTypes.STATE_RECEIVEERROR:
-		case MessageTypes.STATE_SENDERROR:
-	
-			if (btErrorPending == false) {
-				onDisconnect();
-				
-				btErrorPending = true;
-				// inform the user of the error with an AlertDialog
-				AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
-				builder.setTitle(getResources().getString(R.string.bt_error_dialog_title))
-				.setMessage(getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					//                            @Override
-					public void onClick(DialogInterface dialog, int id) {
-						btErrorPending = false;
-						dialog.cancel();
-						m_oBTHelper.selectRobot();
-					}
-				});
-				builder.create().show();
-			}
-	
+			onDisconnect();
 			break;
 		}
 	}

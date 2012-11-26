@@ -116,35 +116,15 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		}
 	}
 
-	private void setText(TextView i_oView, String i_strValue) {
-		i_oView.setText(i_strValue);
-	}
-	
-	private void setText(TextView i_oView, int i_nValue) {
-		i_oView.setText(String.valueOf(i_nValue));
-	}
-
-	private void setText(TextView i_oView, float i_fValue) {
-		i_oView.setText(String.valueOf(i_fValue));
-	}
-
 	public void enableSensors(boolean i_bEnabled) {
 		m_bSensorsEnabled = i_bEnabled;
 		showSensors(i_bEnabled);
 	}
 	
 	public void showSensors(boolean i_bShow) {
-		showView(laySensors, i_bShow);
+		Utils.showView(laySensors, i_bShow);
 	}
 	
-	private void showView(View v, boolean i_bShow) {
-		if (i_bShow) {
-			v.setVisibility(View.VISIBLE);
-		} else {
-			v.setVisibility(View.GONE);
-		}
-	}
-
 	@Override
     public void frameReceived(final int startX, final int startY, final int w, final int h, final
             int[] rgbArray, final int offset, final int scansize) {
@@ -206,11 +186,13 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
         }
     }
 
+	// call when robot connected
 	public void onConnect() {
 		m_oParrot.setNavDataListener(this);
 		setVideoEnabled(m_bVideoEnabled);
 	}
 
+	// call when robot disconnected
 	public void onDisconnect() {
 		m_oParrot.removeNavDataListener(this);
 	}
@@ -243,8 +225,8 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 			@Override
 			public void run() {
 				m_bVideoConnected = !i_bShow;
-				showView(m_ivVideo, !i_bShow);
-				showView(m_pbLoading, i_bShow);
+				Utils.showView(m_ivVideo, !i_bShow);
+				Utils.showView(m_pbLoading, i_bShow);
 			}
 		});
 	}
@@ -285,6 +267,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	}
 
 	@Override
+	// called by video processor when connection established or failed
 	public void onConnect(boolean i_bConnected) {
 		showVideoLoading(false);
 		

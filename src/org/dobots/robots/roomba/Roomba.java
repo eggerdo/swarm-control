@@ -25,7 +25,16 @@ public class Roomba implements RobotDevice {
 	ERoombaModes m_eMode;
 
 	private double m_dblBaseSpeed = 50.0;
+
+	private Handler m_oUiHandler;
 	
+	Handler m_oReceiveHandler = new Handler() {
+		@Override
+		public void handleMessage(android.os.Message msg) {
+			m_oUiHandler.dispatchMessage(msg);
+		};
+	};
+
 	public Roomba() {
 		oRoombaCtrl = new RoombaController();
 		
@@ -55,12 +64,12 @@ public class Roomba implements RobotDevice {
 		}
 	}
 
-	@Override
-	public void setConnection() {
-		
+	public void setHandler(Handler i_oHandler) {
+		m_oUiHandler = i_oHandler;
 	}
-
+	
 	public void setConnection(RoombaBluetooth i_oConnection) {
+		i_oConnection.setReceiveHandler(m_oReceiveHandler);
 		oRoombaCtrl.setConnection(i_oConnection);
 	}
 	

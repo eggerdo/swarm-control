@@ -129,10 +129,12 @@
         your robot is on, has BlueTooth activated and then try again to connect.
     </string>    
     <string name="bt_needs_to_be_enabled">You need to enable BT first!"</string>    
+    
+    <string name="btn_stop">Stop</string>    
+    
     <string name="robotdevice_lbl_notimplemented">Access for this robot is not yet implemented</string>    
     <string name="roomba_btn_off">Off</string>    
-    <string name="roomba_btn_dock">Dock</string>    
-    <string name="roomba_btn_stop">Stop</string>    
+    <string name="roomba_btn_dock">Dock</string>
     <string name="roomba_btn_clean">Clean</string>    
     <string name="roomba_brushcontrol">Control the Brushes</string>    
     <string name="roomba_btn_mainbrush">Main Brush</string>    
@@ -227,5 +229,39 @@
     <string name="ardrone_rotleft">Rotate Left</string>
     <string name="ardrone_rotright">Rotate Right</string>
     <string name="racing_title">Choose your robot</string>
+    
+    <string name="roboscooper_title">RoboScooper</string>
+    <string name="roboscooper_commands">RoboScooper Commands</string>
+    <string name="roboscooper_dump">Dump</string>
+    <string name="roboscooper_pickup">Pick-up</string>
+    <string name="roboscooper_talk">Talk</string>
+    <string name="roboscooper_vision">Vision</string>
+    <string name="roboscooper_whack">Whack</string>
+    <string name="roboscooper_autonomous">Autonomous</string>
+    <string name="brainlink_sensors">Brainlink Sensors</string>
+    <string name="brainlink_accelerometer">Accelerometer</string>
+    <string name="brainlink_xaxis">x-axis</string>
+    <string name="brainlink_yaxis">y-Axis</string>
+    <string name="brainlink_zaxis">z-axis</string>
+    <string name="brainlink_light">Light</string>
+    <string name="brainlink_intensity">Intensity</string>
+    <string name="brainlink_battery">Battery</string>
+    <string name="brainlink_batterylevel">Level</string>
+    
+    <string name="spykee_title">Spykee</string>
+    <string name="spykee_commands">Spykee Commands</string>
+    <string name="spykee_canceldock">Cancel Dock</string>
+    <string name="spykee_dock">Dock</string>
+    <string name="spykee_undock">Undock</string>
+    <string name="spykee_battery">Battery</string>
+    <string name="spykee_dockingstate">Docking State</string>
+    <string name="spykee_port">Port</string>
+    <string name="spykee_address">Address</string>
+    <string name="spykee_login">Login</string>
+    <string name="spykee_password">Password</string>
+    <string name="spykee_led1">Led 1</string>
+    <string name="spykee_led2">Led 2</string>
+    <string name="spykee_led3">Led 3</string>
+    
     
 </resources>

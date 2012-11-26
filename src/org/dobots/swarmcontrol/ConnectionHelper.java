@@ -5,14 +5,20 @@ import org.dobots.robots.RobotDeviceFactory;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.parrot.Parrot;
+import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roomba.Roomba;
+import org.dobots.robots.spykee.Spykee;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
+import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
 import org.dobots.swarmcontrol.robots.WifiRobot;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
+import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.swarmcontrol.robots.parrot.ParrotRobot;
+import org.dobots.swarmcontrol.robots.roboscooper.RoboScooperRobot;
 import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
+import org.dobots.swarmcontrol.robots.spykee.SpykeeRobot;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
@@ -29,8 +35,10 @@ public class ConnectionHelper {
 		case RBT_DOTTY:
 		case RBT_NXT:
 		case RBT_ROOMBA:
+		case RBT_ROBOSCOOPER:
 			return establishBluetoothConnection(i_oActivity, i_oRobot, i_oListener);
 		case RBT_PARROT:
+		case RBT_SPYKEE:
 			return establishWifiConnection(i_oActivity, i_oRobot, i_oListener);
 		}
 
@@ -77,8 +85,8 @@ public class ConnectionHelper {
 	}
 	
 
-	public static void connectToBluetoothRobot(Activity context, RobotDevice oRobot,
-			BluetoothDevice i_oDevice, ConnectListener oListener) throws Exception {
+	public static void connectToBluetoothRobot(BaseActivity context, RobotDevice oRobot,
+			BluetoothDevice i_oDevice, final ConnectListener oListener) throws Exception {
 		switch (oRobot.getType()) {
 		case RBT_NXT:
 			NXTRobot.connectToNXT(context, (NXT)oRobot, i_oDevice, oListener);
@@ -89,16 +97,21 @@ public class ConnectionHelper {
 		case RBT_DOTTY:
 			DottyRobot.connectToDotty(context, (Dotty)oRobot, i_oDevice, oListener);
 			break;
+		case RBT_ROBOSCOOPER:
+			RoboScooperRobot.connectToRoboScooper(context, (RoboScooper)oRobot, i_oDevice, oListener);
+			break;
 		default:
 			throw new Exception();
 		}
 	}
 
-	private static void connectToWifiRobot(Activity context, RobotDevice oRobot,
+	private static void connectToWifiRobot(BaseActivity context, RobotDevice oRobot,
 			ConnectListener oListener) throws Exception {
 		switch (oRobot.getType()) {
 		case RBT_PARROT:
 			ParrotRobot.connectToARDrone(context, (Parrot)oRobot, oListener);
+		case RBT_SPYKEE:
+			SpykeeRobot.connectToSpykee(context, (Spykee)oRobot, oListener);
 		default:
 			throw new Exception();
 		}

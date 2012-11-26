@@ -7,13 +7,17 @@ import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
+import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
+import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
@@ -70,6 +74,13 @@ public class DottyRobot extends BluetoothRobot {
 	
 	private double m_dblSpeed;
 
+	public DottyRobot(BaseActivity i_oOwner) {
+		super(i_oOwner);
+	}
+	
+	public DottyRobot() {
+		super();
+	}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,7 +95,7 @@ public class DottyRobot extends BluetoothRobot {
     		
     		m_bKeepAlive = true;
     	}
-    	m_oDotty.setHandler(uiHandler);
+    	m_oDotty.setHandler(m_oUiHandler);
 		
 		m_oSensorGatherer = new DottySensorGatherer(m_oActivity, m_oDotty);
 		m_dblSpeed = m_oDotty.getBaseSped();
@@ -101,7 +112,7 @@ public class DottyRobot extends BluetoothRobot {
     
     public void setNXT(Dotty i_oNxt) {
     	m_oDotty = i_oNxt;
-    	m_oDotty.setHandler(uiHandler);
+    	m_oDotty.setHandler(m_oUiHandler);
     }
 	
 	@Override
@@ -370,7 +381,7 @@ public class DottyRobot extends BluetoothRobot {
 	public void connectToRobot(BluetoothDevice i_oDevice) {
 		if (m_oBTHelper.initBluetooth()) {
 			m_strMacAddress = i_oDevice.getAddress();
-			connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
+			showConnectingDialog();
 			
 			if (m_oDotty.getConnection() != null) {
 				try {
@@ -382,63 +393,26 @@ public class DottyRobot extends BluetoothRobot {
 			m_oDotty.connect();
 		}
 	}
-	
-	public static void connectToDotty(final Activity m_oOwner, Dotty i_oDotty, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
-		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
+
+	public static void connectToDotty(final BaseActivity m_oOwner, Dotty i_oDotty, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+		DottyRobot m_oRobot = new DottyRobot(m_oOwner) {
+			public void onConnect() {
+				i_oConnectListener.onConnect(true);
+			};
+			public void onDisconnect() {
+				i_oConnectListener.onConnect(false);
+			};
+		};
 		
-		if (i_oDotty.getConnection() != null) {
-			try {
-				i_oDotty.getConnection().destroyConnection();
-			}
-			catch (IOException e) { }
+		m_oRobot.showConnectingDialog();
+		
+		if (i_oDotty.isConnected()) {
+			i_oDotty.disconnect();
 		}
-		
+
+		i_oDotty.setHandler(m_oRobot.getUIHandler());
 		i_oDotty.setConnection(new DottyBluetooth(i_oDevice));
 		i_oDotty.connect();
-		i_oDotty.setHandler(new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				switch (msg.what) {
-				case MessageTypes.DISPLAY_TOAST:
-					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
-					break;
-				case MessageTypes.STATE_CONNECTED:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(true);
-//					updateButtonsAndMenu();
-					break;
-
-				case MessageTypes.STATE_CONNECTERROR_PAIRING:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(false);
-					break;
-
-				case MessageTypes.STATE_CONNECTERROR:
-					connectingProgress.dismiss();
-				case MessageTypes.STATE_RECEIVEERROR:
-				case MessageTypes.STATE_SENDERROR:
-					i_oConnectListener.onConnect(false);
-
-//					if (btErrorPending == false) {
-//						btErrorPending = true;
-						// inform the user of the error with an AlertDialog
-						AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
-						builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
-						.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							//                            @Override
-							public void onClick(DialogInterface dialog, int id) {
-//								btErrorPending = false;
-								dialog.cancel();
-							}
-						});
-						builder.create().show();
-//					}
-
-					break;
-				}
-			}
-		});
 	}
 
 }

@@ -3,7 +3,9 @@ package org.dobots.robots;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.parrot.Parrot;
+import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roomba.Roomba;
+import org.dobots.robots.spykee.Spykee;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
@@ -27,6 +29,10 @@ public class RobotDeviceFactory {
 				return new Dotty();
 			case RBT_PARROT:
 				return new Parrot();
+			case RBT_ROBOSCOOPER:
+				return new RoboScooper();
+			case RBT_SPYKEE:
+				return new Spykee();
 			default: 		
 				throw new Exception();
 		}
@@ -42,6 +48,10 @@ public class RobotDeviceFactory {
 			return Dotty.class;
 		case RBT_PARROT:
 			return Parrot.class;
+		case RBT_ROBOSCOOPER:
+			return RoboScooper.class;
+		case RBT_SPYKEE:
+			return Spykee.class;
 		default:
 			throw new Exception();
 		}

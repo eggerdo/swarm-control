@@ -9,6 +9,7 @@ import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
@@ -16,6 +17,7 @@ import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.roboscooper.RoboScooperRobot;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
@@ -86,7 +88,15 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	private Button m_btnMotor3Reset;
 
 	private double m_dblSpeed;
+
+	public NXTRobot(BaseActivity i_oOwner) {
+		super(i_oOwner);
+	}
 	
+	public NXTRobot() {
+		super();
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -99,7 +109,7 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
     		m_oNxt = (NXT) RobotInventory.getInstance().getRobot(nIndex);
     		m_bKeepAlive = true;
     	}
-		m_oNxt.setHandler(uiHandler);
+		m_oNxt.setHandler(m_oUiHandler);
 		
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
 		m_dblSpeed = m_oNxt.getBaseSped();
@@ -117,7 +127,7 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
     
     public void setNXT(NXT i_oNxt) {
     	m_oNxt = i_oNxt;
-    	m_oNxt.setHandler(uiHandler);
+    	m_oNxt.setHandler(m_oUiHandler);
     }
     
     @Override
@@ -225,75 +235,36 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	public void connectToRobot(BluetoothDevice i_oDevice) {
 		if (m_oBTHelper.initBluetooth()) {
 			m_strMacAddress = i_oDevice.getAddress();
-			connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
+			showConnectingDialog();
 			
-			if (m_oNxt.getConnection() != null) {
-				try {
-					m_oNxt.getConnection().destroyConnection();
-				}
-				catch (IOException e) { }
+			if (m_oNxt.isConnected()) {
+				m_oNxt.disconnect();
 			}
+
 			m_oNxt.setConnection(new NXTBluetooth(i_oDevice, getResources()));
 			m_oNxt.connect();
 		}
 	}
 	
-	public static void connectToNXT(final Activity m_oOwner, NXT i_oNxt, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
-		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
+	public static void connectToNXT(final BaseActivity m_oOwner, NXT i_oNxt, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+		NXTRobot m_oRobot = new NXTRobot(m_oOwner) {
+			public void onConnect() {
+				i_oConnectListener.onConnect(true);
+			};
+			public void onDisconnect() {
+				i_oConnectListener.onConnect(false);
+			};
+		};
 		
-		if (i_oNxt.getConnection() != null) {
-			try {
-				i_oNxt.getConnection().destroyConnection();
-			}
-			catch (IOException e) { }
+		m_oRobot.showConnectingDialog();
+		
+		if (i_oNxt.isConnected()) {
+			i_oNxt.disconnect();
 		}
-		
+
+		i_oNxt.setHandler(m_oRobot.getUIHandler());
 		i_oNxt.setConnection(new NXTBluetooth(i_oDevice, m_oOwner.getResources()));
 		i_oNxt.connect();
-		i_oNxt.setHandler(new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				switch (msg.what) {
-				case MessageTypes.DISPLAY_TOAST:
-					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
-					break;
-				case MessageTypes.STATE_CONNECTED:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(true);
-//					updateButtonsAndMenu();
-					break;
-
-				case MessageTypes.STATE_CONNECTERROR_PAIRING:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(false);
-					break;
-
-				case MessageTypes.STATE_CONNECTERROR:
-					connectingProgress.dismiss();
-				case MessageTypes.STATE_RECEIVEERROR:
-				case MessageTypes.STATE_SENDERROR:
-					i_oConnectListener.onConnect(false);
-
-//					if (btErrorPending == false) {
-//						btErrorPending = true;
-						// inform the user of the error with an AlertDialog
-						AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
-						builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
-						.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							//                            @Override
-							public void onClick(DialogInterface dialog, int id) {
-//								btErrorPending = false;
-								dialog.cancel();
-							}
-						});
-						builder.create().show();
-//					}
-
-					break;
-				}
-			}
-		});
 	}
 
 	@Override

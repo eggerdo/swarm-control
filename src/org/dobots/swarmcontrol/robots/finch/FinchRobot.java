@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
@@ -24,7 +25,7 @@ import android.widget.TextView;
 
 public class FinchRobot extends RobotView {
 	
-//	private Finch oFinch;
+	//	private Finch oFinch;
 	private FinchSensorData oData;
 	private SensorGatherer oSensorGatherer;
 	private Timer oTimer;
@@ -32,7 +33,7 @@ public class FinchRobot extends RobotView {
 	private Handler oHandler;
 	
 	private Random oRand;
-	
+
 	private class FinchSensorData {
 		public double dblAccelX, dblAccelY, dblAccelZ;
 		double dblTemperature;
@@ -146,7 +147,11 @@ public class FinchRobot extends RobotView {
 		}
 		
 	}
-	
+
+	public FinchRobot(BaseActivity i_oOwner) {
+		super(i_oOwner);
+	}
+
 //	@Override
 //	public void show(Activity myActivity, RobotType i_eRobot) {
 //		super.show(myActivity, i_eRobot);
@@ -253,6 +258,12 @@ public class FinchRobot extends RobotView {
 
 	@Override
 	protected void updateButtons(boolean i_bEnabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onConnectError() {
 		// TODO Auto-generated method stub
 		
 	}

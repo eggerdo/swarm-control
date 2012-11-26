@@ -1,10 +1,12 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
 import org.dobots.robots.MessageTypes;
+import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
@@ -14,6 +16,8 @@ import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
+import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
@@ -74,7 +78,15 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 	private Button m_btnCalibrate;
 
 	private double m_dblSpeed;
+
+	public RoombaRobot(BaseActivity i_oOwner) {
+		super(i_oOwner);
+	}
 	
+	public RoombaRobot() {
+		super();
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -87,6 +99,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
     		m_oRoomba = (Roomba) RobotInventory.getInstance().getRobot(nIndex);
     		m_bKeepAlive = true;
     	}
+		m_oRoomba.setHandler(m_oUiHandler);
 		
 		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 		m_dblSpeed = m_oRoomba.getBaseSped();
@@ -234,23 +247,6 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		}
 	}
 	
-	@Override
-	public void onConnect() {
-		m_oRoomba.init();
-		updatePowerButton(true);
-		if (m_oRoomba.isPowerOn()) {
-			updateButtons(true);
-		}
-	}
-	
-	@Override
-	public void onDisconnect() {
-		updatePowerButton(false);
-		updateButtons(false);
-		m_oRemoteCtrl.resetLayout();
-		oSensorGatherer.stopThread();
-	}
-
 	public void updateControlButtons(boolean visible) {
 		m_btnCalibrate.setEnabled(visible);
 		
@@ -276,13 +272,12 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 
 	public void connectToRobot(BluetoothDevice i_oDevice) {
 		m_strMacAddress = i_oDevice.getAddress();
-		connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
+		showConnectingDialog();
 		
 		if (m_oRoomba.isConnected()) {
 			m_oRoomba.destroyConnection();
 		}
 		RoombaBluetooth oRoombaBluetooth = new RoombaBluetooth(i_oDevice);
-		oRoombaBluetooth.setReceiveHandler(uiHandler);
 		m_oRoomba.setConnection(oRoombaBluetooth);
 		m_oRoomba.connect();
 	}
@@ -296,111 +291,47 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		}
 	}
 
-	/**
-	 * Receive messages from the BTCommunicator
-	 */
-	final Handler uiHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case MessageTypes.DISPLAY_TOAST:
-				showToast((String)msg.obj, Toast.LENGTH_SHORT);
-				break;
-			case MessageTypes.STATE_CONNECTED:
-				connectingProgressDialog.dismiss();
-				m_oRoomba.init();
-				updatePowerButton(true);
-				if (m_oRoomba.isPowerOn()) {
-					updateButtons(true);
-				}
-//				updateButtonsAndMenu();
-				break;
-
-			case MessageTypes.STATE_CONNECTERROR_PAIRING:
-				connectingProgressDialog.dismiss();
-				break;
-
-			case MessageTypes.STATE_CONNECTERROR:
-				connectingProgressDialog.dismiss();
-			case MessageTypes.STATE_RECEIVEERROR:
-			case MessageTypes.STATE_SENDERROR:
-
-				if (btErrorPending == false) {
-					btErrorPending = true;
-					// inform the user of the error with an AlertDialog
-					AlertDialog.Builder builder = new AlertDialog.Builder(m_oActivity);
-					builder.setTitle(getResources().getString(R.string.bt_error_dialog_title))
-					.setMessage(getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-						//                            @Override
-						public void onClick(DialogInterface dialog, int id) {
-							btErrorPending = false;
-							dialog.cancel();
-							m_oBTHelper.selectRobot();
-						}
-					});
-					builder.create().show();
-				}
-
-				break;
-			}
+	@Override
+	public void onConnect() {
+		m_oRoomba.init();
+		updatePowerButton(true);
+		if (m_oRoomba.isPowerOn()) {
+			updateButtons(true);
 		}
-	};
+	}
+	
+	@Override
+	public void onDisconnect() {
+		updatePowerButton(false);
+		updateButtons(false);
+		m_oRemoteCtrl.resetLayout();
+		oSensorGatherer.stopThread();
+	}
 
-	public static void connectToRoomba(final Activity m_oOwner, final Roomba i_oRoomba, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
-		final ProgressDialog connectingProgress = ProgressDialog.show(m_oOwner, "", m_oOwner.getResources().getString(R.string.connecting_please_wait), true);
+	@Override
+	protected void handleUIMessage(Message msg) {
+		super.handleUIMessage(msg);
+	}
+
+	public static void connectToRoomba(final BaseActivity m_oOwner, Roomba i_oRoomba, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+		NXTRobot m_oRobot = new NXTRobot(m_oOwner) {
+			public void onConnect() {
+				i_oConnectListener.onConnect(true);
+			};
+			public void onDisconnect() {
+				i_oConnectListener.onConnect(false);
+			};
+		};
+		
+		m_oRobot.showConnectingDialog();
 		
 		if (i_oRoomba.isConnected()) {
-			i_oRoomba.destroyConnection();
+			i_oRoomba.disconnect();
 		}
-		RoombaBluetooth oRoombaBluetooth = new RoombaBluetooth(i_oDevice);
-		oRoombaBluetooth.setReceiveHandler(new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				switch (msg.what) {
-				case MessageTypes.DISPLAY_TOAST:
-					Utils.showToast((String)msg.obj, Toast.LENGTH_SHORT);
-					break;
-				case MessageTypes.STATE_CONNECTED:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(true);
-					i_oRoomba.init();
-//					updateButtonsAndMenu();
-					break;
 
-				case MessageTypes.STATE_CONNECTERROR_PAIRING:
-					connectingProgress.dismiss();
-					i_oConnectListener.onConnect(false);
-					break;
-
-				case MessageTypes.STATE_CONNECTERROR:
-					connectingProgress.dismiss();
-				case MessageTypes.STATE_RECEIVEERROR:
-				case MessageTypes.STATE_SENDERROR:
-					i_oConnectListener.onConnect(false);
-
-//					if (btErrorPending == false) {
-//						btErrorPending = true;
-						// inform the user of the error with an AlertDialog
-						AlertDialog.Builder builder = new AlertDialog.Builder(m_oOwner);
-						builder.setTitle(m_oOwner.getResources().getString(R.string.bt_error_dialog_title))
-						.setMessage(m_oOwner.getResources().getString(R.string.bt_error_dialog_message)).setCancelable(false)
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							//                            @Override
-							public void onClick(DialogInterface dialog, int id) {
-//								btErrorPending = false;
-								dialog.cancel();
-							}
-						});
-						builder.create().show();
-//					}
-
-					break;
-				}
-			}
-		});
-		i_oRoomba.setConnection(oRoombaBluetooth);
+		i_oRoomba.setConnection(new RoombaBluetooth(i_oDevice));
 		i_oRoomba.connect();
+		i_oRoomba.setHandler(m_oRobot.getUIHandler());
 	}
 
 	public void resetLayout() {

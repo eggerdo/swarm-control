@@ -236,6 +236,11 @@ public class Utils {
 		
 		return true;
 	}
+
+	public static boolean inInterval(double i_dblValue, double i_dblCenter, double i_dblDeviation) {
+		return (i_dblValue >= i_dblCenter - i_dblDeviation) &&
+			   (i_dblValue <= i_dblCenter + i_dblDeviation);
+	}
 	
 	////// Alternative, does not care about success
 //	public void waitForTasksCompletion() {

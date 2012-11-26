@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol.robots;
 
+import org.apache.commons.net.nntp.NewGroupsOrNewsQuery;
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.RobotDevice;
@@ -17,6 +18,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,7 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public abstract class RobotView extends BaseActivity implements AccelerometerListener {
-
+	
 	protected static final int CONNECT_ID = Menu.FIRST;
 	
 	protected static String TAG = "RobotDevice";
@@ -60,11 +62,19 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 	protected ProgressDialog connectingProgressDialog;
 
 	protected boolean btErrorPending = false;
+	
+	public RobotView(BaseActivity i_oOwner) {
+		m_oActivity = i_oOwner;
+		reusableToast = Toast.makeText(m_oActivity, "", Toast.LENGTH_SHORT);
+	}
+	
+	public RobotView() {
+	}
 
 	/**
 	 * Receive messages from the BTCommunicator
 	 */
-	protected final Handler uiHandler = new Handler() {
+	protected final Handler m_oUiHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			handleUIMessage(msg);
@@ -76,11 +86,30 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 		case MessageTypes.DISPLAY_TOAST:
 			showToast((String)msg.obj, Toast.LENGTH_SHORT);
 			break;
+			
+		case MessageTypes.STATE_CONNECTED:
+			connectingProgressDialog.dismiss();
+			showToast("Connection OK", Toast.LENGTH_SHORT);
+			onConnect();
+			break;
+
+		case MessageTypes.STATE_CONNECTERROR:
+			connectingProgressDialog.dismiss();
+		case MessageTypes.STATE_RECEIVEERROR:
+		case MessageTypes.STATE_SENDERROR:
+	    	if (btErrorPending == false) {
+	    		onDisconnect();
+				
+				btErrorPending = true;
+				onConnectError();
+	    	}
+			break;
 		}
 	}
 	
 	protected abstract void onConnect();
 	protected abstract void onDisconnect();
+	protected abstract void onConnectError();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -243,6 +272,10 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 		return (int) (radius_off * (i_fMaxRadius / 9.9F) * 1.5); // factor 2 added to make it react faster
 
     }
+    
+    public Handler getUIHandler() {
+    	return m_oUiHandler;
+    }
 
     @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -292,6 +325,14 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 		reusableToast.setDuration(duration);
 		reusableToast.show();
 	}
+    
+    public void showConnectingDialog() {
+    	connectingProgressDialog = ProgressDialog.show(m_oActivity, "", m_oActivity.getResources().getString(R.string.connecting_please_wait), true);
+    }
+    
+    protected static ProgressDialog showConnectingDialog(Context i_oContext) {
+    	return ProgressDialog.show(i_oContext, "", i_oContext.getResources().getString(R.string.connecting_please_wait), true);
+    }
 
 	protected abstract void connectToRobot();
 	

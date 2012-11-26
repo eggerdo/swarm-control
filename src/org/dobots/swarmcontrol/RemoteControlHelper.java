@@ -21,7 +21,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 	private static final String TAG = "RemoteControlHelper";
 	
 	public enum Move {
-		NONE, FORWARD, BACKWARD, LEFT, RIGHT
+		NONE, STRAIGHT_FORWARD, FORWARD, STRAIGHT_BACKWARD, BACKWARD, LEFT, RIGHT
 	}
 	
 	private RemoteControlListener m_oRemoteControlListener;
@@ -252,6 +252,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 	}
 
 	final static int ROTATE_THRESHOLD = 40;
+	final static int STRAIGHT_THRESHOLD = 2;
 	final static int DIRECTION_THRESHOLD_1 = 10;
 	final static int DIRECTION_THRESHOLD_2 = 30;
 	
@@ -299,13 +300,16 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 					thisMove = Move.BACKWARD;
 				}
 				break;
+			case STRAIGHT_BACKWARD:
 			case BACKWARD:
 				// if the last move was backward and the angle is within
 				// 10 degrees of 0 or 180 degrees we still move backward
 				// and cap the degree to 0 or 180 respectively
 				// if the angle is within 30 degree we rotate on the spot
 				// otherwise we change direction
-				if (i_dblAngle < 0) {
+				if (Utils.inInterval(i_dblAngle, -90, STRAIGHT_THRESHOLD)) {
+					thisMove = Move.STRAIGHT_BACKWARD;
+				} else if (i_dblAngle < 0) {
 					thisMove = Move.BACKWARD;
 				} else if (i_dblAngle < DIRECTION_THRESHOLD_1) {
 					dblAbsAngle = 0;
@@ -321,13 +325,16 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 					thisMove = Move.FORWARD;
 				}
 				break;
+			case STRAIGHT_FORWARD:
 			case FORWARD:
 				// if the last move was forward and the angle is within
 				// 10 degrees of 0 or 180 degrees we still move forward
 				// and cap the degree to 0 or 180 respectively
 				// if the angle is within 30 degree we rotate on the spot
 				// otherwise we change direction
-				if (i_dblAngle > 0) {
+				if (Utils.inInterval(i_dblAngle, 90, STRAIGHT_THRESHOLD)) {
+					thisMove = Move.STRAIGHT_FORWARD;
+				} else if (i_dblAngle > 0) {
 					thisMove = Move.FORWARD;
 				} else if (i_dblAngle > -DIRECTION_THRESHOLD_1) {
 					dblAbsAngle = 0;
@@ -368,19 +375,27 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 			break;
 		case BACKWARD:
 			m_oRobot.moveBackward(i_dblSpeed, i_dblAngle);
-			Log.i(TAG, String.format("bwd(%f, %f)", i_dblSpeed, i_dblAngle));
+			Log.i(TAG, String.format("bwd(s=%f, a=%f)", i_dblSpeed, i_dblAngle));
+			break;
+		case STRAIGHT_BACKWARD:
+			m_oRobot.moveBackward(i_dblSpeed);
+			Log.i(TAG, String.format("bwd(s=%f)", i_dblSpeed));
 			break;
 		case FORWARD:
 			m_oRobot.moveForward(i_dblSpeed, i_dblAngle);
-			Log.i(TAG, String.format("fwd(%f, %f)", i_dblSpeed, i_dblAngle));
+			Log.i(TAG, String.format("fwd(s=%f, a=%f)", i_dblSpeed, i_dblAngle));
+			break;
+		case STRAIGHT_FORWARD:
+			m_oRobot.moveForward(i_dblSpeed);
+			Log.i(TAG, String.format("fwd(s=%f)", i_dblSpeed));
 			break;
 		case LEFT:
 			m_oRobot.rotateCounterClockwise(i_dblSpeed);
-			Log.i(TAG, String.format("c cw(%f)", i_dblSpeed));
+			Log.i(TAG, String.format("c cw(s=%f)", i_dblSpeed));
 			break;
 		case RIGHT:
 			m_oRobot.rotateClockwise(i_dblSpeed);
-			Log.i(TAG, String.format("cw(%f)", i_dblSpeed));
+			Log.i(TAG, String.format("cw(s=%f)", i_dblSpeed));
 			break;
 		}
 	}
@@ -396,10 +411,12 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 			m_oRobot.moveStop();
 			Log.i(TAG, "stop()");
 			break;
+		case STRAIGHT_BACKWARD:
 		case BACKWARD:
 			m_oRobot.moveBackward();
 			Log.i(TAG, "bwd()");
 			break;
+		case STRAIGHT_FORWARD:
 		case FORWARD:
 			m_oRobot.moveForward();
 			Log.i(TAG, "fwd()");

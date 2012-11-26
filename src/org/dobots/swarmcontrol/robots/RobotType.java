@@ -7,10 +7,11 @@ public enum RobotType {
 	RBT_NXT("Mindstorm NXT"),
 	RBT_DOTTY("Dotty"), 
 	RBT_PARROT("AR Drone"),
+	RBT_ROBOSCOOPER("RoboScooper"),
+	RBT_SPYKEE("Spykee"),
 	RBT_FINCH("Finch"),
 	RBT_SURVEYOR("Surveyor"),
-	RBT_TRAKR("Trakr"),
-	RBT_SPYKEE("Spykee");
+	RBT_TRAKR("Trakr");
 	private String strDisplayName;
 	
 	private RobotType(String i_strDisplayName) {

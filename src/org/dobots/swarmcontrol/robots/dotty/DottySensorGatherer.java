@@ -172,14 +172,6 @@ public class DottySensorGatherer extends SensorGatherer {
 		m_bSensorRequestActive = false;
 	}
 	
-	private void setOnOffText(TextView i_oView, boolean i_bValue) {
-		i_oView.setText(i_bValue ? "ON" : "OFF");
-	}
-	
-	private void setText(TextView i_oView, int i_nValue) {
-		i_oView.setText(String.valueOf(i_nValue));
-	}
-
 	public void enableSensor(EDottySensors i_eSensor, boolean i_bEnabled) {
 		m_oSensorEnabled.put(i_eSensor, i_bEnabled);
 		if (i_bEnabled) {

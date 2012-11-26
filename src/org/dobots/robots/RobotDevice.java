@@ -16,7 +16,6 @@ public interface RobotDevice {
 	public void destroy();
 	
 	// connection methods
-	public void setConnection();
 	public void connect() throws IOException;
 	public void disconnect();
 	public boolean isConnected();
