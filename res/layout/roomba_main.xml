@@ -11,14 +11,12 @@
 	    android:orientation="vertical" >
 	
 	    <TextView
-	        android:id="@+id/lblRobot"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/roomba_title"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
 	
 	    <TextView
-	        android:id="@+id/TextView01"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/roomba_commands" />
@@ -28,18 +26,28 @@
 	        android:layout_height="wrap_content"
 	        android:gravity="bottom|fill" >
 	
-	        <Button
+	        <ToggleButton
 	            android:id="@+id/btnPower"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_btn_power" />
-	
-	        <Button
+	            android:layout_height="match_parent"
+	            android:layout_gravity="center"
+	            android:paddingLeft="10dp"
+	            android:paddingRight="10dp"
+	            android:text="@string/roomba_btn_power"
+	            android:textOff="@string/roomba_btn_power"
+	            android:textOn="@string/roomba_btn_power" />
+	        
+	        <ToggleButton
 	            android:id="@+id/btnRemoteControl"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_lbl_control" />
-
+	            android:layout_height="match_parent"
+	            android:layout_gravity="center"
+	            android:paddingLeft="10dp"
+	            android:paddingRight="10dp"
+	            android:text="@string/control"
+	            android:textOff="@string/control"
+	            android:textOn="@string/control" />
+	        
 	        <Button
 	            android:id="@+id/btnCalibrate"
 	            android:layout_width="wrap_content"
@@ -67,7 +75,7 @@
 	            android:id="@+id/btnStop"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:text="@string/btn_stop" />
+	            android:text="@string/stop" />
 
 	        <Button
 	            android:id="@+id/btnDock"
@@ -123,7 +131,7 @@
 	        android:id="@+id/spSensors"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:prompt="@string/choose_roomba_sensor" />
+	        android:prompt="@string/roomba_choose_sensor" />
 	
 	    <TableLayout
 	        android:id="@+id/tblSensorData1"
@@ -646,7 +654,7 @@
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
 	                android:layout_marginRight="10dp"
-	                android:text="@string/chargingstate" />
+	                android:text="@string/roomba_chargingstate" />
 	
 	            <TextView
 	                android:id="@+id/txtChargingState"
@@ -666,7 +674,7 @@
 	                android:id="@+id/lblCharge"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="@string/charge" />
+	                android:text="@string/roomba_charge" />
 	
 	            <TextView
 	                android:id="@+id/txtCharge"
@@ -686,7 +694,7 @@
 	                android:id="@+id/lblTemperature"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="@string/temperature" />
+	                android:text="@string/roomba_temperature" />
 	
 	            <TextView
 	                android:id="@+id/txtTemperature"
@@ -706,7 +714,7 @@
 	                android:id="@+id/lblPower"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="@string/power" />
+	                android:text="@string/roomba_power" />
 	
 	            <TextView
 	                android:id="@+id/txtPower"

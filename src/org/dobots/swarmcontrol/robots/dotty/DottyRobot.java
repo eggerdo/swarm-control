@@ -46,6 +46,9 @@ public class DottyRobot extends BluetoothRobot {
 	
 	private static final int CONNECT_ID = Menu.FIRST;
 	private static final int ADVANCED_CONTROL_ID = CONNECT_ID + 1;
+	private static final int ACCEL_ID = ADVANCED_CONTROL_ID + 1;
+	
+	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 	
 	private Dotty m_oDotty;
 
@@ -246,12 +249,16 @@ public class DottyRobot extends BluetoothRobot {
     public void onDestroy() {
     	super.onDestroy();
 
+    	shutDown();
+    }
+    
+    protected void shutDown() {
+    	m_oSensorGatherer.stopThread();
+    	
     	if (m_oDotty.isConnected() && !m_bKeepAlive) {
     		m_oDotty.disconnect();
     		m_oDotty.destroy();
     	}
-
-    	m_oSensorGatherer.stopThread();
     }
     
     @Override
@@ -286,21 +293,18 @@ public class DottyRobot extends BluetoothRobot {
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, CONNECT_ID, 1, "Connect");
+
+		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 2, "Advanced Control");
+		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 3, "Accelerometer");
+		
 		return true;
 	}
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oRemoteCtrl.isControlEnabled()) {
-    		if (menu.findItem(ADVANCED_CONTROL_ID) == null) {
-				menu.add(0, ADVANCED_CONTROL_ID, 2, "Advanced Control");
-    		}
-		} else
-			if (menu.findItem(ADVANCED_CONTROL_ID) != null) {
-				menu.removeItem(ADVANCED_CONTROL_ID);
-			}
+    	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
 
+    	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
     	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
 
     	return true;
@@ -312,6 +316,15 @@ public class DottyRobot extends BluetoothRobot {
 		case ADVANCED_CONTROL_ID:
 			m_oRemoteCtrl.toggleAdvancedControl();
 			return true;
+		case ACCEL_ID:
+			m_bAccelerometer = !m_bAccelerometer;
+
+			if (m_bAccelerometer) {
+				m_bSetAccelerometerBase = true;
+			} else {
+				m_oDotty.moveStop();
+			}
+			break;
 		}
 
 		return super.onMenuItemSelected(featureId, item);

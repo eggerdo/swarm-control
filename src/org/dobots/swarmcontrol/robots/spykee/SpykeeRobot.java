@@ -64,6 +64,10 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
 	private static final int VIDEO_ID = ADVANCED_CONTROL_ID + 1;
 	private static final int AUDIO_ID = VIDEO_ID + 1;
 	private static final int VIDEO_SCALE_ID = AUDIO_ID + 1;
+	
+	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
+	private static final int SENSOR_GRP = REMOTE_CTRL_GRP + 1;
+	private static final int VIDEO_GRP = SENSOR_GRP + 1	;
 
 	private boolean connected;
 	
@@ -204,21 +208,28 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
     @Override
     public void onDestroy() {
     	super.onDestroy();
+    	
+    	shutDown();
+    }
+    
+    protected void shutDown() {
+    	m_oSensorGatherer.stopThread();
 
     	if (m_oSpykee.isConnected() && !m_bKeepAlive) {
-    		m_oSpykee.disconnect();
     		m_oSpykee.destroy();
     	}
-
-//    	m_oSensorGatherer.stopThread();
     }
     
     @Override
     public void onStop() {
     	super.onStop();
     	
-    	m_oSpykee.setVideoEnabled(false);
-    	m_oSpykee.setAudioEnabled(false);
+    	if (m_oSpykee.isVideoEnabled()) {
+    		m_oSpykee.setVideoEnabled(false);
+    	}
+    	if (m_oSpykee.isAudioEnabled()) {
+    		m_oSpykee.setAudioEnabled(false);
+    	}
     	
     	if (m_oSpykee.isConnected() && !m_bKeepAlive) {
     		m_oSpykee.disconnect();
@@ -245,37 +256,26 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, SETTINGS_ID, 2, "Settings");
+
+		menu.add(REMOTE_CTRL_GRP, INVERT_ID, 3, "Invert Driving");
+		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 4, "Accelerometer");
+		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
+		
+		menu.add(SENSOR_GRP, VIDEO_ID, 6, "Video");
+		menu.add(SENSOR_GRP, AUDIO_ID, 7, "Audio");
+
+		menu.add(VIDEO_GRP, VIDEO_SCALE_ID, 8, "Scale Video");
+
+		menu.add(GENERAL_GRP, SETTINGS_ID, 9, "Settings");
+		
 		return true;
 	}
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oSpykee.isConnected()) {
-    		if (menu.findItem(VIDEO_ID) == null) {
-	    		menu.add(0, VIDEO_ID, 3, "Video");
-	    		menu.add(0, AUDIO_ID, 4, "Audio");
-    			menu.add(0, VIDEO_SCALE_ID, 8, "Zoom Video");
-    		}
-    	} else {
-    		if (menu.findItem(VIDEO_ID) != null) {
-    			menu.removeItem(VIDEO_ID);
-    			menu.removeItem(AUDIO_ID);
-    			menu.removeItem(VIDEO_SCALE_ID);
-    		}
-    	}
-    	if (m_oRemoteCtrl.isControlEnabled()) {
-    		if (menu.findItem(INVERT_ID) == null) {
-				menu.add(0, INVERT_ID, 5, "Invert Driving");
-				menu.add(0, ACCEL_ID, 6, "Accelerometer");
-				menu.add(0, ADVANCED_CONTROL_ID, 7, "Advanced Control");
-    		}
-		} else
-			if (menu.findItem(INVERT_ID) != null) {
-				menu.removeItem(INVERT_ID);
-				menu.removeItem(ACCEL_ID);
-				menu.removeItem(ADVANCED_CONTROL_ID);
-			}
+    	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oSpykee.isConnected() && m_oRemoteCtrl.isControlEnabled());
+    	menu.setGroupVisible(SENSOR_GRP, m_oSpykee.isConnected());
+    	menu.setGroupVisible(VIDEO_GRP, m_oSpykee.isConnected() && m_oSpykee.isVideoEnabled());
     	
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
     	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());

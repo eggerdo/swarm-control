@@ -1,9 +1,15 @@
 package org.dobots.robots;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.dobots.utility.Utils;
+import org.dobots.utility.joystick.JoystickSurfaceThread;
+
 import android.os.Handler;
 import android.util.Log;
 
-public class MoveRepeater {
+public class MoveRepeater extends Thread {
 	
 	private static final String TAG = "MoveRepeater";
 	
@@ -16,17 +22,27 @@ public class MoveRepeater {
     	MOVE_UP, MOVE_DOWN, MOVE_FWD, MOVE_BWD, MOVE_LEFT, MOVE_RIGHT, ROTATE_LEFT, ROTATE_RIGHT
     }
 
+	private boolean m_bRun = true;
+    private Runnable m_oCurrentMove = null;
+
     private MoveRepeaterListener m_oRobot;
 
 	private Object m_oMoveMutex = new Object();
-	private Handler m_oHandler = new Handler();
 	
 	private int m_nInterval;
 	private boolean m_bRepeat;
+
+	//for consistent rendering
+	private long m_lSleepTime;
+	// last update
+	private long m_lUpdateTime;
+	//amount of time to sleep for (in milliseconds)
+//	private long m_lDelay=70;
 	
 	public MoveRepeater(MoveRepeaterListener i_oRobot, int i_nInterval) {
 		m_oRobot = i_oRobot;
 		m_nInterval = i_nInterval;
+		start();
 	}
 	
 	public Object getMutex() {
@@ -45,29 +61,24 @@ public class MoveRepeater {
 		startMove(new MoveRunner(i_eMove, i_dblSpeed, 0), i_bRepeat);
 	}
 	
-	public void startMove(MoveRunnable i_oMoveRunnable, boolean i_bRepeat) {
+	public void startMove(Runnable i_oMoveRunnable, boolean i_bRepeat) {
 		stopMove();
 		
 		synchronized (m_oMoveMutex) {
-			i_oMoveRunnable.oHandler = m_oHandler;
-			i_oMoveRunnable.nInterval = m_nInterval;
-			m_oHandler.post(i_oMoveRunnable);
+			m_oCurrentMove = i_oMoveRunnable;
 			m_bRepeat = i_bRepeat;
 		}
 	}
 
 	public void stopMove() {
-		Log.d(TAG, "done");
-		m_bRepeat = false;
-		m_oHandler.removeCallbacksAndMessages(null);
+//		synchronized (m_oMoveMutex) {
+			Log.d(TAG, "done");
+			m_bRepeat = false;
+			m_oCurrentMove = null;
+//		}
 	}
 	
-	public abstract class MoveRunnable implements Runnable {
-		public Handler oHandler;
-		public int nInterval;
-	}
-	
-	class MoveRunner extends MoveRunnable implements Runnable {
+	class MoveRunner implements Runnable {
 		
 		private MoveCommand eMove;
 		private double dblSpeed;
@@ -78,28 +89,62 @@ public class MoveRepeater {
 			
 			eMove = i_eMove;
 			dblSpeed = i_dblSpeed;
-		}
-		
-		public MoveRunner clone() {
-			MoveRunner clone = new MoveRunner(this.eMove, this.dblSpeed, this.nRadius);
-			clone.oHandler = this.oHandler;
-			clone.nInterval = this.nInterval;
-			return clone;
+			nRadius = i_nRadius;
 		}
 		
 		@Override
 		public void run() {
 			synchronized (m_oMoveMutex) {
 				Log.d(TAG, eMove.toString());
-				if (nRadius == 0) {
-					m_oRobot.onDoMove(eMove, dblSpeed);
+				if (m_oRobot != null) {
+					if (nRadius == 0) {
+						m_oRobot.onDoMove(eMove, dblSpeed);
+					} else {
+						m_oRobot.onDoMove(eMove, dblSpeed, nRadius);
+					}
 				} else {
-					m_oRobot.onDoMove(eMove, dblSpeed, nRadius);
-				}
-				if (m_bRepeat) {
-					oHandler.postDelayed(this.clone(), nInterval);
+					Log.e(TAG, "fatal, no move listener assigned!");
 				}
 			}
+		}
+		
+	}
+	
+	@Override
+	public void run() {
+		
+		while (m_bRun) {
+			
+			m_lUpdateTime = System.nanoTime();
+			
+			if (m_oCurrentMove == null) {
+				Utils.waitSomeTime(10);
+			} else {
+
+				synchronized (m_oMoveMutex) {
+					m_oCurrentMove.run();
+					
+					if (!m_bRepeat) {
+						m_oCurrentMove = null;
+					}
+				}
+
+				//SLEEP
+				//Sleep time. Time required to sleep to keep game consistent
+				//This starts with the specified delay time (in milliseconds) then subtracts from that the
+				//actual time it took to update and render the game. This allows the joystick to render smoothly.
+				this.m_lSleepTime = m_nInterval-((System.nanoTime()-m_lUpdateTime)/1000000L);
+
+				try {
+					//actual sleep code
+					if(m_lSleepTime>0){
+						Thread.sleep(m_lSleepTime);
+					}
+				} catch (InterruptedException ex) {
+					Logger.getLogger(JoystickSurfaceThread.class.getName()).log(Level.SEVERE, null, ex);
+				}
+			}
+
 		}
 		
 	}

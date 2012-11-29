@@ -7,6 +7,7 @@ import android.widget.ImageView;
 
 public class ScalableImageView extends ImageView {
 	public boolean isScaled = false;
+	private int m_nMaxWidth = 0;
 
     public ScalableImageView(Context context) {
         super(context);
@@ -24,6 +25,10 @@ public class ScalableImageView extends ImageView {
     	isScaled = i_bScale;
     	requestLayout();
     }
+    
+    public void setMaxWidth(int i_nMaxWidth) {
+    	m_nMaxWidth = i_nMaxWidth;
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -39,7 +44,12 @@ public class ScalableImageView extends ImageView {
 	            }
 	            else
 	            {
-	                int width = MeasureSpec.getSize(widthMeasureSpec);
+	            	int width;
+	            	if (m_nMaxWidth == 0) {
+	            		width = MeasureSpec.getSize(widthMeasureSpec);
+	            	} else {
+	            		width = m_nMaxWidth;
+	            	}
 	                int height = width * drawable.getIntrinsicHeight() / drawable.getIntrinsicWidth();
 	                setMeasuredDimension(width, height);
 	            }

@@ -171,9 +171,6 @@ public class FinchRobot extends RobotView {
 
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
-		super.setProperties(i_eRobot);
-		
-		
 		// fill spinner
 		Spinner spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		spSensors.setVisibility(View.VISIBLE);

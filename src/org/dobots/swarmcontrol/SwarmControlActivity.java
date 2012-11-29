@@ -49,7 +49,7 @@ public class SwarmControlActivity extends Activity {
 	private enum SwarmAction {
 		sa_Nothing(""),
 		sa_Dance("Dance"),
-		sa_Race("Race"),
+//		sa_Race("Race"),
 		sa_Search("Search"),
 		sa_March("March"),
 		sa_Play("Play"),
@@ -102,11 +102,8 @@ public class SwarmControlActivity extends Activity {
         TextView changelog = (TextView) findViewById(R.id.lblChangeLog);
         changelog.setText(CHANGELOG);
         
-//        showRobot(RobotType.RBT_PARROT);
-//        showBehaviour(SwarmAction.sa_Race);
-        
-//        Intent intent = new Intent(SwarmControlActivity.this, Test.class);
-//		startActivity(intent);
+//        showRobot(RobotType.RBT_ROBOSCOOPER);
+//        showBehaviour(SwarmAction.sa_Dance);
     }
 
 	@Override
@@ -177,13 +174,6 @@ public class SwarmControlActivity extends Activity {
 		startActivity(intent);
 	}
 	
-//	public void showRobot(RobotType i_eType, RobotDevice i_oRobot) {
-//		Intent intent = new Intent(SwarmControlActivity.this, RobotViewFactory.getRobotViewClass(i_eType));
-//		intent.putExtra("RobotType", i_eType);
-//		intent.putExtra("RobotDevice", i_oRobot);
-//		startActivity(intent);
-//	}
-	
 	public void showBehaviour(SwarmAction eAction) {
 		Intent intent = null;
 		switch(eAction) {
@@ -191,10 +181,10 @@ public class SwarmControlActivity extends Activity {
 			intent = new Intent(SwarmControlActivity.this, DancingMain.class);
 			startActivity(intent);
 			break;
-		case sa_Race:
-			intent = new Intent(SwarmControlActivity.this, Racing.class);
-			startActivity(intent);
-			break;
+//		case sa_Race:
+//			intent = new Intent(SwarmControlActivity.this, Racing.class);
+//			startActivity(intent);
+//			break;
 		}
 	}
 	

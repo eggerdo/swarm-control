@@ -19,6 +19,7 @@ import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.utility.Utils;
 
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeaterListener {
@@ -38,6 +39,8 @@ public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeat
 	
 	private boolean m_bVideoEnabled;
 	private boolean m_bAudioEnabled;
+	
+	private int m_nBatteryLevel = -1;
 
 	private int m_nInvertFactor = -1;	// normal = 1, inverted = -1
 	
@@ -47,10 +50,13 @@ public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeat
 	
 	private MoveRepeater m_oRepeater;
 	
+	
 	public Spykee() {
 		super(SpykeeTypes.AXLE_WIDTH, SpykeeTypes.MAX_VELOCITY, SpykeeTypes.MIN_RADIUS, SpykeeTypes.MAX_RADIUS);
 		
 		m_oController = new SpykeeController();
+		m_oController.setHandler(m_oReceiveHandler);
+		
 		m_oRepeater = new MoveRepeater(this, 500);
 	}
 	
@@ -68,6 +74,24 @@ public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeat
 		m_oUiHandler = i_oUiHandler;
 		m_oController.setHandler(i_oUiHandler);
 	}
+
+	private Handler m_oReceiveHandler = new Handler() {
+		
+		public void handleMessage(Message msg) {
+			
+			switch (msg.what) {
+			// we handle the battery level message so that we can provide the
+			// current battery level in the function getBatteryLevel since there
+			// is no way to poll Spykee for the battery level
+			case SpykeeController.SPYKEE_BATTERY_LEVEL:
+				m_nBatteryLevel = msg.arg1;
+				break;
+			}
+			
+			// we forward all messages to the UI handler
+			m_oUiHandler.dispatchMessage(msg);
+		}
+	};
 
 	@Override
 	public void destroy() {
@@ -409,9 +433,13 @@ public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeat
 	public void setLed(int i_nLed, boolean i_bOn) {
 		m_oController.setLed(i_nLed, i_bOn);
 	}
+	
+	public int getBatteryLevel() {
+		return m_nBatteryLevel;
+	}
 
-	public void move(int nleft, int nright) {
-		m_oController.move(nleft, nright);
+	public boolean isCharging() {
+		return getBatteryLevel() > 100;
 	}
 
 }

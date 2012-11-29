@@ -70,7 +70,7 @@
         android:id="@+id/btnRemoteControl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/btnDancing_Control" />
+        android:text="@string/dancing_Control" />
 
     <include
         android:id="@+id/layRemoteControl"

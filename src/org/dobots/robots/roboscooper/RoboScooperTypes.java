@@ -20,6 +20,22 @@ public class RoboScooperTypes {
 	public static String RIGHT 					= "right";
 	public static String FORWARD 				= "forward";
 	public static String BACKWARD 				= "backward";
+	
+	public static String FAST_LEFT 				= "fastleft";
+	public static String FAST_RIGHT 			= "fastright";
+	public static String FAST_FORWARD 			= "fastforward";
+	public static String FAST_BACKWARD 			= "fastbackward";
+	
+	public static String LEFT_FORWARD			= "leftforward";
+	public static String LEFT_BACKWARD			= "leftbackward";
+	public static String RIGHT_FORWARD			= "rightforward";
+	public static String RIGHT_BACKWARD			= "rightbackward";
+
+	public static String FAST_LEFT_FORWARD		= "fastleftforward";
+	public static String FAST_LEFT_BACKWARD		= "fastleftbackward";
+	public static String FAST_RIGHT_FORWARD		= "fastrightforward";
+	public static String FAST_RIGHT_BACKWARD	= "fastrightbackward";
+	
 	public static String PICKUP 				= "pickup";
 	public static String DUMP 					= "dump";
 	public static String STOP 					= "stop";
@@ -27,6 +43,5 @@ public class RoboScooperTypes {
 	public static String VISION 				= "vision";
 	public static String TALK 					= "talk";
 	public static String AUTONOMOUS 			= "autonomous";
-	
 	
 }

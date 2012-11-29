@@ -24,7 +24,7 @@
             android:id="@+id/cbDotty_All"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/all" />
+            android:text="@string/dotty_all" />
     </LinearLayout>
 
     <View

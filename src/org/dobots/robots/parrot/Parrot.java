@@ -715,7 +715,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		m_oRepeater.startMove(new GeneralMoveRunner(i_dblLeftRightTilt, i_dblFrontBackTilt, i_dblVerticalSpeed, i_dblAngularSpeed), true);
 	}
 	
-	class GeneralMoveRunner extends MoveRepeater.MoveRunnable {
+	class GeneralMoveRunner implements Runnable {
 		
 		private double dblLeftRightTilt;
 		private double dblFrontBackTilt;
@@ -724,19 +724,10 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		
 		public GeneralMoveRunner(double i_dblLeftRightTilt, double i_dblFrontBackTilt,
 				double i_dblVerticalSpeed, double i_dblAngularSpeed) {
-			m_oRepeater.super();
-			
 			dblAngularSpeed = i_dblAngularSpeed;
 			dblFrontBackTilt = i_dblFrontBackTilt;
 			dblLeftRightTilt = i_dblLeftRightTilt;
 			dblVerticalSpeed = i_dblVerticalSpeed;
-		}
-		
-		public GeneralMoveRunner clone() {
-			GeneralMoveRunner clone = new GeneralMoveRunner(this.dblLeftRightTilt, this.dblFrontBackTilt, this.dblVerticalSpeed, this.dblAngularSpeed);
-			clone.oHandler = this.oHandler;
-			clone.nInterval = this.nInterval;
-			return clone;
 		}
 		
 		@Override
@@ -744,9 +735,6 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 			synchronized (m_oRepeater.getMutex()) {
 				Log.d(TAG, "Move");
 				executeMove(dblLeftRightTilt, dblFrontBackTilt, dblVerticalSpeed, dblAngularSpeed);
-				if (m_oRepeater.isRepeating()) {
-					oHandler.postDelayed(this.clone(), nInterval);
-				}
 			}
 		}
 	}

@@ -57,6 +57,8 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	private static final int INVERT_ID = DEBUG_ID + 1;
 	private static final int ACCEL_ID = INVERT_ID + 1;
 	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
+	
+	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 
 	private boolean connected;
 	
@@ -134,12 +136,16 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
     public void onDestroy() {
     	super.onDestroy();
 
+    	shutDown();
+    }
+    
+    protected void shutDown() {
+    	m_oSensorGatherer.stopThread();
+    	
     	if (m_oNxt.isConnected() && !m_bKeepAlive) {
     		m_oNxt.disconnect();
     		m_oNxt.destroy();
     	}
-
-    	m_oSensorGatherer.stopThread();
     }
     
     @Override
@@ -174,24 +180,19 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, DEBUG_ID, 2, "Debug");
+		
+		menu.add(GENERAL_GRP, DEBUG_ID, 2, "Debug");
+
+		menu.add(REMOTE_CTRL_GRP, INVERT_ID, 3, "Invert Driving");
+		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 4, "Accelerometer");
+		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
+		
 		return true;
 	}
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oRemoteCtrl.isControlEnabled()) {
-    		if (menu.findItem(INVERT_ID) == null) {
-				menu.add(0, INVERT_ID, 3, "Invert Driving");
-				menu.add(0, ACCEL_ID, 4, "Accelerometer");
-				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control");
-    		}
-		} else
-			if (menu.findItem(INVERT_ID) != null) {
-				menu.removeItem(INVERT_ID);
-				menu.removeItem(ACCEL_ID);
-				menu.removeItem(ADVANCED_CONTROL_ID);
-			}
+    	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
     	
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
     	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());

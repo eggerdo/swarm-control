@@ -41,6 +41,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class RoombaRobot extends BluetoothRobot implements RemoteControlListener {
 	
@@ -49,6 +50,8 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 	private static final int CONNECT_ID = Menu.FIRST;
 	private static final int ACCEL_ID = CONNECT_ID + 1;
 	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
+	
+	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 	
 	private Roomba m_oRoomba;
 
@@ -72,7 +75,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 	private Button m_btnMainBrush;
 	private Button m_btnSideBrush;
 	private Button m_btnVacuum;
-	private Button m_btnPower;
+	private ToggleButton m_btnPower;
 	private Button m_btnAccelerometer;
 	private Button m_btnMove;
 	private Button m_btnCalibrate;
@@ -122,21 +125,16 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
+
+		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 2, "Accelerometer");
+		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
+		
 		return true;
 	}
 	   
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oRemoteCtrl.isControlEnabled()) {
-    		if (menu.findItem(ACCEL_ID) == null) {
-				menu.add(0, ACCEL_ID, 2, "Accelerometer");
-				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control");
-    		}
-		} else
-			if (menu.findItem(ACCEL_ID) != null) {
-				menu.removeItem(ACCEL_ID);
-				menu.removeItem(ADVANCED_CONTROL_ID);
-			}
+    	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
 
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
     	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
@@ -286,7 +284,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		m_btnPower.setEnabled(enabled);
 		if (enabled) {
 			if (m_oRoomba.isConnected()) {
-				m_btnPower.setText("Power: " + (m_oRoomba.isPowerOn() ? "ON" : "OFF"));
+				m_btnPower.setChecked(m_oRoomba.isPowerOn());
 			}
 		}
 	}
@@ -451,7 +449,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 			}
 		});
 		
-		m_btnPower = (Button) m_oActivity.findViewById(R.id.btnPower);
+		m_btnPower = (ToggleButton) m_oActivity.findViewById(R.id.btnPower);
 		m_btnPower.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -462,9 +460,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 					m_oRoomba.powerOn();
 				}
 				updatePowerButton(true);
-				if (m_oRoomba.isPowerOn()) {
-					updateButtons(true);
-				}
+				updateButtons(m_oRoomba.isPowerOn());
 			}
 		});
 		

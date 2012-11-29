@@ -33,7 +33,7 @@ public class SpykeeTypes {
 	public static final String SPYKEE_PREFS_LOGIN 		= "spykee_login";
 	public static final String SPYKEE_PREFS_PASSWORD 	= "spykee_password";
 	
-	public static final String SPYKEE_DEFAULT_ADDRESS 	= "192.168.1.101";
+	public static final String SPYKEE_DEFAULT_ADDRESS 	= null;
 	public static final String SPYKEE_DEFAULT_PORT 		= "9000";
 	public static final String SPYKEE_DEFAULT_LOGIN 	= "admin";
 	public static final String SPYKEE_DEFAULT_PASSWORD 	= null;
@@ -41,7 +41,7 @@ public class SpykeeTypes {
 	
 	public static final int LOGIN_ERROR = MessageTypes.USER;
 
-	
+	// Login Exception is thrown when the login failed because of wrong credentials
 	class LoginException extends Exception {
 		private static final long serialVersionUID = 7809103573726689170L;
 	};

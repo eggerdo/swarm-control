@@ -2,14 +2,14 @@ package org.dobots.swarmcontrol.robots.roboscooper;
 
 import java.util.EnumMap;
 
+import org.dobots.robots.BrainlinkDevice;
+import org.dobots.robots.BrainlinkDevice.AccelerometerData;
+import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.robots.roboscooper.BrainlinkDevice.AccelerometerData;
-import org.dobots.robots.roboscooper.BrainlinkDevice.BrainlinkSensors;
-import org.dobots.robots.roboscooper.BrainlinkDevice;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
@@ -29,7 +29,8 @@ public class BrainlinkSensorGatherer extends SensorGatherer {
 	private TextView m_txtYAxisValue;
 	private TextView m_txtZAxisValue;
 	private TextView m_txtBattery;
-	private TextView m_txtLight;
+	private TextView m_txtLightIntensity;
+	private TextView m_txtLightRaw;
 	
 	private TableLayout m_tblAccelerometer;
 	private TableLayout m_tblBattery;
@@ -46,7 +47,8 @@ public class BrainlinkSensorGatherer extends SensorGatherer {
 		m_txtYAxisValue = (TextView) m_oActivity.findViewById(R.id.txtYAxisValue);
 		m_txtZAxisValue = (TextView) m_oActivity.findViewById(R.id.txtZAxisValue);
 		m_txtBattery = (TextView) m_oActivity.findViewById(R.id.txtBatteryValue);
-		m_txtLight = (TextView) m_oActivity.findViewById(R.id.txtLightIntensityValue);
+		m_txtLightIntensity = (TextView) m_oActivity.findViewById(R.id.txtLightIntensityValue);
+		m_txtLightRaw = (TextView) m_oActivity.findViewById(R.id.txtLightRawValue);
 		
 		m_tblAccelerometer = (TableLayout) m_oActivity.findViewById(R.id.tblAccelerometer_data);
 		m_tblBattery = (TableLayout) m_oActivity.findViewById(R.id.tblBattery_data);
@@ -96,9 +98,10 @@ public class BrainlinkSensorGatherer extends SensorGatherer {
 				
 				@Override
 				public void run() {
-					setText(m_txtXAxisValue, (float)oData.xaxis);
-					setText(m_txtYAxisValue, (float)oData.yaxis);
-					setText(m_txtZAxisValue, (float)oData.zaxis);
+					String format = "%+.6f";
+					setText(m_txtXAxisValue, String.format(format, oData.xaxis));
+					setText(m_txtYAxisValue, String.format(format, oData.yaxis));
+					setText(m_txtZAxisValue, String.format(format, oData.zaxis));
 				}
 			});
 		}
@@ -112,7 +115,7 @@ public class BrainlinkSensorGatherer extends SensorGatherer {
 				
 				@Override
 				public void run() {
-					setText(m_txtBattery, nBattery);
+					setText(m_txtBattery, String.format("%.3f V", (float)nBattery / 1000.0));
 				}
 			});
 		}
@@ -126,7 +129,8 @@ public class BrainlinkSensorGatherer extends SensorGatherer {
 				
 				@Override
 				public void run() {
-					setText(m_txtLight, nLight);
+					setText(m_txtLightIntensity, String.format("%d%%", (int)(nLight / 255.0 * 100)));
+					setText(m_txtLightRaw, nLight);
 				}
 			});
 		}

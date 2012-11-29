@@ -33,13 +33,13 @@
             android:id="@+id/btnDancing_Add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/lblDancing_Add" />
+            android:text="@string/dancing_Add" />
 
         <Button
             android:id="@+id/btnDancing_Remove"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/lblDancing_Remove" />
+            android:text="@string/dancing_Remove" />
     </LinearLayout>
 
 </LinearLayout>

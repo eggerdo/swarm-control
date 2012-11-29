@@ -76,7 +76,7 @@
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
-	            android:text="@string/btn_control_fwd" >
+	            android:text="@string/control_fwd" >
 	        </Button>
 	
 	        <LinearLayout
@@ -97,7 +97,7 @@
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
-	            android:text="@string/btn_control_left" >
+	            android:text="@string/control_left" >
 	        </Button>
 	
 	        <Button
@@ -105,7 +105,7 @@
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
-	            android:text="@string/btn_control_bwd" >
+	            android:text="@string/control_bwd" >
 	        </Button>
 	
 	        <Button
@@ -113,7 +113,7 @@
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
-	            android:text="@string/btn_control_right" >
+	            android:text="@string/control_right" >
 	        </Button>
 	    </TableRow>
 	

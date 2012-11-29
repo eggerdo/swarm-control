@@ -14,14 +14,14 @@
             android:id="@+id/lblTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/lblDancing_Title"
+            android:text="@string/dancing_Title"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
             android:id="@+id/lblDancingDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/lblDancing_Description" />
+            android:text="@string/dancing_Description" />
 
         <LinearLayout
             android:id="@+id/layDancing_AddedRobots"
@@ -35,13 +35,13 @@
             android:id="@+id/btnDancing_Add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/lblDancing_Add" />
+            android:text="@string/dancing_Add" />
 
         <Button
             android:id="@+id/btnDancing_Control"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btnDancing_Control" />
+            android:text="@string/dancing_Control" />
         
         <include
             android:id="@+id/layRemoteControl"

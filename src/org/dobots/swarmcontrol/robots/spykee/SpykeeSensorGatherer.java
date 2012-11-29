@@ -25,7 +25,7 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 	
 	private Spykee m_oSpykee;
 
-	private boolean m_bVideoEnabled = false;
+	private boolean m_bVideoEnabled = true;
 	private boolean m_bVideoConnected = false;
 	private boolean m_bVideoScaled = false;
 	
@@ -35,9 +35,6 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 	private ProgressBar m_pbLoading;
 	private ScalableImageView m_ivVideo;
 	
-	private int m_nWidth;
-	private int m_nHeight;
-
 	private FrameLayout m_layCamera;
 
 	public SpykeeSensorGatherer(BaseActivity i_oActivity, Spykee i_oSpykee) {
@@ -78,7 +75,6 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 		m_oSensorDataUiUpdater.post(new Runnable() {
 			@Override
 			public void run() {
-				m_bVideoConnected = !i_bShow;
 				showView(m_ivVideo, !i_bShow);
 				showView(m_pbLoading, i_bShow);
 			}
@@ -137,7 +133,6 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 //				}
 			}
 		}
-
 	};
 	
 	private void updateBatteryLevel(int i_nBattery) {
@@ -154,12 +149,12 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 
 	private void updateVideo(Bitmap i_bmpFrame) {
 		if (m_bVideoEnabled) {
+			// if we haven't been connected so far, the reception of a frame
+			// means that the video is now connected
 			if (!m_bVideoConnected) {
+				m_bVideoConnected = true;
 				showVideoLoading(false);
 			}
-//            if (m_bVideoScaled) {
-//            	i_bmpFrame = Bitmap.createScaledBitmap(i_bmpFrame, m_nWidth, m_nHeight, false);
-//            }
             m_ivVideo.setImageBitmap(i_bmpFrame);
 		}
 	}
@@ -170,13 +165,35 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 		m_oSpykee.setVideoEnabled(i_bVideoEnabled);
 		
 		if (i_bVideoEnabled) {
-			showVideoLoading(true);
+			startVideo();
 		} else {
-			Bitmap bmp = Bitmap.createBitmap(m_layCamera.getWidth(), m_layCamera.getHeight(), Bitmap.Config.RGB_565);
-			Utils.writeToCanvas(m_oActivity, new Canvas(bmp), "Video OFF", true);
-			m_ivVideo.setImageBitmap(bmp);
+			m_bVideoConnected = false;
+			showVideoMsg("Video OFF");
 		}
 		
+	}
+	
+	private void startVideo() {
+		m_bVideoConnected = false;
+		showVideoLoading(true);
+		m_oSensorDataUiUpdater.postDelayed(new Timeout(), 15000);
+	}
+	
+	private class Timeout implements Runnable {
+		@Override
+		public void run() {
+			if (!m_bVideoConnected) {
+				setVideoEnabled(false);
+				showVideoLoading(false);
+				showVideoMsg("Video Connection Failed");
+			}
+		}
+	}
+	
+	private void showVideoMsg(String i_strMsg) {
+		Bitmap bmp = Bitmap.createBitmap(m_layCamera.getWidth(), m_layCamera.getHeight(), Bitmap.Config.RGB_565);
+		Utils.writeToCanvas(m_oActivity, new Canvas(bmp), i_strMsg, true);
+		m_ivVideo.setImageBitmap(bmp);
 	}
 
 	public void onConnect() {

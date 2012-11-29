@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, SwarmControlActivity!</string>
+    <!--  SwarmControlActivity -->
     <string name="app_name">Swarm Control</string>
     <string name="about">About</string>
 
@@ -34,7 +34,16 @@
         Swarm Control is released under GPLv3 license, http://gplv3.fsf.org/
     </string>    
     <string name="about_ok">OK</string>
-        
+          
+    <string name="choose_swarm_action">Choose a swarm action</string>
+    <string name="robotdevice_title">This is the robot name</string>
+    <string name="robotdevice_sensorselection">Choose one of the following sensors to display its data</string>
+    <string name="robotdevice_motorselection">Choose one of the following motors to display its data</string>
+    
+    <string name="robotdevice_lbl_notimplemented">Access for this robot is not yet implemented</string> 
+       
+    <string name="change_log">Change Log:</string>     
+    
     <!--  DeviceListActivity -->
     <string name="scanning">scanning for devices...</string>
     <string name="select_device">Select a device to connect</string>
@@ -46,32 +55,48 @@
     <string name="pairing_message">After pairing, press menu and connect.</string>
     <string name="wait_till_bt_on">Turning Bluetooth on (to connect to your robot)</string>
     <string name="bt_off_message">Bluetooth turned off. See you later!</string>
+  
+    <!-- bluetooth messages -->
+    <string name="connecting_please_wait">Connecting to your robot.\nPlease wait...</string>
+    <string name="no_paired_nxt">No paired NXT robot found!</string>
+    <string name="problem_at_connecting">Problem in creating a connection!</string>
+    <string name="problem_at_closing">Problem in closing the connection!</string>
+    <string name="problem_at_sending">Problem in sending a message!</string>
+    <string name="problem_at_receiving">Problem in receiving a message!</string>  
+        
+    <string name="current_position">Current position: </string>
     
-    <!--  SwarmControlActivity -->
-    <string name="choose_swarm_action">Choose a swarm action</string>
-    <string-array name="swarm_action">
-        <item>Search</item>
-        <item>March</item>
-        <item>Play tag</item>
-        <item>Guard</item>
-        <item>Follow me</item>
-        <item>Find exit</item>
-    </string-array>
-    <string name="robotdevice_title">This is the robot name</string>
-    <string name="robotdevice_sensorselection">Choose one of the following sensors to display its data</string>
-    <string name="robotdevice_motorselection">Choose one of the following motors to display its data</string>
+    <string name="bt_error_dialog_title">Bluetooth Error</string>    
+
+    <string name="bt_error_dialog_message">
+        Oh, no! It seems that your robot is not switched on. Please make sure that
+        your robot is on, has BlueTooth activated and then try again to connect.
+    </string>    
+    <string name="bt_needs_to_be_enabled">You need to enable BT first!"</string>    
+    
+    <!--  General -->
+    <string name="stop">Stop</string> 
+    <string name="ok">OK</string>   
+    
+    <!--  Remote Control -->
+    <string name="control_fwd">Fwd</string>    
+    <string name="control_left">Left</string>    
+    <string name="control_bwd">Bwd</string>    
+    <string name="control_right">Right</string> 
+    <string name="control">Remote Control</string>
+    
+    <!--  Roomba -->
     <string name="roomba_title">Roomba</string>
-    <string name="txtChargingState"></string>
-    <string name="chargingstate">Charging State:</string>
-    <string name="charge">Charge:</string>
-    <string name="temperature">Temperature:</string>
-    <string name="power">Power:</string>
+    <string name="roomba_chargingstate">Charging State:</string>
+    <string name="roomba_charge">Charge:</string>
+    <string name="roomba_temperature">Temperature:</string>
+    <string name="roomba_power">Power:</string>
     <string-array name="roomba_sensor_pkgs">
         <item >Environment Sensors</item>
         <item >Controls, Buttons, Actuators</item>
         <item >Power Settings</item>
     </string-array>
-    <string name="choose_roomba_sensor">Choose a sensor package</string>
+    <string name="roomba_choose_sensor">Choose a sensor package</string>
     <string name="roomba_lbl_wheeldrop">Wheeldrop</string>
     <string name="roomba_lbl_BumpLeft">Bump Left</string>
     <string name="roomba_lbl_bumpright">Bump Right</string>
@@ -103,36 +128,6 @@
     <string name="roomba_lbl_max">Max</string>
     <string name="roomba_lbl_distance">Distance:</string>
     <string name="roomba_lbl_angle">Angle:</string>
-    <string name="roomba_lbl_control">Control ON</string>
-    <string name="nxt_title">Mindstorm NXT</string>
-    <string name="nxt_commands">NXT Commands</string>
-    <string name="nxt_lbl_colour">Colour:</string>
-    <string name="nxt_lbl_distance">Distance:</string>
-    <string name="nxt_lbl_Sound">Sound:</string>
-    <string name="nxt_lbl_pushbutton">Push Button Pressed:</string>
-    <string name="nxt_lbl_sonic">Sonic:</string>
-        
-    <!-- bluetooth messages -->
-    <string name="connecting_please_wait">Connecting to your robot.\nPlease wait...</string>
-    <string name="no_paired_nxt">No paired NXT robot found!</string>
-    <string name="problem_at_connecting">Problem in creating a connection!</string>
-    <string name="problem_at_closing">Problem in closing the connection!</string>
-    <string name="problem_at_sending">Problem in sending a message!</string>
-    <string name="problem_at_receiving">Problem in receiving a message!</string>  
-        
-    <string name="current_position">Current position: </string>
-    
-    <string name="bt_error_dialog_title">Bluetooth Error</string>    
-
-    <string name="bt_error_dialog_message">
-        Oh, no! It seems that your robot is not switched on. Please make sure that
-        your robot is on, has BlueTooth activated and then try again to connect.
-    </string>    
-    <string name="bt_needs_to_be_enabled">You need to enable BT first!"</string>    
-    
-    <string name="btn_stop">Stop</string>    
-    
-    <string name="robotdevice_lbl_notimplemented">Access for this robot is not yet implemented</string>    
     <string name="roomba_btn_off">Off</string>    
     <string name="roomba_btn_dock">Dock</string>
     <string name="roomba_btn_clean">Clean</string>    
@@ -140,7 +135,16 @@
     <string name="roomba_btn_mainbrush">Main Brush</string>    
     <string name="roomba_btn_sidebrush">Side Brush</string>    
     <string name="roomba_btn_vacuum">Vacuum</string>    
-    <string name="roomba_btn_power">Power OFF</string>    
+    <string name="roomba_btn_power">Power</string>    
+    
+    <!--  NXT -->
+    <string name="nxt_title">Mindstorm NXT</string>
+    <string name="nxt_commands">NXT Commands</string>
+    <string name="nxt_lbl_colour">Colour:</string>
+    <string name="nxt_lbl_distance">Distance:</string>
+    <string name="nxt_lbl_Sound">Sound:</string>
+    <string name="nxt_lbl_pushbutton">Push Button Pressed:</string>
+    <string name="nxt_lbl_sonic">Sonic:</string>
     <string name="nxt_sensor_1_cb">Sensor 1</string>    
     <string name="nxt_value">Value:</string>    
     <string name="nxt_sensor_2_cb">Sensor 2</string>    
@@ -150,41 +154,35 @@
     <string name="nxt_normvalue">Normalized Value:</string>    
     <string name="nxt_scalevalue">Scaled Value:</string>    
     <string name="nxt_calibvalue">Calibrated Value:</string>    
-    <string name="btn_control_fwd">Fwd</string>    
-    <string name="btn_control_left">Left</string>    
-    <string name="btn_control_bwd">Bwd</string>    
-    <string name="btn_control_right">Right</string> 
     <string name="nxt_motor_1_cb">Motor 1</string>     
     <string name="nxt_motor_2_cb">Motor 2</string>     
     <string name="nxt_motor_3_cb">Motor 3</string>     
-    <string name="btn_motor_reset">Reset</string>     
-    <string name="btn_nxt_rest">Reset</string>     
+    <string name="nxt_reset">Reset</string>     
     <string name="nxt_powersetpoint">Power Setpoint:</string>     
     <string name="nxt_tachocount">Tacho Count:</string>     
-    <string name="nxt_rotationcount">Rotation Count:</string>     
-    <string name="change_log">Change Log:</string>     
-    <string name="lblDancing_Description">Here we show a way to connect to a set of multiple robots which can be chosen from the available robots. Once the robots are paired together, they can be simultaneously controlled. This can be done by manual control or by choosing a set of dancing patterns and letting the robots execute them.</string>     
-    <string name="lblDancing_Add">Add Robot...</string>     
-    <string name="btnDancing_Control">Enable Remote Control</string>     
-    <string name="lblDancing_Title">Dancing</string>     
-    <string name="lblDancing_Remove">Remove Robots...</string>    
-    <string-array name="dance_moves">
+    <string name="nxt_rotationcount">Rotation Count:</string>  
+       
+    <!--  Dancing -->
+    <string name="dancing_Description">Here we show a way to connect to a set of multiple robots which can be chosen from the available robots. Once the robots are paired together, they can be simultaneously controlled. This can be done by manual control or by choosing a set of dancing patterns and letting the robots execute them.</string>     
+    <string name="dancing_Add">Add Robot...</string>     
+    <string name="dancing_Control">Enable Remote Control</string>     
+    <string name="dancing_Title">Dancing</string>     
+    <string name="dancing_Remove">Remove Robots...</string>    
+    <string-array name="dancing_dance_moves">
         <item>Forward</item>
         <item>Backward</item>
         <item>Rotate Left</item>
         <item>Rotate Right</item>
         <item>Delay</item>
     </string-array>
-    <string name="btnDancing_RemoveSteps">Remove Steps...</string>
-    <string name="btnDancing_ClearSteps">Clear</string>
-    <string name="btnDancing_StartDance">Start</string>
-    <string name="lbldancing_dancelist">Dance List:</string>
-    <string name="btnDancing_stopdance">Stop</string>
-    <string name="chatsettings_hostport">Host / Port:</string>
-    <string name="chatsettings_domain">Domain:</string>
-    <string name="chatsettings_username">Username:</string>
-    <string name="chatsettings_password">Password:</string>
-    <string name="btn_ok">OK</string>
+    <string name="dancing_RemoveSteps">Remove Steps...</string>
+    <string name="dancing_ClearSteps">Clear</string>
+    <string name="dancing_StartDance">Start</string>
+    <string name="dancing_dancelist">Dance List:</string>
+    <string name="dancing_stopdance">Stop</string>
+
+    
+    <!--  Dotty -->
     <string name="dotty_title">Dotty</string>
     <string name="dotty_commands">Dotty Commands</string>
     <string name="dotty_sensorselection">Choose which sensors you want to display</string>
@@ -200,9 +198,11 @@
     <string name="dotty_led1">Led 1</string>
     <string name="dotty_led2">Led 2</string>
     <string name="dotty_led3">Led 3</string>
-    <string name="all">All</string>
+    <string name="dotty_all">All</string>
     <string name="dotty_interval">Interval:</string>
     <string name="dotty_streaming">Streaming: OFF</string>
+    
+    <!--  Clibration -->
     <string name="feedback_up">Up</string>
     <string name="feedback_ok">OK</string>
     <string name="feedback_down">Down</string>
@@ -212,6 +212,8 @@
     <string name="calibrate_start">Start</string>
     <string name="calibrate_toohigh">Too High</string>
     <string name="calibrate_toolow">Too Low</string>
+    
+    <!--  Parrot -->
     <string name="ardrone_takeoff">Take Off</string>
     <string name="ardrone_land">Land</string>
     <string name="ardrone_battery">Battery</string>
@@ -220,7 +222,7 @@
     <string name="ardrone_roll">Roll</string>
     <string name="ardrone_yaw">Yaw</string>
     <string name="ardrone_ctrlstate">Control State</string>
-    <string name="ardrone_sensors">Sensors: OFF</string>
+    <string name="ardrone_sensors">Sensors</string>
     <string name="ardrone_camera">Camera:</string>
     <string name="ardrone_title">AR Drone</string>
     <string name="ardrone_commands">AR Drone Commands</string>
@@ -228,8 +230,8 @@
     <string name="ardrone_down">Down</string>
     <string name="ardrone_rotleft">Rotate Left</string>
     <string name="ardrone_rotright">Rotate Right</string>
-    <string name="racing_title">Choose your robot</string>
     
+    <!--  RoboScooper -->
     <string name="roboscooper_title">RoboScooper</string>
     <string name="roboscooper_commands">RoboScooper Commands</string>
     <string name="roboscooper_dump">Dump</string>
@@ -238,16 +240,20 @@
     <string name="roboscooper_vision">Vision</string>
     <string name="roboscooper_whack">Whack</string>
     <string name="roboscooper_autonomous">Autonomous</string>
+    
+    <!--  Brainlink -->
     <string name="brainlink_sensors">Brainlink Sensors</string>
     <string name="brainlink_accelerometer">Accelerometer</string>
     <string name="brainlink_xaxis">x-axis</string>
-    <string name="brainlink_yaxis">y-Axis</string>
+    <string name="brainlink_yaxis">y-axis</string>
     <string name="brainlink_zaxis">z-axis</string>
     <string name="brainlink_light">Light</string>
     <string name="brainlink_intensity">Intensity</string>
     <string name="brainlink_battery">Battery</string>
     <string name="brainlink_batterylevel">Level</string>
+    <string name="brainlink_rawvalue">Raw Value</string>
     
+    <!--  Spykee -->
     <string name="spykee_title">Spykee</string>
     <string name="spykee_commands">Spykee Commands</string>
     <string name="spykee_canceldock">Cancel Dock</string>
@@ -262,6 +268,13 @@
     <string name="spykee_led1">Led 1</string>
     <string name="spykee_led2">Led 2</string>
     <string name="spykee_led3">Led 3</string>
+    
+    <!--  Unassigned -->
+    <string name="racing_title">Choose your robot</string>
+    <string name="parrot_vx">Vx</string>
+    <string name="parrot_vy">Vy</string>
+    <string name="parrot_vz">Vz</string>
+    
     
     
 </resources>

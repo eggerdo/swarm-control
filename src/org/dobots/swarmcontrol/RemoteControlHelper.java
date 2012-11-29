@@ -15,6 +15,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ToggleButton;
 
 public class RemoteControlHelper implements JoystickListener, RemoteControlListener {
 
@@ -37,7 +38,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 	private boolean m_bControl;
 	private boolean m_bAdvancedControl = true;
 
-	private Button m_btnControl;
+	private ToggleButton m_btnControl;
 	private Button m_btnFwd;
 	private Button m_btnBwd;
 	private Button m_btnLeft;
@@ -89,8 +90,8 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 		m_oJoystick = (Joystick) m_oActivity.findViewById(R.id.oJoystick);
 		m_oJoystick.setUpdateListener(this);
 
-		m_btnControl = (Button) m_oActivity.findViewById(R.id.btnRemoteControl);
-		m_btnControl.setText("Remote Control: OFF");
+		m_btnControl = (ToggleButton) m_oActivity.findViewById(R.id.btnRemoteControl);
+//		m_btnControl.setText("Remote Control: OFF");
 		m_btnControl.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -100,7 +101,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 					m_oRemoteControlListener.enableControl(m_bControl);
 				}
 				showControlButtons(m_bControl);
-				((Button)v).setText("Remote Control: " + (m_bControl ? "ON" : "OFF"));
+//				((Button)v).setText("Remote Control: " + (m_bControl ? "ON" : "OFF"));
 			}
 		});
 	
@@ -228,7 +229,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 	}
 	
 	public void resetLayout() {
-		m_btnControl.setText("Remote Control: OFF");
+		m_btnControl.setChecked(false);
 		m_bControl = false;
 		updateButtons(false);
 		showControlButtons(false);

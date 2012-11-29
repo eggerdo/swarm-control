@@ -27,12 +27,17 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content" >
 	
-	        <Button
+	        <ToggleButton
 	            android:id="@+id/btnRemoteControl"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_lbl_control" />
-
+	            android:layout_height="match_parent"
+	            android:layout_gravity="center"
+	            android:paddingLeft="10dp"
+	            android:paddingRight="10dp"
+	            android:text="@string/control"
+	            android:textOff="@string/control"
+	            android:textOn="@string/control" />
+	        
 	        <Button
 	            android:id="@+id/btnCamera"
 	            android:layout_width="wrap_content"
@@ -44,13 +49,14 @@
 	    <View
 	        android:layout_width="wrap_content"
 	        android:layout_height="20dp" />
-	    
-	    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+	    <FrameLayout
+	        xmlns:android="http://schemas.android.com/apk/res/android"
 	        android:id="@+id/layParrot_Video"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:orientation="vertical"
-	        android:layout_gravity="center" >
+	        android:layout_gravity="center"
+	        android:orientation="vertical" >
 		        
 		    <ProgressBar 
 			    android:id="@+id/pbLoading" 
@@ -59,14 +65,16 @@
 			    android:layout_width="100dp" 
 			    android:layout_height="100dp"
 			    android:layout_gravity="center"
-			    android:visibility="gone" />
+			    android:visibility="invisible" />
 		    
-		    <ImageView
+		    <org.dobots.utility.ScalableImageView
 		        android:id="@+id/ivParrot_Video"
-		        android:layout_width="match_parent"
-		        android:layout_height="match_parent"
-		        android:layout_gravity="center"
-				android:visibility="visible" />
+			    android:scaleType="fitCenter" 
+			    android:layout_gravity="center_horizontal" 
+			    android:layout_height="wrap_content" 
+			    android:layout_width="match_parent" 
+			    android:adjustViewBounds="true"
+			    android:visibility="visible" />
 		    
 	    </FrameLayout>
 	    
@@ -79,19 +87,27 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="20dp" />
 	    
-	    <include 
+	    <include
 	        android:id="@+id/laySensors"
-	        layout="@layout/parrot_sensors" />
+	        layout="@layout/parrot_sensors"
+	        android:visibility="gone" />
 	   
 		<LinearLayout
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content" >
 		
-		    <Button
-		        android:id="@+id/btnSensors"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="@string/ardrone_sensors" />
+	        <ToggleButton
+	            android:id="@+id/btnSensors"
+	            android:layout_width="wrap_content"
+	            android:layout_height="match_parent"
+	            android:layout_gravity="center"
+	            android:paddingLeft="10dp"
+	            android:paddingRight="10dp"
+	            android:paddingTop="10dp"
+	            android:text="@string/ardrone_sensors"
+	            android:textOff="@string/ardrone_sensors"
+	            android:textOn="@string/ardrone_sensors" />
+	        
 		</LinearLayout>
 	  
 	</LinearLayout>

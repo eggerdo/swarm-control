@@ -35,6 +35,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.codeminders.ardrone.ARDrone.VideoChannel;
 
@@ -44,6 +45,9 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 	
 	private static final int VIDEO_ID = CONNECT_ID + 1;
 	private static final int VIDEO_SCALE_ID = VIDEO_ID + 1;
+	
+	private static final int SENSOR_GRP = GENERAL_GRP + 1;
+	private static final int VIDEO_GRP = SENSOR_GRP + 1;
 
 	private boolean connected;
 	
@@ -65,9 +69,9 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 	private Button m_btnRotateRight;
 	
 	private Button m_btnCamera;
-	private Button m_btnSensors;
+	private ToggleButton m_btnSensors;
 	
-	private boolean m_bSensorsEnabled = false;
+//	private boolean m_bSensorsEnabled = false;
 	private boolean m_bControl = false;
 
 	private Button m_btnSetAltitude;
@@ -122,12 +126,17 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
     public void onDestroy() {
     	super.onDestroy();
 
+    	shutDown();
+    }
+    
+    protected void shutDown() {
+    	m_oSensorGatherer.close();
+
     	if (m_oParrot.isConnected() && !m_bKeepAlive) {
     		m_oParrot.disconnect();
     		m_oParrot.destroy();
     	}
     	
-    	m_oSensorGatherer.close();
     }
     
     @Override
@@ -169,7 +178,11 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, VIDEO_ID, 2, "Video");
+		
+		menu.add(SENSOR_GRP, VIDEO_ID, 2, "Video");
+
+		menu.add(VIDEO_GRP, VIDEO_SCALE_ID, 3, "Scale Video");
+		
 		return true;
 	}
 
@@ -193,12 +206,8 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	
-    	if (m_oParrot.isConnected() && m_oParrot.isARDrone1()) {
-    		if (menu.findItem(VIDEO_SCALE_ID) == null) {
-    			menu.add(0, VIDEO_SCALE_ID, 3, "Zoom Video");
-    		}
-    	}
+    	menu.setGroupVisible(SENSOR_GRP, m_oParrot.isConnected());
+    	menu.setGroupVisible(VIDEO_GRP, m_oParrot.isConnected() && m_oParrot.isARDrone1());
 
     	Utils.updateOnOffMenuItem(menu.findItem(VIDEO_ID), m_oSensorGatherer.isVideoEnabled());
     	Utils.updateOnOffMenuItem(menu.findItem(VIDEO_SCALE_ID), m_oSensorGatherer.isVideoScaled());
@@ -335,14 +344,14 @@ public class ParrotRobot extends WifiRobot implements RemoteControlListener {
 		});
         updateCameraButton();
         
-        m_btnSensors = (Button) findViewById(R.id.btnSensors);
+        m_btnSensors = (ToggleButton) findViewById(R.id.btnSensors);
         m_btnSensors.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				m_bSensorsEnabled = !m_bSensorsEnabled;
-				m_oSensorGatherer.enableSensors(m_bSensorsEnabled);
-				m_btnSensors.setText("Sensors: " + (m_bSensorsEnabled ? "ON" : "OFF"));
+//				m_bSensorsEnabled = !m_bSensorsEnabled;
+				m_oSensorGatherer.enableSensors(m_btnSensors.isChecked());
+//				m_btnSensors.setText("Sensors: " + (m_bSensorsEnabled ? "ON" : "OFF"));
 			}
 		});
 

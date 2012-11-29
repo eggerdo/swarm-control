@@ -33,14 +33,12 @@
                 android:text="@string/brainlink_accelerometer" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
-
         <TableLayout
             android:id="@+id/tblAccelerometer_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="5dp"
             android:visibility="gone" >
 
             <TableRow
@@ -122,18 +120,16 @@
                 android:text="@string/brainlink_light" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
-
         <TableLayout
             android:id="@+id/tblLight_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="5dp"
             android:visibility="gone" >
 
             <TableRow
-                android:id="@+id/tblrwLight"
+                android:id="@+id/tblrwLightIntensity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
 
@@ -148,8 +144,29 @@
                     android:id="@+id/txtLightIntensityValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
+
             </TableRow>
+
+            <TableRow
+                android:id="@+id/tblrwLightRaw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/lblLightRaw"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:text="@string/brainlink_rawvalue" />
+
+                <TextView
+                    android:id="@+id/txtLightRawValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </TableRow>
+
         </TableLayout>
+
     </LinearLayout>
 
     <View
@@ -175,14 +192,12 @@
                 android:text="@string/brainlink_battery" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
-
         <TableLayout
             android:id="@+id/tblBattery_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="5dp"
             android:visibility="gone" >
 
             <TableRow

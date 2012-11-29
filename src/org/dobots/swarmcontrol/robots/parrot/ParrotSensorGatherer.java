@@ -7,9 +7,11 @@ import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
+import org.dobots.utility.ScalableImageView;
 import org.dobots.utility.Utils;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,7 +49,9 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	private TextView m_txtVY;
 	private TextView m_txtVZ;
 
-	private ImageView m_ivVideo;
+	private FrameLayout m_layVideo;
+
+	private ScalableImageView m_ivVideo;
 	private ProgressBar m_pbLoading;
 	
 	LinearLayout laySensors;
@@ -72,11 +76,10 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		m_txtVY = (TextView) m_oActivity.findViewById(R.id.txtVY);
 		m_txtVZ = (TextView) m_oActivity.findViewById(R.id.txtVZ);
 		
-		((FrameLayout)m_oActivity.findViewById(R.id.layParrot_Video)).getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
+		m_layVideo = (FrameLayout)m_oActivity.findViewById(R.id.layParrot_Video);
 
-        m_ivVideo = (ImageView) m_oActivity.findViewById(R.id.ivParrot_Video);
-		m_ivVideo.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
-		m_ivVideo.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
+        m_ivVideo = (ScalableImageView) m_oActivity.findViewById(R.id.ivParrot_Video);
+        m_ivVideo.setMaxWidth(ParrotTypes.VIDEO_WIDTH);
 		
         m_pbLoading = (ProgressBar) m_oActivity.findViewById(R.id.pbLoading);
         
@@ -135,6 +138,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 				public void run() {
 
 					if (!m_bVideoConnected) {
+						m_bVideoConnected = true;
 						showVideoLoading(false);
 					}
 					
@@ -165,12 +169,6 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
         @Override
         protected Void doInBackground(Void... params) {
             b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
-            b.setDensity(100);
-            if (m_bVideoScaled) {
-            	w = ParrotTypes.VIDEO_WIDTH;
-            	h = ParrotTypes.VIDEO_HEIGHT;
-            	b = Bitmap.createScaledBitmap(b, w, h, false);
-            }
             return null;
         }
         
@@ -181,8 +179,6 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
         		oldBitmap.recycle();
         	}
             m_ivVideo.setImageBitmap(b);
-            m_ivVideo.getLayoutParams().width = w;
-            m_ivVideo.getLayoutParams().height = h;
         }
     }
 
@@ -224,11 +220,33 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				m_bVideoConnected = !i_bShow;
 				Utils.showView(m_ivVideo, !i_bShow);
 				Utils.showView(m_pbLoading, i_bShow);
 			}
 		});
+	}
+
+	private void showVideoMsg(String i_strMsg) {
+		Bitmap bmp = Bitmap.createBitmap(m_layVideo.getWidth(), m_layVideo.getHeight(), Bitmap.Config.RGB_565);
+		Utils.writeToCanvas(m_oActivity, new Canvas(bmp), i_strMsg, true);
+		m_ivVideo.setImageBitmap(bmp);
+	}
+
+	private void startVideo() {
+		m_bVideoConnected = false;
+		showVideoLoading(true);
+		mHandler.postDelayed(new Timeout(), 15000);
+	}
+	
+	private class Timeout implements Runnable {
+		@Override
+		public void run() {
+			if (!m_bVideoConnected) {
+				setVideoEnabled(false);
+				showVideoLoading(false);
+				showVideoMsg("Video Connection Failed");
+			}
+		}
 	}
 
 	public void setVideoEnabled(boolean i_bVideoEnabled) {
@@ -236,9 +254,10 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		m_bVideoEnabled = i_bVideoEnabled;
 		
 		if (i_bVideoEnabled) {
-			showVideoLoading(true);
+			startVideo();
 		} else {
-			Utils.writeToImageView(m_oActivity, m_ivVideo, "Video OFF", true);
+			m_bVideoConnected = false;
+			showVideoMsg("Video OFF");
 		}
 		
 		if (m_oParrot.isARDrone1()) {
@@ -269,6 +288,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	@Override
 	// called by video processor when connection established or failed
 	public void onConnect(boolean i_bConnected) {
+		m_bVideoConnected = i_bConnected;
 		showVideoLoading(false);
 		
 		if (!i_bConnected) {
@@ -276,7 +296,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 				
 				@Override
 				public void run() {
-					Utils.writeToImageView(m_oActivity, m_ivVideo, "Video Connection Failed", true);
+					showVideoMsg("Video Connection Failed");
 				}
 			});
 		}
@@ -293,6 +313,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 
 	public void setVideoScaled(boolean i_bScaled) {
 		m_bVideoScaled = i_bScaled;
+		m_ivVideo.setScale(i_bScaled);
 	}
 
 }

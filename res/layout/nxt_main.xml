@@ -2,8 +2,8 @@
 <org.dobots.utility.LockableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollview"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-	android:gravity="fill" >
+    android:layout_height="wrap_content"
+    android:gravity="fill" >
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:layout_width="match_parent"
@@ -30,12 +30,17 @@
 	        android:layout_height="wrap_content"
 	        android:gravity="bottom|fill" >
 	
-	        <Button
+	        <ToggleButton
 	            android:id="@+id/btnRemoteControl"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_lbl_control" />
-
+	            android:layout_height="match_parent"
+	            android:layout_gravity="center"
+	            android:paddingLeft="10dp"
+	            android:paddingRight="10dp"
+	            android:text="@string/control"
+	            android:textOff="@string/control"
+	            android:textOn="@string/control" />
+	        
 	        <Button
 	            android:id="@+id/btnCalibrate"
 	            android:layout_width="wrap_content"

@@ -37,8 +37,8 @@ public class ParrotVideoProcessor extends Thread {
 		m_oImage = i_oImage;
 		
 		m_bmpVideo = Bitmap.createBitmap(ParrotTypes.VIDEO_WIDTH, ParrotTypes.VIDEO_HEIGHT, Bitmap.Config.RGB_565); //ARGB_8888
-		m_oImage.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
-		m_oImage.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
+//		m_oImage.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
+//		m_oImage.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
 		m_oImage.setImageBitmap(m_bmpVideo);
 	}
 
@@ -155,8 +155,8 @@ public class ParrotVideoProcessor extends Thread {
 							@Override
 							public void run() {
 		    					m_bmpVideo = Bitmap.createBitmap(ParrotTypes.VIDEO_WIDTH, ParrotTypes.VIDEO_HEIGHT, Bitmap.Config.RGB_565); //ARGB_8888
-		    					m_oImage.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
-		    					m_oImage.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
+//		    					m_oImage.getLayoutParams().height = ParrotTypes.VIDEO_HEIGHT;
+//		    					m_oImage.getLayoutParams().width = ParrotTypes.VIDEO_WIDTH;
 		    					m_oImage.setImageBitmap(m_bmpVideo);
 		    					
 		    					nativeClose();

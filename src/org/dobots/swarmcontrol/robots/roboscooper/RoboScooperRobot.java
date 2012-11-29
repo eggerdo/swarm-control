@@ -1,6 +1,7 @@
 package org.dobots.swarmcontrol.robots.roboscooper;
 
-import org.dobots.robots.roboscooper.BrainlinkDevice.BrainlinkSensors;
+import org.dobots.robots.BrainlinkDevice;
+import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
 import org.dobots.swarmcontrol.BaseActivity;
@@ -35,6 +36,8 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 	
 	private static final int ACCEL_ID = CONNECT_ID + 1;
 	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
+	
+	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 
 	private boolean connected;
 	
@@ -85,13 +88,16 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 
 		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRoboScooper, this);
         m_oRemoteCtrl.setProperties();
-		m_oRemoteCtrl.setAdvancedControl(false);
 		
         updateButtons(false);
 
         if (m_oRoboScooper.isConnected()) {
 			updateButtons(true);
 		}
+        
+        if (!BrainlinkDevice.checkForConfigFile(getResources(), RoboScooperTypes.SIGNAL_FILE_NAME, RoboScooperTypes.SIGNAL_FILE_ENCODED)) {
+        	Utils.showToast("Failed to install device config file", Toast.LENGTH_LONG);
+        }
     }
 
 	@Override
@@ -190,7 +196,7 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 				m_oSensorGatherer.enableSensor(BrainlinkSensors.BATTERY, isChecked);
 			}
     	});
-
+    	
 	}
 	
 	protected void handleUIMessage(Message msg) {
@@ -211,6 +217,9 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 		m_cbBattery.setChecked(false);
 		m_cbLight.setChecked(false);
 
+		Utils.showLayout(m_layControls1, false);
+		Utils.showLayout(m_layControls2, false);
+
 		m_oSensorGatherer.initialize();
 	}
         
@@ -219,12 +228,16 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
     public void onDestroy() {
     	super.onDestroy();
 
-    	if (m_oRoboScooper.isConnected() && !m_bKeepAlive) {
-    		m_oRoboScooper.disconnect();
-    		m_oRoboScooper.destroy();
-    	}
+    	shutDown();
+    }
+    
+    protected void shutDown() {
 
     	m_oSensorGatherer.stopThread();
+    	
+    	if (m_oRoboScooper.isConnected() && !m_bKeepAlive) {
+    		m_oRoboScooper.destroy();
+    	}
     }
 
     @Override
@@ -232,6 +245,7 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
     	super.onStop();
     	
 //    	m_oSensorGatherer.pauseThread();
+    	resetLayout();
     	
     	if (m_oRoboScooper.isConnected() && !m_bKeepAlive) {
     		m_oRoboScooper.disconnect();
@@ -257,17 +271,18 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
     }
 
     @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+
+		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 4, "Accelerometer");
+		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
+		
+		return true;
+    }
+		
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_oRemoteCtrl.isControlEnabled()) {
-    		if (menu.findItem(ACCEL_ID) == null) {
-				menu.add(0, ACCEL_ID, 4, "Accelerometer");
-				menu.add(0, ADVANCED_CONTROL_ID, 5, "Advanced Control");
-    		}
-		} else
-			if (menu.findItem(ACCEL_ID) != null) {
-				menu.removeItem(ACCEL_ID);
-				menu.removeItem(ADVANCED_CONTROL_ID);
-			}
+    	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
     	
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
     	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
@@ -307,12 +322,10 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 			m_strMacAddress = i_oDevice.getAddress();
 			showConnectingDialog();
 			
-//			if (m_oRoboScooper.getConnection() != null) {
-//				try {
-//					m_oRoboScooper.getConnection().destroyConnection();
-//				}
-//				catch (IOException e) { }
-//			}
+			if (m_oRoboScooper.isConnected()) {
+				m_oRoboScooper.disconnect();
+			}
+
 			m_oRoboScooper.setConnection(i_oDevice);
 			m_oRoboScooper.connect();
 		}
@@ -355,6 +368,7 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 		connected = false;
 		updateButtons(false);
 		m_oRemoteCtrl.resetLayout();
+		m_oSensorGatherer.initialize();
 	}
 
 	@Override

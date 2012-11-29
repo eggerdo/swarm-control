@@ -36,6 +36,8 @@ import android.widget.Toast;
 public abstract class RobotView extends BaseActivity implements AccelerometerListener {
 	
 	protected static final int CONNECT_ID = Menu.FIRST;
+
+	protected static final int GENERAL_GRP = 0;
 	
 	protected static String TAG = "RobotDevice";
 	
@@ -71,9 +73,6 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 	public RobotView() {
 	}
 
-	/**
-	 * Receive messages from the BTCommunicator
-	 */
 	protected final Handler m_oUiHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -146,7 +145,7 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, CONNECT_ID, 1, "Connect");
+		menu.add(GENERAL_GRP, CONNECT_ID, 1, "Connect");
 		
 		return true;
     }
@@ -284,19 +283,9 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
     	}
 	}
 
-	protected void setProperties(RobotType i_eRobot) {
-        m_oActivity.setContentView(R.layout.robotdevice);
-        
-		TextView lblRobot = (TextView) m_oActivity.findViewById(R.id.lblRobot);
-		lblRobot.setText(i_eRobot.toString());
-		
-		Spinner spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
-		spSensors.setVisibility(View.INVISIBLE);
-	}
+	protected abstract void setProperties(RobotType i_eRobot);
 	
-	public void shutDown() {
-		// to be implemented by child class
-	}
+	protected abstract void shutDown();
 	
     protected void sendBundle(Handler i_oHandler, Bundle i_oBundle) {
         Message myMessage = new Message();

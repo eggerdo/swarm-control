@@ -1,9 +1,23 @@
-package org.dobots.robots.roboscooper;
+package org.dobots.robots;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Environment;
 
 import edu.cmu.ri.createlab.brainlink.BluetoothConnection;
 import edu.cmu.ri.createlab.brainlink.BrainLink;
 
 public class BrainlinkDevice {
+	
+	public static final String TAG = "BrainlinkDevice";
+	
+	public static final String CONFIG_DIRECTORY = "/BirdBrainTechnologies/BrainLink/devices/";
 	
 	public enum BrainlinkSensors {
 		ACCELEROMETER,
@@ -27,7 +41,7 @@ public class BrainlinkDevice {
 	protected BrainLink m_oBrainLink;
 	protected boolean m_bConnected;
 
-	protected void sendCommand(String i_strCommand) {
+	public void sendCommand(String i_strCommand) {
 		m_oBrainLink.transmitIRSignal(i_strCommand);
 	}
 	
@@ -70,6 +84,39 @@ public class BrainlinkDevice {
 
 	public boolean isConnected() {
 		return m_bConnected;
+	}
+	
+	public void close() {
+		m_oBrainLink.close();
+	}
+	
+	public static boolean checkForConfigFile(Resources i_oResources, String i_strName, boolean i_bEncoded) {
+		String strFileName = i_strName + (i_bEncoded ? ".encsig" : ".rawsig");
+		String strFileNamePath = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + strFileName;
+		
+		File helper = new File(strFileNamePath);
+		if (helper.exists()) {
+			// already there, nothing to do
+			return true;
+		}
+		
+		try {
+			InputStream is = i_oResources.getAssets().open(strFileName);
+			
+			byte[] bytes = new byte[is.available()];
+			DataInputStream dis = new DataInputStream(is);
+			dis.readFully(bytes);
+			
+			FileOutputStream dest = new FileOutputStream(strFileNamePath);
+			dest.write(bytes);
+			dest.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
 	}
 	
 }

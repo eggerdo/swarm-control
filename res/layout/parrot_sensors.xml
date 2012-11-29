@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-	android:visibility="gone"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:visibility="visible" >
 	
 	<View
         android:layout_width="match_parent"
@@ -12,7 +12,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblControlState"
@@ -29,7 +30,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblBattery"
@@ -47,7 +49,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblAltitude"
@@ -65,7 +68,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblPitch"
@@ -83,7 +87,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblRoll"
@@ -101,7 +106,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblYaw"
@@ -118,13 +124,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblVX"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="VX" />
+            android:text="@string/parrot_vx" />
 
         <TextView
             android:id="@+id/txtVX"
@@ -135,13 +142,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblVY"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="VY" />
+            android:text="@string/parrot_vy" />
 
         <TextView
             android:id="@+id/txtVY"
@@ -152,13 +160,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp" >
 
         <TextView
             android:id="@+id/lblVZ"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="VZ" />
+            android:text="@string/parrot_vz" />
 
         <TextView
             android:id="@+id/txtVZ"
