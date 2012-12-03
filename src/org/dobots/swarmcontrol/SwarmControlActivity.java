@@ -29,14 +29,21 @@ public class SwarmControlActivity extends Activity {
 	
 	private static final String CHANGELOG = "ChangeLog:\n" +
 											"\n" +
-											"  Version 0.1\n" +
-											"    - IRobot Roomba added\n" +
-											"       - Sensor Information Display\n" +
-											"       - Remote Control (Arrows and Accelerometer)\n" +
-											"    - Mindstorms NXT added\n" +
-											"       - Sensor Information Display\n" +
-											"       - Sensor Type Selection\n" +
-											"       - Remote Control (Arrows and Accelerometer)\n";
+											"  Version 0.2\n" +
+											"    Joystick added as Remote Control Feature\n" +
+											"\n" +
+											"    4 new Robots added:\n" +
+											"       - Meccano Spykee (Remote Control, Video Stream and\n" + 
+											"           Audio Playback)\n" +
+											"       - Wowwee RoboScooper (Remote Control, Brainlink Sensor\n" + 
+											"           Display)\n" +
+											"       - Parrot AR Drone and AR Drone 2.0 (Basic Remote Control,\n" + 
+											"            Video Stream and Sensor Display)\n" +
+											"       - Dotty (Remote Control and Sensor Display)\n" +
+											"\n" +
+											"    Swarm Behaviour added:\n" +
+											"       - In Dancing a swarm of robots robots can be controlled\n" + 
+											"            and programmed to execute a series of moves";
 
 	// The different menu options
 	private static final int CONNECT_ID = Menu.FIRST;
