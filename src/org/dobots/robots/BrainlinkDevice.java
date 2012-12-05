@@ -92,7 +92,14 @@ public class BrainlinkDevice {
 	
 	public static boolean checkForConfigFile(Resources i_oResources, String i_strName, boolean i_bEncoded) {
 		String strFileName = i_strName + (i_bEncoded ? ".encsig" : ".rawsig");
-		String strFileNamePath = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + strFileName;
+		String strPath = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY;
+		String strFileNamePath = strPath + strFileName;
+		
+		// check if the directory path exists and if not create it
+		File directory = new File(strPath);
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
 		
 		File helper = new File(strFileNamePath);
 		if (helper.exists()) {
