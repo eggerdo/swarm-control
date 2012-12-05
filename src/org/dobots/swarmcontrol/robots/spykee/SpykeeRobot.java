@@ -18,10 +18,11 @@
 
 package org.dobots.swarmcontrol.robots.spykee;
 
-import org.dobots.robots.parrot.Parrot;
 import org.dobots.robots.spykee.Spykee;
 import org.dobots.robots.spykee.SpykeeController;
+import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeTypes;
+import org.dobots.robots.spykee.SpykeeTypes.SpykeeSound;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
@@ -45,9 +46,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -81,6 +84,8 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
 	private ToggleButton m_btnLed1;
 	private Button m_btnLed2;
 	private Button m_btnLed3;
+	private Button m_btnPlay;
+	private Spinner m_spSound;
 	
 	private LinearLayout m_layControls;
 	
@@ -148,10 +153,11 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
 					break;
 				case DOCKING:
 					m_oSpykee.cancelDock();
+					m_btnDock.setText(R.string.spykee_dock);
 					break;
 				case UNDOCKED:
 					m_oSpykee.dock();
-					m_btnDock.setText("Cancel Dock");
+					m_btnDock.setText(R.string.spykee_canceldock);
 					break;
 				}
 			}
@@ -178,6 +184,24 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
     	m_btnLed3.setTag(2);
     	m_btnLed3.setOnClickListener(oLedClickListener);
     	
+    	m_spSound = (Spinner) m_oActivity.findViewById(R.id.spSound);
+
+        // adapter is the same, for each sensor we can choose the same types
+		final ArrayAdapter<SpykeeSound> oSoundAdapter = new ArrayAdapter<SpykeeSound>(m_oActivity, 
+				android.R.layout.simple_spinner_item, SpykeeSound.values());
+		oSoundAdapter.setDropDownViewResource(android.R.layout.select_dialog_item);
+		m_spSound.setAdapter(oSoundAdapter);
+        
+    	m_btnPlay = (Button) m_oActivity.findViewById(R.id.btnPlay);
+    	m_btnPlay.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				SpykeeSound eSound = (SpykeeSound) m_spSound.getSelectedItem();
+				m_oSpykee.playSound(eSound);
+			}
+		});
+    	
     }
 
 	@Override
@@ -191,10 +215,16 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
 			break;
 
 		case SpykeeController.SPYKEE_DOCK:
-			if (msg.arg1 == SpykeeController.SPYKEE_DOCK_DOCKED) {
+			switch ((DockState)msg.obj) {
+			case DOCKED:
 				m_btnDock.setText(R.string.spykee_undock);
-			} else if (msg.arg1 == SpykeeController.SPYKEE_DOCK_UNDOCKED) {
+				break;
+			case UNDOCKED:
 				m_btnDock.setText(R.string.spykee_dock);
+				break;
+			case DOCKING:
+				m_btnDock.setText(R.string.spykee_canceldock);
+				break;
 			}
 		case SpykeeController.SPYKEE_BATTERY_LEVEL:
 		case SpykeeController.SPYKEE_VIDEO_FRAME:
@@ -386,9 +416,13 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
 		m_oRemoteCtrl.updateButtons(i_bEnabled);
 		
 		m_btnDock.setEnabled(i_bEnabled);
+		
 		m_btnLed1.setEnabled(i_bEnabled);
 		m_btnLed2.setEnabled(i_bEnabled);
 		m_btnLed3.setEnabled(i_bEnabled);
+		
+		m_btnPlay.setEnabled(i_bEnabled);
+		m_spSound.setEnabled(i_bEnabled);
 	}
 
     /**

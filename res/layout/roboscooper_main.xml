@@ -45,7 +45,7 @@
 	    </LinearLayout>
 
 	    <LinearLayout
-	        android:id="@+id/layControls1"
+	        android:id="@+id/layControls"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:gravity="bottom|fill"
@@ -58,37 +58,10 @@
 	            android:text="@string/stop" />
 
 	        <Button
-	            android:id="@+id/btnWhack"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roboscooper_whack" />
-
-	        <Button
 	            android:id="@+id/btnVision"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/roboscooper_vision" />
-
-	        <Button
-	            android:id="@+id/btnTalk"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roboscooper_talk" />
-
-	        <Button
-	            android:id="@+id/btnAutonomous"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roboscooper_autonomous" />
-
-	    </LinearLayout>
-
-	    <LinearLayout
-	        android:id="@+id/layControls2"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:gravity="bottom|fill"
-	        android:visibility="gone" >
 
 	        <Button
 	            android:id="@+id/btnPickUp"
@@ -101,6 +74,52 @@
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/roboscooper_dump" />
+
+	    </LinearLayout>
+
+	    <LinearLayout
+	        android:id="@+id/layPlayModes"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:visibility="gone" >
+
+		    <TextView
+		        android:id="@+id/lblPlayModes"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/roboscooper_playmodes" />
+	        
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:gravity="bottom|fill" >
+
+	            <Button
+	                android:id="@+id/btnWhackMode"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roboscooper_whack" />
+
+	            <Button
+	                android:id="@+id/btnTalkMode"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roboscooper_talk" />
+
+	            <Button
+	                android:id="@+id/btnCleanSweepMode"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roboscooper_cleansweep" />
+
+	            <Button
+	                android:id="@+id/btnPickUpMode"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/roboscooper_pickup" />
+	        </LinearLayout>
+
 	    </LinearLayout>
 
 	    <View

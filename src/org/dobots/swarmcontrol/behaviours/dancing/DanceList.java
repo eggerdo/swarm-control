@@ -322,8 +322,22 @@ public class DanceList extends BaseActivity {
 		stopAndCancelAll();
 		m_bDanceRunning = false;
 	}
-	
+
 	private void dance1() {
+		
+		addMove(DanceMoves.dm_forward, 1);
+		addMove(DanceMoves.dm_backward, 1);
+		addMove(DanceMoves.dm_rotateLeft, 2);
+		addMove(DanceMoves.dm_rotateRight, 4);
+		addMove(DanceMoves.dm_rotateLeft, 2);
+		addMove(DanceMoves.dm_forward, 2);
+		addMove(DanceMoves.dm_rotateLeft, 1);
+		addMove(DanceMoves.dm_rotateRight, 1);
+		addMove(DanceMoves.dm_backward, 2);
+		
+	}
+
+	private void dance2() {
 
 		addMove(DanceMoves.dm_rotateLeft, 1);
 		addMove(DanceMoves.dm_rotateRight, 2);
@@ -337,20 +351,6 @@ public class DanceList extends BaseActivity {
 		addMove(DanceMoves.dm_right, 2);
 		addMove(DanceMoves.dm_left, 1);
 		addMove(DanceMoves.dm_delay, 3);
-		
-	}
-
-	private void dance2() {
-		
-		addMove(DanceMoves.dm_forward, 1);
-		addMove(DanceMoves.dm_backward, 1);
-		addMove(DanceMoves.dm_rotateLeft, 2);
-		addMove(DanceMoves.dm_rotateRight, 4);
-		addMove(DanceMoves.dm_rotateLeft, 2);
-		addMove(DanceMoves.dm_forward, 2);
-		addMove(DanceMoves.dm_rotateLeft, 1);
-		addMove(DanceMoves.dm_rotateRight, 1);
-		addMove(DanceMoves.dm_backward, 2);
 		
 	}
 

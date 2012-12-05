@@ -2,6 +2,7 @@ package org.dobots.swarmcontrol.robots.spykee;
 
 import org.dobots.robots.spykee.Spykee;
 import org.dobots.robots.spykee.SpykeeController;
+import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
@@ -109,7 +110,7 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 				updateBatteryLevel(msg.arg1);
 				break;
 			case SpykeeController.SPYKEE_DOCK:
-				updateDockingState(msg.arg1);
+				updateDockingState((DockState)msg.obj);
 				break;
 			case SpykeeController.SPYKEE_VIDEO_FRAME:
 				updateVideo((Bitmap)msg.obj);
@@ -139,11 +140,17 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 		m_txtBattery.setText(String.format("%d", i_nBattery));
 	}
 	
-	private void updateDockingState(int i_nDockingState) {
-		if (i_nDockingState == SpykeeController.SPYKEE_DOCK_DOCKED) {
+	private void updateDockingState(DockState i_eDockingState) {
+		switch (i_eDockingState) {
+		case DOCKED:
 			m_txtDockingState.setText("Docked");
-		} else if (i_nDockingState == SpykeeController.SPYKEE_DOCK_UNDOCKED) {
+			break;
+		case UNDOCKED:
 			m_txtDockingState.setText("Undocked");
+			break;
+		case DOCKING:
+			m_txtDockingState.setText("Docking");
+			break;
 		}
 	}
 

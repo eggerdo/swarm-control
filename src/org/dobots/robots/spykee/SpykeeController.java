@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
 import javax.security.auth.login.LoginException;
@@ -104,7 +106,9 @@ public class SpykeeController {
 	public void connect(String host, int port, String login, String password)
 	        throws UnknownHostException, IOException, LoginException {
 		Log.d(TAG, "connecting to " + host + ":" + port);
-		mSocket = new Socket(host, port);
+		mSocket = new Socket();
+		SocketAddress addr = new InetSocketAddress(host, port);
+		mSocket.connect(addr, 5000);
 		mOutput = new DataOutputStream(mSocket.getOutputStream());
 		mInput = new DataInputStream(mSocket.getInputStream());
 		Log.i(TAG, "Connection OK");
@@ -167,15 +171,11 @@ public class SpykeeController {
 		String version = new String(bytes, pos, nameLen, "ISO-8859-1");
 		pos += nameLen;
 
-		Message msg = mHandler.obtainMessage(SPYKEE_DOCK);
 		if (bytes[pos] == 0) {
-			mDockState = DockState.DOCKED;
-			msg.arg1 = SPYKEE_DOCK_DOCKED;
+			setDockingState(DockState.DOCKED);
 		} else {
-			mDockState = DockState.UNDOCKED;
-			msg.arg1 = SPYKEE_DOCK_UNDOCKED;
+			setDockingState(DockState.UNDOCKED);
 		}
-		mHandler.sendMessage(msg);
 		
 		Log.i(TAG, name1 + " " + name2 + " " + name3 + " " + version + " docked: " + mDockState);
 	}
@@ -321,11 +321,20 @@ public class SpykeeController {
 	public DockState getDockState() {
 		return mDockState;
 	}
+	
+	private void setDockingState(DockState i_eState) {
+		mDockState = i_eState;
+
+		// inform the UI about the docking state change
+		Message msg = mHandler.obtainMessage(SPYKEE_DOCK);
+		msg.obj = i_eState;
+		mHandler.sendMessage(msg);
+	}
 
 	public void dock() {
 		try {
 			sendBytes(CMD_DOCK);
-			mDockState = DockState.DOCKING;
+			setDockingState(DockState.DOCKING);
 		} catch (IOException e) {
 		}
 	}
@@ -333,7 +342,7 @@ public class SpykeeController {
 	public void undock() {
 		try {
 			sendBytes(CMD_UNDOCK);
-			mDockState = DockState.UNDOCKED;
+			setDockingState(DockState.UNDOCKED);
 		} catch (IOException e) {
 		}
 	}
@@ -341,7 +350,7 @@ public class SpykeeController {
 	public void cancelDock() {
 		try {
 			sendBytes(CMD_CANCEL_DOCK);
-			mDockState = DockState.UNDOCKED;
+			setDockingState(DockState.UNDOCKED);
 		} catch (IOException e) {
 		}
 	}
@@ -509,13 +518,10 @@ public class SpykeeController {
 						showBuffer("recv", bytes, num);
 						int val = bytes[5] & 0xff;
 						if (val == SPYKEE_DOCK_DOCKED) {
-							mDockState = DockState.DOCKED;
+							setDockingState(DockState.DOCKED);
 						} else if (val == SPYKEE_DOCK_UNDOCKED) {
-							mDockState = DockState.UNDOCKED;
+							setDockingState(DockState.UNDOCKED);
 						}
-						msg = mHandler.obtainMessage(SPYKEE_DOCK);
-						msg.arg1 = val;
-						mHandler.sendMessage(msg);
 						break;
 					default:
 						num += readBytes(bytes, 5, len);

@@ -69,7 +69,8 @@
             android:id="@+id/btnDance1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dance1" />
+            android:text="Dance1"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnDancing_StartDance"

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.dobots.swarmcontrol"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="0.2" >
 
     <uses-sdk android:minSdkVersion="10" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
@@ -28,7 +28,7 @@
         </activity>
         
         <!-- Robot Activities -->
-		<activity android:name="org.dobots.swarmcontrol.robots.RobotDevice"
+		<activity android:name="org.dobots.swarmcontrol.robots.UnimplementedRobot"
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.roomba.RoombaRobot"
 			android:screenOrientation="portrait" ></activity>
@@ -64,8 +64,7 @@
 			android:label="@string/select_device"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
-			android:configChanges="keyboardHidden|orientation">
-		</activity>
+			android:configChanges="keyboardHidden|orientation"></activity>
 		<activity android:name="org.dobots.utility.FeedbackDialog"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"

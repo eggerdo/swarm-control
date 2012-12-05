@@ -4,7 +4,20 @@
     <!--  SwarmControlActivity -->
     <string name="app_name">Swarm Control</string>
     <string name="about">About</string>
-
+    
+    <string-array name="changelog">
+        <item>"Joystick added as Remote Control Feature"</item>
+		<item>""</item>
+		<item>"4 new Robots added:"</item>
+		<item>"- Meccano Spykee (Remote Control, Video Stream and Audio Playback)"</item>
+		<item>"- Wowwee RoboScooper (Remote Control, Brainlink Sensor Display)"</item>
+		<item>"- Parrot AR Drone and AR Drone 2.0 (Basic Remote Control, Video Stream and Sensor Display)"</item>
+		<item>"- Dotty (Remote Control and Sensor Display)"</item>
+		<item>""</item>
+		<item>"Swarm Action added:"</item>
+		<item>"- In Dancing a swarm of robots robots can be controlled and programmed to execute a series of moves"</item>
+	</string-array>
+    
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
     <string name="quit">Quit</string>    
@@ -12,6 +25,9 @@
     <string name="intro">Swarm Control is developed at Distributed Organisms, DO bots. It
         is meant to showcase remote control of many different robots, and in due time,
         group functionality.</string>
+        
+    <string name="swarmcontrol_behaviours">Select one of the following swarm actions to start</string>
+    <string name="swarmcontrol_robots">Select a robot to display its sensors and to control it remotely</string>
 
     <string name="placeholder">This will show data coming from the robot (like images or
         compass needle).</string>
@@ -35,6 +51,7 @@
     </string>    
     <string name="about_ok">OK</string>
           
+    <string name="choose_robot">Choose a robot</string>
     <string name="choose_swarm_action">Choose a swarm action</string>
     <string name="robotdevice_title">This is the robot name</string>
     <string name="robotdevice_sensorselection">Choose one of the following sensors to display its data</string>
@@ -230,6 +247,9 @@
     <string name="ardrone_down">Down</string>
     <string name="ardrone_rotleft">Rotate Left</string>
     <string name="ardrone_rotright">Rotate Right</string>
+    <string name="parrot_vx">Vx</string>
+    <string name="parrot_vy">Vy</string>
+    <string name="parrot_vz">Vz</string>
     
     <!--  RoboScooper -->
     <string name="roboscooper_title">RoboScooper</string>
@@ -239,7 +259,8 @@
     <string name="roboscooper_talk">Talk</string>
     <string name="roboscooper_vision">Vision</string>
     <string name="roboscooper_whack">Whack</string>
-    <string name="roboscooper_autonomous">Autonomous</string>
+    <string name="roboscooper_cleansweep">Clean Sweep</string>
+    <string name="roboscooper_playmodes">Play Modes</string>
     
     <!--  Brainlink -->
     <string name="brainlink_sensors">Brainlink Sensors</string>
@@ -268,12 +289,10 @@
     <string name="spykee_led1">Led 1</string>
     <string name="spykee_led2">Led 2</string>
     <string name="spykee_led3">Led 3</string>
+    <string name="spykee_play">Play</string>
     
     <!--  Unassigned -->
     <string name="racing_title">Choose your robot</string>
-    <string name="parrot_vx">Vx</string>
-    <string name="parrot_vy">Vy</string>
-    <string name="parrot_vz">Vz</string>
     
     
     

@@ -47,11 +47,12 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 
 	private RemoteControlHelper m_oRemoteCtrl;
 
-	private Button m_btnTalk;
-	private Button m_btnWhack;
+	private Button m_btnTalkMode;
+	private Button m_btnWhackMode;
 	private Button m_btnVision;
 	private Button m_btnStop;
-	private Button m_btnAutonomous;
+	private Button m_btnCleanSweepMode;
+	private Button m_btnPickUpMode;
 	private Button m_btnPickup;
 	private Button m_btnDump;
 	
@@ -59,8 +60,9 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 	private CheckBox m_cbLight;
 	private CheckBox m_cbBattery;
 	
-	private LinearLayout m_layControls1;
-	private LinearLayout m_layControls2;
+	private LinearLayout m_layControls;
+	private LinearLayout m_layPlayModes;
+
 	
 	public RoboScooperRobot(BaseActivity m_oOwner) {
 		super(m_oOwner);
@@ -104,11 +106,11 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.roboscooper_main);
         
-        m_layControls1 = (LinearLayout) findViewById(R.id.layControls1);
-        m_layControls2 = (LinearLayout) findViewById(R.id.layControls2);
+        m_layControls = (LinearLayout) findViewById(R.id.layControls);
+        m_layPlayModes = (LinearLayout) findViewById(R.id.layPlayModes);
      
-    	m_btnTalk = (Button) findViewById(R.id.btnTalk);
-    	m_btnTalk.setOnClickListener(new OnClickListener() {
+    	m_btnTalkMode = (Button) findViewById(R.id.btnTalkMode);
+    	m_btnTalkMode.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -116,8 +118,8 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 			}
 		});
     	
-    	m_btnWhack = (Button) findViewById(R.id.btnWhack);
-    	m_btnWhack.setOnClickListener(new OnClickListener() {
+    	m_btnWhackMode = (Button) findViewById(R.id.btnWhackMode);
+    	m_btnWhackMode.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -130,7 +132,7 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 			
 			@Override
 			public void onClick(View v) {
-				m_oRoboScooper.setVisionMode();
+				m_oRoboScooper.setVision();
 			}
 		});
     	
@@ -143,12 +145,21 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 			}
 		});
     	
-    	m_btnAutonomous = (Button) findViewById(R.id.btnAutonomous);
-    	m_btnAutonomous.setOnClickListener(new OnClickListener() {
+    	m_btnCleanSweepMode = (Button) findViewById(R.id.btnCleanSweepMode);
+    	m_btnCleanSweepMode.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				m_oRoboScooper.setAutonomous();
+				m_oRoboScooper.setCleanSweepMode();
+			}
+		});
+
+    	m_btnPickUpMode = (Button) findViewById(R.id.btnPickUpMode);
+    	m_btnPickUpMode.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				m_oRoboScooper.setPickUpMode();
 			}
 		});
     	
@@ -217,8 +228,8 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 		m_cbBattery.setChecked(false);
 		m_cbLight.setChecked(false);
 
-		Utils.showLayout(m_layControls1, false);
-		Utils.showLayout(m_layControls2, false);
+		Utils.showLayout(m_layControls, false);
+		Utils.showLayout(m_layPlayModes, false);
 
 		m_oSensorGatherer.initialize();
 	}
@@ -375,13 +386,15 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 	protected void updateButtons(boolean i_bEnabled) {
 		m_oRemoteCtrl.updateButtons(i_bEnabled);
 		
-		m_btnAutonomous.setEnabled(i_bEnabled);
+		m_btnCleanSweepMode.setEnabled(i_bEnabled);
+		m_btnPickUpMode.setEnabled(i_bEnabled);
+		m_btnTalkMode.setEnabled(i_bEnabled);
+		m_btnWhackMode.setEnabled(i_bEnabled);
+		
 		m_btnDump.setEnabled(i_bEnabled);
 		m_btnPickup.setEnabled(i_bEnabled);
 		m_btnStop.setEnabled(i_bEnabled);
-		m_btnTalk.setEnabled(i_bEnabled);
 		m_btnVision.setEnabled(i_bEnabled);
-		m_btnWhack.setEnabled(i_bEnabled);
 		
 		m_cbAccelerometer.setEnabled(i_bEnabled);
 		m_cbBattery.setEnabled(i_bEnabled);
@@ -402,8 +415,8 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 	public void enableControl(boolean i_bEnable) {
 		m_oRemoteCtrl.enableControl(i_bEnable);
 		
-		Utils.showLayout(m_layControls1, i_bEnable);
-		Utils.showLayout(m_layControls2, i_bEnable);
+		Utils.showLayout(m_layControls, i_bEnable);
+		Utils.showLayout(m_layPlayModes, i_bEnable);
 	}
 
 }

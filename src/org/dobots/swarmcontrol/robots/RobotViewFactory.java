@@ -31,7 +31,7 @@ public class RobotViewFactory {
 		case RBT_SPYKEE:
 			return SpykeeRobot.class;
 		default:
-			return null;
+			return UnimplementedRobot.class;
 		}
 	}
 	

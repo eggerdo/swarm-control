@@ -2,25 +2,32 @@ package org.dobots.swarmcontrol.robots;
 
 public enum RobotType {
 	
-	RBT_UNKNOWN(""),
-	RBT_ROOMBA("Roomba"),
-	RBT_NXT("Mindstorm NXT"),
-	RBT_DOTTY("Dotty"), 
-	RBT_PARROT("AR Drone"),
-	RBT_ROBOSCOOPER("RoboScooper"),
-	RBT_SPYKEE("Spykee"),
-	RBT_FINCH("Finch"),
-	RBT_SURVEYOR("Surveyor"),
-	RBT_TRAKR("Trakr");
-	private String strDisplayName;
+	RBT_ROOMBA		("Roomba", 			true),
+	RBT_NXT			("Mindstorm NXT", 	true),
+	RBT_DOTTY		("Dotty", 			true), 
+	RBT_PARROT		("AR Drone", 		true),
+	RBT_ROBOSCOOPER	("RoboScooper", 	true),
+	RBT_SPYKEE		("Spykee", 			true),
+	RBT_FINCH		("Finch", 			false),
+	RBT_SURVEYOR	("Surveyor", 		false),
+	RBT_TRAKR		("Trakr", 			false);
 	
-	private RobotType(String i_strDisplayName) {
+	private String strDisplayName;
+	// enabled means that the robot is implemented and can be selected
+	private boolean bEnabled;
+	
+	private RobotType(String i_strDisplayName, boolean i_bEnabled) {
 		this.strDisplayName = i_strDisplayName;
+		this.bEnabled = i_bEnabled;
 	}
 	
 	@Override
 	public String toString() {
 		return strDisplayName;
+	}
+	
+	public boolean isEnabled() {
+		return bEnabled;
 	}
 
 }

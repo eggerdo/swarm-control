@@ -388,7 +388,7 @@ public class RoboScooper extends BrainlinkDevice implements RobotDevice {
 		sendCommand(RoboScooperTypes.TALK);
 	}
 	
-	public void setVisionMode() {
+	public void setVision() {
 		sendCommand(RoboScooperTypes.VISION);
 	}
 	
@@ -400,7 +400,14 @@ public class RoboScooper extends BrainlinkDevice implements RobotDevice {
 		sendCommand(RoboScooperTypes.STOP);
 	}
 	
-	public void setAutonomous() {
+	public void setCleanSweepMode() {
+		sendCommand(RoboScooperTypes.AUTONOMOUS);
+	}
+	
+	public void setPickUpMode() {
+		// corresponds to a double click
+		sendCommand(RoboScooperTypes.AUTONOMOUS);
+		Utils.waitSomeTime(100);
 		sendCommand(RoboScooperTypes.AUTONOMOUS);
 	}
 

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<org.dobots.utility.LockableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="fill" >
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <TextView
@@ -51,24 +58,43 @@
         
     </LinearLayout>
 
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="20dp" />
+
+    <TextView
+        android:id="@+id/lblRobots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/swarmcontrol_robots" />
+
+    <Button 
+        android:id="@+id/btnRobots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_dropdown"
+        android:hint="@string/choose_robot"
+        android:gravity="left|center_vertical" />
+
+    <TextView
+        android:id="@+id/lblSwarmActions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/swarmcontrol_behaviours" />
+
+    <Button 
+        android:id="@+id/btnSwarmActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_dropdown"
+        android:hint="@string/choose_swarm_action"
+        android:gravity="left|center_vertical" />
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <Spinner
-            android:id="@+id/spinner1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:prompt="@string/choose_swarm_action" />
-
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/editText1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:text="@string/placeholder" />
 
     <View
         android:layout_width="wrap_content"
@@ -81,3 +107,5 @@
         android:text="@string/change_log" />
 
 </LinearLayout>
+
+</org.dobots.utility.LockableScrollView>

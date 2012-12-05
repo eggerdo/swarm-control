@@ -39,7 +39,7 @@ public class Racing extends BaseActivity {
 	private static final int SETUP_ID = Menu.FIRST;
 	
 	enum RaceRobot {
-		RR_NONE("", RobotType.RBT_UNKNOWN),
+		RR_NONE("", null),
 		RR_ROOMBA_1("Roomba 1", RobotType.RBT_ROOMBA),
 		RR_ROOMBA_2("Roomba 2", RobotType.RBT_ROOMBA),
 		RR_NXT_1("NXT 1", RobotType.RBT_NXT),
