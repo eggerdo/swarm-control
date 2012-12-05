@@ -261,7 +261,7 @@ public class SwarmControlActivity extends Activity {
 		// '-' from the list and trim the spaces
 		s = ((String)s).trim();
 		if (s.length() > 0 && s.charAt(0) == '-') {
-			s = s.subSequence(1, s.length());
+			s = ((String)s.subSequence(1, s.length())).trim();
 			ss = new SpannableString(s + "\n");
 			ss.setSpan(new BulletSpan(15), 0, s.length(), 0);
 		} else {
