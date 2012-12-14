@@ -52,8 +52,7 @@ public class RoombaController {
 	}
 	
 	public void disconnect() {
-		m_oConnection.close();
-		m_oConnection = null;
+		destroyConnection();
 	}
 		
 	/*
