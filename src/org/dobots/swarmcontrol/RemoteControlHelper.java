@@ -263,7 +263,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 		if (i_dblPercentage == 0 && i_dblAngle == 0) {
 			// if percentage and angle is 0 this means the joystick was released
 			// so we stop the robot
-			onMove(Move.NONE, 0, 0);
+			m_oRemoteControlListener.onMove(Move.NONE, 0, 0);
 			lastMove = Move.NONE;
 		} else {
 
@@ -353,7 +353,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 				break;
 			}
 			
-			onMove(thisMove, i_dblPercentage, dblAbsAngle);
+			m_oRemoteControlListener.onMove(thisMove, i_dblPercentage, dblAbsAngle);
 			lastMove = thisMove;
 		}
 	}

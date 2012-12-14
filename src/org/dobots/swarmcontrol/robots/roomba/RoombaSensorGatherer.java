@@ -327,6 +327,8 @@ public class RoombaSensorGatherer extends SensorGatherer {
 	
 	public void initialize() {
 		setSensor(ERoombaSensorPackages.sensPkg_None);
+		showSensorPackage(ERoombaSensorPackages.sensPkg_None);
+		m_bEnabled = false;
 	}
 	
 

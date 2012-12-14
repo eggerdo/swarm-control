@@ -154,9 +154,9 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case CONNECT_ID:
-			disconnect();
 			resetLayout();
 			updateButtons(false);
+			disconnect();
 			connectToRobot();
 			return true;
 		}

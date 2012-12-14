@@ -265,7 +265,9 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 	protected void disconnect() {
 		updatePowerButton(false);
 		updateControlButtons(false);
-		m_oRoomba.disconnect();
+		if (m_oRoomba.isConnected()) {
+			m_oRoomba.disconnect();
+		}
 	}
 
 	public void connectToRobot(BluetoothDevice i_oDevice) {
@@ -335,6 +337,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 	public void resetLayout() {
 		m_oRemoteCtrl.resetLayout();
 		
+		m_spSensors.setSelection(0);
 		oSensorGatherer.initialize();
 	}
 	
