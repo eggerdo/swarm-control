@@ -376,14 +376,21 @@ public class RoombaController {
 	public byte[] sensors(byte i_byPackage, int i_nResultLength) throws TimeoutException {
 		int nLength;
 		switch (i_byPackage) {
-			case 1: nLength = 10;
-					break;
-			case 2: nLength = 6;
-					break;
-			case 3: nLength = 10;
-					break;
-			default: nLength = 26;
-					break;
+			case 1: 
+				nLength = 10;
+				break;
+			case 2: 
+				nLength = 6;
+				break;
+			case 3: 
+				nLength = 10;
+				break;
+			case 100:
+				nLength = 80;
+				break;
+			default: 
+				nLength = 26;
+				break;
 		}
 //		byte[] result = new byte[nLength];
 		

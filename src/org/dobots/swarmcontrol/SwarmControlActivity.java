@@ -100,7 +100,7 @@ public class SwarmControlActivity extends Activity {
         
         writeChangeLog();
         
-//        showRobot(RobotType.RBT_ROBOSCOOPER);
+//        showRobot(RobotType.RBT_ROOMBA);
 //        showBehaviour(SwarmAction.sa_Dance);
     }
 
@@ -141,7 +141,7 @@ public class SwarmControlActivity extends Activity {
 	}
 	
 	private void showSwarmActionSelectionDialog() {
-		AlertDialog dialog = CreateAdapterDialog("Choose a swarm action", m_oSwarmActionAdapter,
+		AlertDialog dialog = Utils.CreateAdapterDialog(this, "Choose a swarm action", m_oSwarmActionAdapter,
 				new DialogInterface.OnClickListener() {
 			
 			@Override
@@ -155,7 +155,7 @@ public class SwarmControlActivity extends Activity {
 	}
 	
 	private void showRobotSelectionDialog() {
-		AlertDialog dialog = CreateAdapterDialog("Choose a robot", m_oRobotAdapter, 
+		AlertDialog dialog = Utils.CreateAdapterDialog(this, "Choose a robot", m_oRobotAdapter, 
 				new DialogInterface.OnClickListener() {
 			
 			@Override
@@ -168,13 +168,6 @@ public class SwarmControlActivity extends Activity {
 		dialog.show();
 	}
 	
-	private AlertDialog CreateAdapterDialog(String i_strTitle, ArrayAdapter i_oAdapter, DialogInterface.OnClickListener i_OnClickListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(i_strTitle);
-		builder.setAdapter(i_oAdapter, i_OnClickListener);
-		return builder.create();
-	}
-
 	public void showRobot(RobotType i_eType) {
 		Intent intent = new Intent(SwarmControlActivity.this, RobotViewFactory.getRobotViewClass(i_eType));
 		intent.putExtra("RobotType", i_eType);

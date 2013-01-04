@@ -18,6 +18,7 @@ import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
+import org.dobots.swarmcontrol.robots.roomba.RoombaSensorGatherer.SensorEntry;
 import org.dobots.utility.Utils;
 
 import android.app.Activity;
@@ -30,9 +31,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -55,7 +58,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 	
 	private Roomba m_oRoomba;
 
-	private RoombaSensorGatherer oSensorGatherer;
+	private RoombaSensorGatherer m_oSensorGatherer;
 
 	private RemoteControlHelper m_oRemoteCtrl;
 
@@ -104,7 +107,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
     	}
 		m_oRoomba.setHandler(m_oUiHandler);
 		
-		oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
+		m_oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 		m_dblSpeed = m_oRoomba.getBaseSped();
 
 		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRoomba, this);
@@ -160,6 +163,14 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		}
 
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		m_oSensorGatherer.onCreateContextMenu(menu, v, menuInfo);
+	}
+	
+	public boolean onContextItemSelected(MenuItem item) {
+		return m_oSensorGatherer.onContextItemSelected(item);
 	}
 
     public void onDestroy() {
@@ -259,6 +270,8 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		m_btnStop.setEnabled(enabled);
 		m_btnDock.setEnabled(enabled);
 		m_spSensors.setEnabled(enabled);
+		
+		m_oSensorGatherer.updateButtons(enabled);
 	}
 
 	@Override
@@ -305,7 +318,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		updatePowerButton(false);
 		updateButtons(false);
 		m_oRemoteCtrl.resetLayout();
-		oSensorGatherer.stopThread();
+		m_oSensorGatherer.stopThread();
 	}
 
 	@Override
@@ -338,7 +351,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		m_oRemoteCtrl.resetLayout();
 		
 		m_spSensors.setSelection(0);
-		oSensorGatherer.initialize();
+		m_oSensorGatherer.initialize();
 	}
 	
 	@Override
@@ -346,8 +359,8 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
     	updateButtons(false);
     	updateControlButtons(false);
 
-		oSensorGatherer.setSensor(ERoombaSensorPackages.sensPkg_None);
-		oSensorGatherer.stopThread();
+		m_oSensorGatherer.setSensorPackage(ERoombaSensorPackages.sensPkg_None);
+		m_oSensorGatherer.stopThread();
 		
 		if (m_oRoomba.isConnected() && !m_bKeepAlive) {
 			m_oRoomba.disconnect();
@@ -369,7 +382,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				ERoombaSensorPackages eSensorPkg = adapter.getItem(position);
-				oSensorGatherer.showSensorPackage(eSensorPkg);
+				m_oSensorGatherer.showSensorPackage(eSensorPkg);
 			}
 
 			@Override

@@ -15,7 +15,9 @@ import org.dobots.swarmcontrol.SwarmControlActivity;
 import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,9 +31,13 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
@@ -83,12 +89,20 @@ public class Utils {
         return result;
 	}
 
-	public static int getUnsignedByte(ByteBuffer buffer) {
-		return buffer.get() & 0xFF;
+	public static short getUnsignedByte(ByteBuffer buffer) {
+		return (short) (buffer.get() & 0xFF);
 	}
 
 	public static void writeUnsignedByte(ByteBuffer buffer, int value) {
 		buffer.put((byte)value);
+	}
+	
+	public static int getUnsignedShort(ByteBuffer buffer) {
+		return buffer.getShort() & 0xFFFF;
+	}
+	
+	public static boolean getBoolean(ByteBuffer buffer) {
+		return buffer.get() != 0;
 	}
 	
 	public static String byteArrayToString(byte[] i_rgbyString) {
@@ -236,7 +250,35 @@ public class Utils {
 		
 		return true;
 	}
+	
+	public static AlertDialog CreateAdapterDialog(Context context, String i_strTitle, ArrayAdapter i_oAdapter, DialogInterface.OnClickListener i_OnClickListener) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setTitle(i_strTitle);
+		builder.setAdapter(i_oAdapter, i_OnClickListener);
+		return builder.create();
+	}
+	
+	public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
 
+        int totalHeight = 0;
+        int desiredWidth = MeasureSpec.makeMeasureSpec(listView.getWidth(), MeasureSpec.AT_MOST);
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(desiredWidth, MeasureSpec.UNSPECIFIED);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+	
 	public static boolean inInterval(double i_dblValue, double i_dblCenter, double i_dblDeviation) {
 		return (i_dblValue >= i_dblCenter - i_dblDeviation) &&
 			   (i_dblValue <= i_dblCenter + i_dblDeviation);

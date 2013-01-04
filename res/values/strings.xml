@@ -6,6 +6,8 @@
     <string name="about">About</string>
     
     <string-array name="changelog">
+        <item>"Roomba Update: Bugs fixed and more Sensors added"</item>
+		<item>""</item>
         <item>"Joystick added as Remote Control Feature"</item>
 		<item>""</item>
 		<item>"4 new Robots added:"</item>
@@ -113,7 +115,8 @@
         <item >Controls, Buttons, Actuators</item>
         <item >Power Settings</item>
     </string-array>
-    <string name="roomba_choose_sensor">Choose a sensor package</string>
+    <string name="roomba_choose_sensor_pkg">Choose a sensor package</string>
+    <string name="roomba_choose_sensor">Choose a sensor</string>
     <string name="roomba_lbl_wheeldrop">Wheeldrop</string>
     <string name="roomba_lbl_BumpLeft">Bump Left</string>
     <string name="roomba_lbl_bumpright">Bump Right</string>
