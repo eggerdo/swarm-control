@@ -1,19 +1,16 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.swarmcontrol.behaviours.ActivityResultListener;
+import org.dobots.swarmcontrol.behaviours.IActivityResultListener;
 import org.dobots.utility.DeviceListActivity;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
-public class BluetoothConnectionHelper implements ActivityResultListener {
+public class BluetoothConnectionHelper implements IActivityResultListener {
 	
 	public static String TAG = "BTHelper";
 
@@ -30,7 +27,7 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 	public static final int REQUEST_CONNECT_ROBOT = 1000;
 	public static final int REQUEST_ENABLE_BT = 1001;
 	
-	private BluetoothConnectionListener m_oListener;
+	private IBluetoothConnectionListener m_oListener;
 
 	private String m_strTitle = "";
 	
@@ -39,7 +36,7 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 		m_strMacFilter = i_strMacFilter;
 	}
 	
-	public void SetOnConnectListener(BluetoothConnectionListener i_oListener) {
+	public void SetOnConnectListener(IBluetoothConnectionListener i_oListener) {
 		m_oListener = i_oListener;
 	}
 
@@ -97,7 +94,7 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 				// Get the device MAC address and connect to the robot
 				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 				
-				m_oListener.connectToRobot(m_oBTAdapter.getRemoteDevice(address));
+				m_oListener.connect(m_oBTAdapter.getRemoteDevice(address));
 			}
 			break;
 		case REQUEST_ENABLE_BT:

@@ -44,6 +44,8 @@
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.spykee.SpykeeRobot"
 		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.ac13.AC13RoverRobot"
+		    android:screenOrientation="portrait" ></activity>
 		
         <!-- Behaviour Activities -->
 		<activity android:name=".behaviours.dancing.DancingMain"

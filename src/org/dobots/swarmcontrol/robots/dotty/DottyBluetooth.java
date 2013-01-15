@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.DottyTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
+import org.dobots.robots.msg.MsgTypes;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothDevice;

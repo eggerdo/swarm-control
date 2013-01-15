@@ -1,15 +1,15 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.swarmcontrol.behaviours.ActivityResultListener;
+import org.dobots.swarmcontrol.behaviours.IActivityResultListener;
 
 import android.app.Activity;
 import android.content.Intent;
 
 public class BaseActivity extends Activity {
 
-	private ActivityResultListener m_oListener;
+	private IActivityResultListener m_oListener;
 	
-	public void startActivityForResult(Intent intent, int requestCode, ActivityResultListener listener) {
+	public void startActivityForResult(Intent intent, int requestCode, IActivityResultListener listener) {
 		m_oListener = listener;
 		super.startActivityForResult(intent, requestCode);
 	}

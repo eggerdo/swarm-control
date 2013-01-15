@@ -6,10 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.os.Environment;
-
 import edu.cmu.ri.createlab.brainlink.BluetoothConnection;
 import edu.cmu.ri.createlab.brainlink.BrainLink;
 

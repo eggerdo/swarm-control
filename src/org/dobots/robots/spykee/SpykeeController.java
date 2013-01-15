@@ -24,10 +24,7 @@ package org.dobots.robots.spykee;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -36,22 +33,23 @@ import java.net.UnknownHostException;
 import javax.security.auth.login.LoginException;
 
 import org.dobots.robots.MessageTypes;
+import org.dobots.utility.log.Loggable;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.util.Log;
 
 /**
  * This class handles communication with the Spykee robot.  It creates a thread
  * to do the network IO in the background.  It uses the supplied Handler to
  * send messages to the UI thread.
  */
-public class SpykeeController {
+public class SpykeeController extends Loggable {
+	
 	public static final String TAG = "SpykeeCtrl";
+	
 	private Handler mHandler;
 	private Socket mSocket;
 	private DataInputStream mInput;
@@ -105,17 +103,17 @@ public class SpykeeController {
 
 	public void connect(String host, int port, String login, String password)
 	        throws UnknownHostException, IOException, LoginException {
-		Log.d(TAG, "connecting to " + host + ":" + port);
+		debug(TAG, "connecting to " + host + ":" + port);
 		mSocket = new Socket();
 		SocketAddress addr = new InetSocketAddress(host, port);
 		mSocket.connect(addr, 5000);
 		mOutput = new DataOutputStream(mSocket.getOutputStream());
 		mInput = new DataInputStream(mSocket.getInputStream());
-		Log.i(TAG, "Connection OK");
+		debug(TAG, "Connection OK");
 		sendLogin(login, password);
 		readLoginResponse();
 		startNetworkReaderThread();
-		Log.i(TAG, "Login OK");
+		debug(TAG, "Login OK");
 	}
 
 	public void close() {
@@ -177,7 +175,7 @@ public class SpykeeController {
 			setDockingState(DockState.UNDOCKED);
 		}
 		
-		Log.i(TAG, name1 + " " + name2 + " " + name3 + " " + version + " docked: " + mDockState);
+		info(TAG, name1 + " " + name2 + " " + name3 + " " + version + " docked: " + mDockState);
 	}
 	
 	public void setLed(int i_nLed, boolean i_bOn) {
@@ -190,7 +188,7 @@ public class SpykeeController {
 	} 
 
 	public void moveForward(int i_nVelocity) {
-		Log.d(TAG, String.format("fwd (v=%d)", i_nVelocity));
+		debug(TAG, String.format("fwd (v=%d)", i_nVelocity));
 		
 		mCmdMove[5] = (byte) i_nVelocity;
 		mCmdMove[6] = (byte) i_nVelocity;
@@ -199,11 +197,12 @@ public class SpykeeController {
 			sendBytes(mCmdMove);
 //			stopMotorAfterDelay(300);
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void moveForward(int i_nLeftVelocity, int i_nRightVelocity) {
-		Log.d(TAG, String.format("fwd (vl=%d, vr=%d)", i_nLeftVelocity, i_nRightVelocity));
+		debug(TAG, String.format("fwd (vl=%d, vr=%d)", i_nLeftVelocity, i_nRightVelocity));
 		
 		mCmdMove[5] = (byte) i_nLeftVelocity;
 		mCmdMove[6] = (byte) i_nRightVelocity;
@@ -212,11 +211,12 @@ public class SpykeeController {
 			sendBytes(mCmdMove);
 //			stopMotorAfterDelay(300);
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
 	public void moveBackward(int i_nVelocity) {
-		Log.d(TAG, String.format("bwd (v=%d)", i_nVelocity));
+		debug(TAG, String.format("bwd (v=%d)", i_nVelocity));
 		
 		mCmdMove[5] = (byte) -i_nVelocity;
 		mCmdMove[6] = (byte) -i_nVelocity;
@@ -230,7 +230,7 @@ public class SpykeeController {
 	}
 
 	public void moveBackward(int i_nLeftVelocity, int i_nRightVelocity) {
-		Log.d(TAG, String.format("bwd (vl=%d, vr=%d)", i_nLeftVelocity, i_nRightVelocity));
+		debug(TAG, String.format("bwd (vl=%d, vr=%d)", i_nLeftVelocity, i_nRightVelocity));
 		
 		mCmdMove[5] = (byte) -i_nLeftVelocity;
 		mCmdMove[6] = (byte) -i_nRightVelocity;
@@ -243,7 +243,7 @@ public class SpykeeController {
 	}
 
 	public void moveLeft(int i_nVelocity) {
-		Log.d(TAG, String.format("c cw (v=%d)", i_nVelocity));
+		debug(TAG, String.format("c cw (v=%d)", i_nVelocity));
 		
 		mCmdMove[5] = (byte) -i_nVelocity;
 		mCmdMove[6] = (byte) i_nVelocity;
@@ -256,7 +256,7 @@ public class SpykeeController {
 	}
 
 	public void moveRight(int i_nVelocity) {
-		Log.d(TAG, String.format("cw (v=%d)", i_nVelocity));
+		debug(TAG, String.format("cw (v=%d)", i_nVelocity));
 		
 		mCmdMove[5] = (byte) i_nVelocity;
 		mCmdMove[6] = (byte) -i_nVelocity;
@@ -269,7 +269,7 @@ public class SpykeeController {
 	}
 
 	public void stopMotor() {
-		Log.d(TAG, "stop");
+		debug(TAG, "stop");
 		
 		mCmdMove[5] = 0;
 		mCmdMove[6] = 0;
@@ -281,7 +281,7 @@ public class SpykeeController {
 	}
 
 	public void move(int nleft, int nright) {
-		Log.d(TAG, String.format("move (vl=%d, vr=%d)", nleft, nright));
+		debug(TAG, String.format("move (vl=%d, vr=%d)", nleft, nright));
 		
 		mCmdMove[5] = (byte) nleft;
 		mCmdMove[6] = (byte) nright;
@@ -479,7 +479,7 @@ public class SpykeeController {
 				if (num == 5 && (bytes[0] & 0xff) == 'P' && (bytes[1] & 0xff) == 'K') {
 					cmd = bytes[2] & 0xff;
 					len = ((bytes[3] & 0xff) << 8) | (bytes[4] & 0xff);
-					Log.i(TAG, "cmd: " + cmd + " len: " + len);
+					debug(TAG, "cmd: " + cmd + " len: " + len);
 					switch (cmd) {
 					case SPYKEE_BATTERY_LEVEL:
 						num += readBytes(bytes, 5, len);
@@ -531,11 +531,11 @@ public class SpykeeController {
 					msg = mHandler.obtainMessage(MessageTypes.STATE_RECEIVEERROR);
 					mHandler.sendMessage(msg);
 				} else {
-					Log.i(TAG, "unexpected data, num: " + num);
+					error(TAG, "unexpected data, num: " + num);
 					showBuffer("recv", bytes, num);
 				}
 			} catch (IOException e) {
-				Log.i(TAG, "IO exception: " + e);
+				error(TAG, "IO exception: " + e);
 				break;
 			}
 		}

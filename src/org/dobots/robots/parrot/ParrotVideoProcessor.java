@@ -1,7 +1,7 @@
 package org.dobots.robots.parrot;
 
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.utility.Utils;
 
 import android.graphics.Bitmap;
@@ -23,7 +23,7 @@ public class ParrotVideoProcessor extends Thread {
     
     private BaseActivity m_oActivity;
     
-    private ConnectListener m_oConnectListener;
+    private IConnectListener m_oConnectListener;
     
     private boolean m_bVideoConnected = false;
     
@@ -42,7 +42,7 @@ public class ParrotVideoProcessor extends Thread {
 		m_oImage.setImageBitmap(m_bmpVideo);
 	}
 
-	public void setOnConnect(ConnectListener i_oListener) {
+	public void setOnConnect(IConnectListener i_oListener) {
 		m_oConnectListener = i_oListener;
 	}
 	

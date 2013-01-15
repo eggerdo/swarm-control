@@ -40,5 +40,14 @@ public abstract class WifiRobot extends RobotView {
 		});
 		builder.create().show();
     }
+    
+    @Override
+    protected void connectToRobot() {
+    	if (m_oWifiHelper.initWifi()) {
+        	showConnectingDialog();
+    		connect();
+    	}
+    }
 
+	protected abstract void connect();
 }

@@ -5,10 +5,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.dobots.robots.BrainlinkDevice;
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.MoveRepeater;
-import org.dobots.robots.MoveRepeater.MoveCommand;
-import org.dobots.robots.RobotDevice;
+import org.dobots.robots.helpers.MoveRepeater;
+import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
 import org.dobots.robots.roboscooper.RoboScooperMoveRunner.SubMoveCommand;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.utility.Utils;
@@ -49,7 +49,7 @@ import edu.cmu.ri.createlab.brainlink.BrainLink;
  * moving forward or backward.
  */
 
-public class RoboScooper extends BrainlinkDevice implements RobotDevice {
+public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 	
 	public static final String TAG = "RoboScooper";
 	

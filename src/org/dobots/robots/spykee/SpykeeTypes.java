@@ -10,7 +10,7 @@ public class SpykeeTypes {
 	public static final int MIN_RADIUS 		= 1;
 	public static final int MAX_RADIUS 		= 1000;
 	
-	public static final double AXLE_WIDTH 	= 180.0;
+	public static final double AXLE_WIDTH 	= 180.0; // mm
 
 	public enum SpykeeSound {
 		ALARM,

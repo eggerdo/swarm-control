@@ -2,18 +2,13 @@ package org.dobots.utility;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.dobots.swarmcontrol.SwarmControlActivity;
-import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
-import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -21,13 +16,8 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Paint.Align;
-import android.graphics.Paint.Style;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,11 +26,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
 
 public class Utils {
 	

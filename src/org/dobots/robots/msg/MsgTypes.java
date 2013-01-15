@@ -1,4 +1,4 @@
-package org.dobots.robots.nxt.msg;
+package org.dobots.robots.msg;
 
 import java.util.Arrays;
 

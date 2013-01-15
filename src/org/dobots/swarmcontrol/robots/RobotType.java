@@ -7,7 +7,8 @@ public enum RobotType {
 	RBT_DOTTY		("Dotty", 			true), 
 	RBT_PARROT		("AR Drone", 		true),
 	RBT_ROBOSCOOPER	("RoboScooper", 	true),
-	RBT_SPYKEE		("Spykee", 			true),
+	RBT_SPYKEE		("Spykee", 			true), 
+	RBT_AC13ROVER	("AC13 Rover",		true),
 	RBT_FINCH		("Finch", 			false),
 	RBT_SURVEYOR	("Surveyor", 		false),
 	RBT_TRAKR		("Trakr", 			false);

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rgVideoResolution"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="20dp" >
+
+    <RadioButton
+        android:id="@+id/rb640x480"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left|center_vertical"
+        android:lineSpacingExtra="10dp"
+        android:paddingLeft="50dp"
+        android:text="@string/ac13rover_res640x480" />
+
+    <RadioButton
+        android:id="@+id/rb320x240"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="50dp"
+        android:text="@string/ac13rover_res320x240" />
+
+</RadioGroup>
+        

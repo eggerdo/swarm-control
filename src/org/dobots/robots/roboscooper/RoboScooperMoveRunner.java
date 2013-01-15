@@ -1,6 +1,6 @@
 package org.dobots.robots.roboscooper;
 
-import org.dobots.robots.MoveRepeater.MoveCommand;
+import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
 
 import android.util.Log;
 

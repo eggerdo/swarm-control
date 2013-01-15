@@ -1,27 +1,16 @@
 package org.dobots.utility;
 
-import java.util.Set;
-
-import org.dobots.robots.roomba.RoombaTypes.ButtonsPressed;
-import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.CalibrationDialogSelf.OnRunClick;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.widget.ArrayAdapter;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class CalibrationDialogUser extends Activity {

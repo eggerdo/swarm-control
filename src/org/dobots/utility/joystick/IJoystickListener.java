@@ -1,6 +1,6 @@
 package org.dobots.utility.joystick;
 
-public interface JoystickListener {
+public interface IJoystickListener {
 	
 	public void onUpdate(double i_dblPercentage, double i_dblAngle);
 	

@@ -4,7 +4,7 @@ import org.dobots.robots.parrot.Parrot;
 import org.dobots.robots.parrot.ParrotTypes;
 import org.dobots.robots.parrot.ParrotVideoProcessor;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.ScalableImageView;
@@ -15,9 +15,7 @@ import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,7 +24,7 @@ import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
 
-public class ParrotSensorGatherer extends SensorGatherer implements NavDataListener, DroneVideoListener, ConnectListener {
+public class ParrotSensorGatherer extends SensorGatherer implements NavDataListener, DroneVideoListener, IConnectListener {
 
 	private Parrot m_oParrot;
 

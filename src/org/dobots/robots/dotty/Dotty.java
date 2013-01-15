@@ -1,14 +1,9 @@
 package org.dobots.robots.dotty;
 
-import java.io.IOException;
-
-import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.DifferentialRobot;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.RobotDevice;
 import org.dobots.robots.dotty.DottyTypes.DataPackage;
-import org.dobots.robots.dotty.DottyTypes.SensorData;
-import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
+import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.dotty.DottyBluetooth;
 import org.dobots.utility.Utils;
@@ -17,7 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-public class Dotty implements RobotDevice {
+public class Dotty extends DifferentialRobot {
 
 	private DottyController m_oController;
 
@@ -31,8 +26,6 @@ public class Dotty implements RobotDevice {
 
 	private DottyReceiver m_oReceiver;
 
-	private double m_dblAxleWidth = 1.0;
-	
 	private double m_dblBaseSpeed = 50.0;
 	
 	private class DottyReceiver extends Thread {
@@ -93,6 +86,8 @@ public class Dotty implements RobotDevice {
 	}
 	
 	public Dotty() {
+		super(DottyTypes.AXLE_WIDTH, DottyTypes.MAX_VELOCITY, DottyTypes.MIN_RADIUS, DottyTypes.MAX_RADIUS);
+		
 		m_oReceiver = new DottyReceiver();
 		m_oReceiver.start();
 		
@@ -152,75 +147,64 @@ public class Dotty implements RobotDevice {
 		m_oController.control(i_bEnable);
 	}
 
-	private double capSpeed(double io_dblSpeed) {
-		// if a negative value was provided as speed
-		// use the absolute value of it.
-		io_dblSpeed = Math.abs(io_dblSpeed);
-		io_dblSpeed = Math.min(io_dblSpeed, 100);
-		io_dblSpeed = Math.max(io_dblSpeed, 0);
-		
-		return io_dblSpeed;
-	}
-	
-	private int capRadius(int io_nRadius) {
-		io_nRadius = Math.min(io_nRadius, DottyTypes.MAX_RADIUS);
-		io_nRadius = Math.max(io_nRadius, -DottyTypes.MAX_RADIUS);
-
-		return io_nRadius;
-	}
-	
-	private int calculateVelocity(double i_dblSpeed) {
-		return (int) Math.round(i_dblSpeed / 100.0 * DottyTypes.MAX_VELOCITY);
-	}
-	
-	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
-		int nBaseVelocity = calculateVelocity(i_dblSpeed);
-		int nVelocity1, nVelocity2;
-		
-		// a high radius value received means that the robot should make a small/short turn
-		// a low radius value received means that the robot should make a big/long turn
-		// that means that the actual radius from which we calculate the velocities has to be
-		// the opposite of the radius we receive
-		int nCorrectedRadius = DottyTypes.MAX_RADIUS - Math.abs(i_nRadius);
-		
-		if (i_nRadius == 0) {
-			io_rgnVelocity[0] = nBaseVelocity;
-			io_rgnVelocity[1] = nBaseVelocity;
-		} else {
-			nVelocity1 = (int) Math.round(nBaseVelocity * (nCorrectedRadius + m_dblAxleWidth) / (nCorrectedRadius + m_dblAxleWidth / 2.0));
-			nVelocity2 = (int) Math.round(nBaseVelocity * nCorrectedRadius / (nCorrectedRadius + m_dblAxleWidth / 2.0));
-			
-			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
-			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
-			// velocity would fall below 0 we set it to 0
-			int nOffset = nVelocity1 - DottyTypes.MAX_VELOCITY;
-			if (nOffset > 0) {
-				nVelocity1 = 100;
-				nVelocity2 = Math.max(nVelocity2 - nOffset, 0);
-			}
-			// for the same reason we have to make sure that the lower velocity of the two wheels cannot be less than 0. if the
-			// higher velocity would go above 100 we set it to 100
-			nOffset = -nVelocity2;
-			if (nOffset > 0) {
-				nVelocity1 = Math.min(nVelocity1 + nOffset, 100);
-				nVelocity2 = 0;
-			}
-			
-			if (i_nRadius > 0) {
-				io_rgnVelocity[0] = nVelocity2;
-				io_rgnVelocity[1] = nVelocity1;
-			} else if (i_nRadius < 0) {
-				io_rgnVelocity[0] = nVelocity1;
-				io_rgnVelocity[1] = nVelocity2;
-			}
-		}
-	}
+//	private int capRadius(int io_nRadius) {
+//		io_nRadius = Math.min(io_nRadius, DottyTypes.MAX_RADIUS);
+//		io_nRadius = Math.max(io_nRadius, -DottyTypes.MAX_RADIUS);
+//
+//		return io_nRadius;
+//	}
+//	
+//	private int calculateVelocity(double i_dblSpeed) {
+//		return (int) Math.round(i_dblSpeed / 100.0 * DottyTypes.MAX_VELOCITY);
+//	}
+//	
+//	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
+//		int nBaseVelocity = calculateVelocity(i_dblSpeed);
+//		int nVelocity1, nVelocity2;
+//		
+//		// a high radius value received means that the robot should make a small/short turn
+//		// a low radius value received means that the robot should make a big/long turn
+//		// that means that the actual radius from which we calculate the velocities has to be
+//		// the opposite of the radius we receive
+//		int nCorrectedRadius = DottyTypes.MAX_RADIUS - Math.abs(i_nRadius);
+//		
+//		if (i_nRadius == 0) {
+//			io_rgnVelocity[0] = nBaseVelocity;
+//			io_rgnVelocity[1] = nBaseVelocity;
+//		} else {
+//			nVelocity1 = (int) Math.round(nBaseVelocity * (nCorrectedRadius + m_dblAxleWidth) / (nCorrectedRadius + m_dblAxleWidth / 2.0));
+//			nVelocity2 = (int) Math.round(nBaseVelocity * nCorrectedRadius / (nCorrectedRadius + m_dblAxleWidth / 2.0));
+//			
+//			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
+//			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
+//			// velocity would fall below 0 we set it to 0
+//			int nOffset = nVelocity1 - DottyTypes.MAX_VELOCITY;
+//			if (nOffset > 0) {
+//				nVelocity1 = 100;
+//				nVelocity2 = Math.max(nVelocity2 - nOffset, 0);
+//			}
+//			// for the same reason we have to make sure that the lower velocity of the two wheels cannot be less than 0. if the
+//			// higher velocity would go above 100 we set it to 100
+//			nOffset = -nVelocity2;
+//			if (nOffset > 0) {
+//				nVelocity1 = Math.min(nVelocity1 + nOffset, 100);
+//				nVelocity2 = 0;
+//			}
+//			
+//			if (i_nRadius > 0) {
+//				io_rgnVelocity[0] = nVelocity2;
+//				io_rgnVelocity[1] = nVelocity1;
+//			} else if (i_nRadius < 0) {
+//				io_rgnVelocity[0] = nVelocity1;
+//				io_rgnVelocity[1] = nVelocity2;
+//			}
+//		}
+//	}
 
 	
 	
 	@Override
 	public void moveForward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		m_oController.drive(nVelocity, nVelocity);
@@ -228,9 +212,6 @@ public class Dotty implements RobotDevice {
 
 	@Override
 	public void moveForward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
-
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
 
@@ -238,15 +219,13 @@ public class Dotty implements RobotDevice {
 	}
 	
 	public void moveForward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = i_dblAngle - 90.0;
-		int nRadius = (int)(DottyTypes.MAX_RADIUS / 90.0 * dblAngle);
+		int nRadius = angleToRadius(i_dblAngle);
 		
 		moveForward(i_dblSpeed, nRadius);
 	}
 
 	@Override
 	public void moveBackward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		m_oController.drive(-nVelocity, -nVelocity);
@@ -254,9 +233,6 @@ public class Dotty implements RobotDevice {
 
 	@Override
 	public void moveBackward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
-
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
 
@@ -264,15 +240,13 @@ public class Dotty implements RobotDevice {
 	}
 	
 	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = i_dblAngle - 90.0;
-		int nRadius = (int)(DottyTypes.MAX_RADIUS / 90.0 * dblAngle);
+		int nRadius = angleToRadius(i_dblAngle);
 		
 		moveBackward(i_dblSpeed, nRadius);
 	}
 
 	@Override
 	public void rotateClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		m_oController.drive(nVelocity, -nVelocity);
@@ -280,7 +254,6 @@ public class Dotty implements RobotDevice {
 
 	@Override
 	public void rotateCounterClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		m_oController.drive(-nVelocity, nVelocity);

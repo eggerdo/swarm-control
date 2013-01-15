@@ -13,8 +13,6 @@ import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
 import org.dobots.utility.Utils;
 import org.dobots.utility.external.NumberPicker;
 
-import com.codeminders.ardrone.NavData.FlyingState;
-
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -27,18 +25,18 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.codeminders.ardrone.NavData.FlyingState;
 
 public class DanceList extends BaseActivity {
 	
@@ -252,6 +250,7 @@ public class DanceList extends BaseActivity {
 			}
 			
 			if (!Utils.waitForTaskCompletionWithResult(tasks)) {
+				Log.d(TAG, "preStep failed, abort dance");
 				stopDance();
 			}
 		}
@@ -326,14 +325,10 @@ public class DanceList extends BaseActivity {
 	private void dance1() {
 		
 		addMove(DanceMoves.dm_forward, 1);
-		addMove(DanceMoves.dm_backward, 1);
-		addMove(DanceMoves.dm_rotateLeft, 2);
-		addMove(DanceMoves.dm_rotateRight, 4);
-		addMove(DanceMoves.dm_rotateLeft, 2);
-		addMove(DanceMoves.dm_forward, 2);
-		addMove(DanceMoves.dm_rotateLeft, 1);
-		addMove(DanceMoves.dm_rotateRight, 1);
 		addMove(DanceMoves.dm_backward, 2);
+		addMove(DanceMoves.dm_forward, 2);
+		addMove(DanceMoves.dm_rotateLeft, 3);
+		addMove(DanceMoves.dm_rotateRight, 6);
 		
 	}
 
@@ -428,6 +423,7 @@ public class DanceList extends BaseActivity {
 			showStep();
 			startMove();
 			Utils.waitSomeTime(nDuration * 1000);
+			MultiRobotControl.moveStop();
 		}
 		
 	}

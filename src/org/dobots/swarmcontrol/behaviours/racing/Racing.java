@@ -1,26 +1,23 @@
 package org.dobots.swarmcontrol.behaviours.racing;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.dobots.robots.RobotDevice;
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.RobotDeviceFactory;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
-import org.dobots.swarmcontrol.BluetoothConnectionListener;
-import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.ConnectionHelper;
+import org.dobots.swarmcontrol.IBluetoothConnectionListener;
+import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.behaviours.ActivityResultListener;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -64,7 +61,7 @@ public class Racing extends BaseActivity {
 	
 	private BaseActivity m_oActivity;
 	private Spinner m_spRobotChoice;
-	private RobotDevice m_oRobot;
+	private IRobotDevice m_oRobot;
 	private int m_nInventoryIndex;
 	
 	private EnumMap<RaceRobot, BluetoothDevice> m_oAddress = null;
@@ -125,7 +122,7 @@ public class Racing extends BaseActivity {
 					e.printStackTrace();
 				}
 				
-				ConnectListener oListener = new ConnectListener() {
+				IConnectListener oListener = new IConnectListener() {
 					@Override
 					public void onConnect(boolean i_bConnected) {
 						if (i_bConnected) {
@@ -192,10 +189,10 @@ public class Racing extends BaseActivity {
 	private void setupRobot(final RaceRobot eRobot, final Iterator<RaceRobot> iter) {
 		
 		final BluetoothConnectionHelper oBTHelper = new BluetoothConnectionHelper(m_oActivity, RobotViewFactory.getRobotAddressFilter(eRobot.getType()));
-		oBTHelper.SetOnConnectListener(new BluetoothConnectionListener() {
+		oBTHelper.SetOnConnectListener(new IBluetoothConnectionListener() {
 			
 			@Override
-			public void connectToRobot(BluetoothDevice i_oDevice) {
+			public void connect(BluetoothDevice i_oDevice) {
 				m_oAddress.put(eRobot, i_oDevice);
 				if (iter.hasNext()) {
 					RaceRobot nextRobot = iter.next();

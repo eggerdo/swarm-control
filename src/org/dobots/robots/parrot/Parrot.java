@@ -4,19 +4,18 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.TimeoutException;
 
+import org.dobots.robots.BaseRobot;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.MoveRepeater;
-import org.dobots.robots.MoveRepeater.MoveCommand;
-import org.dobots.robots.MoveRepeater.MoveRepeaterListener;
-import org.dobots.robots.RobotDevice;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.robots.helpers.IMoveRepeaterListener;
+import org.dobots.robots.helpers.MoveRepeater;
+import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
+import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.utility.Utils;
 
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
@@ -27,7 +26,7 @@ import com.codeminders.ardrone.NavData.CtrlState;
 import com.codeminders.ardrone.NavData.FlyingState;
 import com.codeminders.ardrone.NavDataListener;
 
-public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataListener, ConnectListener, MoveRepeaterListener {
+public class Parrot extends BaseRobot implements DroneStatusChangeListener, NavDataListener, IConnectListener, IMoveRepeaterListener {
 
 	private static String TAG = "Parrot";
 
@@ -312,7 +311,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 
 					if (Math.abs(dblError) <= 0.01) {
 						if (++count == 5) {
-							Log.d(TAG, "Setpoint Reached");
+							debug(TAG, "Setpoint Reached");
 							bSetpointReached = true;
 							hover();
 						}
@@ -320,7 +319,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 						count = 0;
 
 						dblSpeed = pidControl(dblError);
-						Log.d(TAG, String.format(
+						debug(TAG, String.format(
 								"Altitude: %f, Error:%f, Speed: %f",
 								oNavData.getAltitude(), dblError, dblSpeed));
 						if ((dblSpeed > 0) && (dblSpeed <= 100)) {
@@ -328,7 +327,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 						} else if ((dblSpeed < 0) && (dblSpeed >= -100)) {
 							executeMoveDown(-dblSpeed);
 						} else {
-							Log.d(TAG, "Fatal Error");
+							debug(TAG, "Fatal Error");
 						}
 					}
 
@@ -357,7 +356,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 			long lTimeNow = SystemClock.uptimeMillis();
 			long dt = lTimeNow - lLastTime;
 			if (dt == 0) {
-				Log.e(TAG, "Time Interval is 0!");
+				error(TAG, "Time Interval is 0!");
 				return 0;
 			}
 
@@ -432,16 +431,6 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		// nothing to do
 	}
 
-	private double capSpeed(double io_dblSpeed) {
-		// if a negative value was provided as speed
-		// use the absolute value of it.
-		io_dblSpeed = Math.abs(io_dblSpeed);
-		io_dblSpeed = Math.min(io_dblSpeed, 100);
-		io_dblSpeed = Math.max(io_dblSpeed, 0);
-
-		return io_dblSpeed;
-	}
-
 	private int capRadius(int io_nRadius) {
 		// io_nRadius = Math.min(io_nRadius, DottyTypes.MAX_RADIUS);
 		// io_nRadius = Math.max(io_nRadius, -DottyTypes.MAX_RADIUS);
@@ -478,7 +467,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 			executeRotateClockwise(i_dblSpeed);
 			break;
 		default:
-			Log.d(TAG, "Move not available");
+			error(TAG, "Move not available");
 			return;
 		}
 	}
@@ -733,7 +722,7 @@ public class Parrot implements RobotDevice, DroneStatusChangeListener, NavDataLi
 		@Override
 		public void run() {
 			synchronized (m_oRepeater.getMutex()) {
-				Log.d(TAG, "Move");
+				debug(TAG, "Move");
 				executeMove(dblLeftRightTilt, dblFrontBackTilt, dblVerticalSpeed, dblAngularSpeed);
 			}
 		}

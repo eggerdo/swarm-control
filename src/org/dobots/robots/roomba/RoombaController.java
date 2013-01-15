@@ -1,16 +1,12 @@
 package org.dobots.robots.roomba;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
 
 import org.dobots.utility.Utils;
+import org.dobots.utility.log.Loggable;
 
-import android.bluetooth.BluetoothSocket;
-import android.util.Log;
-
-public class RoombaController {
+public class RoombaController extends Loggable {
 	
 	private static final String TAG = "RoombaCtrl";
 	
@@ -220,7 +216,7 @@ public class RoombaController {
 	 *  				Turn in place counter-clockwise = 1
 	 */
 	public void drive(int i_nVelocity, int i_nRadius) {
-		Log.d(TAG, String.format("drive(%d, %d)", i_nVelocity, i_nRadius));
+		debug(TAG, String.format("drive(%d, %d)", i_nVelocity, i_nRadius));
 		
 		byte nVelocityH, nVelocityL;
 		byte nRadiusH, nRadiusL;

@@ -3,12 +3,8 @@ package org.dobots.robots.nxt;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.UUID;
 
-import org.dobots.robots.nxt.LCPMessage;
-import org.dobots.robots.nxt.NXTTypes.DistanceData;
 import org.dobots.utility.Utils;
 
 public class NXTTypes {
@@ -62,12 +58,15 @@ public class NXTTypes {
     // this is the only OUI registered by LEGO, see http://standards.ieee.org/regauth/oui/index.shtml
     public static final String OUI_LEGO = "00:16:53";
     
-    public static int MAX_VELOCITY = 100;
-//    public static int MAX_RADIUS = 2000;
-    public static int MAX_RADIUS = 1000;
-	public static int STRAIGHT = 32768;
-	public static int CLOCKWISE = -1;
-	public static int COUNTER_CLOCKWISE = 1;
+    public static final int MAX_VELOCITY = 100;
+//    public static final int MAX_RADIUS = 2000;
+    public static final int MAX_RADIUS = 1000;
+	public static final int MIN_RADIUS = 1;
+	public static final int STRAIGHT = 32768;
+	public static final int CLOCKWISE = -1;
+	public static final int COUNTER_CLOCKWISE = 1;
+
+	public static final double AXLE_WIDTH = 160.0;
 	
 	public enum ENXTSensorType {
 		sensType_None("None",						LCPMessage.NO_SENSOR,		LCPMessage.RAWMODE),

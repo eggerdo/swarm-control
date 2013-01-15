@@ -20,23 +20,16 @@
 package org.dobots.swarmcontrol.robots.nxt;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
+import org.dobots.robots.msg.MsgTypes;
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.swarmcontrol.R;
 import org.dobots.utility.Utils;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.res.Resources;
-import android.os.Handler;
 
 /**
  * This class is for talking to a LEGO NXT robot via bluetooth.

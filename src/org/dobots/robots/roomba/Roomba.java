@@ -1,10 +1,8 @@
 package org.dobots.robots.roomba;
 
-import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.robots.RobotDevice;
-import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.robots.BaseRobot;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaModes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
@@ -13,7 +11,7 @@ import org.dobots.utility.Utils;
 
 import android.os.Handler;
 
-public class Roomba implements RobotDevice {
+public class Roomba extends BaseRobot {
 	
 	RoombaController oRoombaCtrl; 
 	
@@ -37,6 +35,7 @@ public class Roomba implements RobotDevice {
 
 	public Roomba() {
 		oRoombaCtrl = new RoombaController();
+		oRoombaCtrl.setLogListener(m_oLogListener);
 		
 		m_eMode = ERoombaModes.mod_Unknown;
 		
@@ -282,16 +281,6 @@ public class Roomba implements RobotDevice {
 		m_eMode = ERoombaModes.mod_Passive;
 	}
 	
-	private double capSpeed(double io_dblSpeed) {
-		// if a negative value was provided as speed
-		// use the absolute value of it.
-		io_dblSpeed = Math.abs(io_dblSpeed);
-		io_dblSpeed = Math.min(io_dblSpeed, 100);
-		io_dblSpeed = Math.max(io_dblSpeed, 0);
-		
-		return io_dblSpeed;
-	}
-	
 	private void capRadius(int io_nRadius) {
 		io_nRadius = Math.min(io_nRadius, RoombaTypes.MAX_RADIUS);
 		io_nRadius = Math.max(io_nRadius, -RoombaTypes.MAX_RADIUS);
@@ -311,18 +300,24 @@ public class Roomba implements RobotDevice {
 	}
 	
 	private int calculateVelocity(double i_dblSpeed) {
+		i_dblSpeed = capSpeed(i_dblSpeed);
 		return (int) Math.round(i_dblSpeed / 100.0 * RoombaTypes.MAX_VELOCITY);
 	}
 	
+	private int angleToRadius(double i_dblAngle) {
+		double dblAngle = (90 - Math.abs(i_dblAngle));
+		int nRadius = (int) (Math.signum(i_dblAngle) * (RoombaTypes.MAX_RADIUS / 90.0 * dblAngle));
+		
+		return nRadius;
+	}
+	
 	public void moveForward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.STRAIGHT);
 	}
 	
 	public void moveForward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
@@ -333,25 +328,22 @@ public class Roomba implements RobotDevice {
 
 	@Override
 	public void moveForward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
 		
-		if (Math.abs(dblAngle) < STRAIGHT_THRESHOLD) {
+		if (90 - Math.abs(i_dblAngle) < STRAIGHT_THRESHOLD) {
 			moveForward(i_dblSpeed);
 		} else {
-			int nRadius = (int)(RoombaTypes.MAX_RADIUS / 90.0 * dblAngle);
+			int nRadius = angleToRadius(i_dblAngle);
 			moveForward(i_dblSpeed, nRadius);
 		}
 	}
 
 	public void moveBackward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(-nVelocity, RoombaTypes.STRAIGHT);
 	}
 
 	public void moveBackward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
@@ -360,25 +352,22 @@ public class Roomba implements RobotDevice {
 
 	@Override
 	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
 
-		if (Math.abs(dblAngle) < STRAIGHT_THRESHOLD) {
+		if (90 - Math.abs(i_dblAngle) < STRAIGHT_THRESHOLD) {
 			moveBackward(i_dblSpeed);
 		} else {
-			int nRadius = (int)(RoombaTypes.MAX_RADIUS / 90.0 * dblAngle);
+			int nRadius = angleToRadius(i_dblAngle);
 			moveBackward(i_dblSpeed, nRadius);
 		}
 	}
 
 	public void rotateClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.CLOCKWISE);
 	}
 	
 	public void rotateCounterClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		oRoombaCtrl.drive(nVelocity, RoombaTypes.COUNTER_CLOCKWISE);

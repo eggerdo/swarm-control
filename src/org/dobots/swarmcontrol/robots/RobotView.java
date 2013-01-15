@@ -1,25 +1,14 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.apache.commons.net.nntp.NewGroupsOrNewsQuery;
-import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.RobotDevice;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.BluetoothConnectionHelper;
-import org.dobots.swarmcontrol.BluetoothConnectionListener;
-import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.utility.AccelerometerListener;
 import org.dobots.utility.AccelerometerManager;
+import org.dobots.utility.IAccelerometerListener;
 import org.dobots.utility.ProgressDlg;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,13 +16,10 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager.LayoutParams;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract class RobotView extends BaseActivity implements AccelerometerListener {
+public abstract class RobotView extends BaseActivity implements IAccelerometerListener {
 	
 	protected static final int CONNECT_ID = Menu.FIRST;
 
@@ -44,7 +30,7 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 	protected BaseActivity m_oActivity;
 	protected RobotType m_eRobot;
 
-	protected String m_strMacAddress = "";
+	protected String m_strAddress = "";
 
 	protected ProgressDlg progress;
 	
@@ -91,6 +77,10 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 			showToast("Connection OK", Toast.LENGTH_SHORT);
 			onConnect();
 			break;
+			
+		case MessageTypes.STATE_DISCONNECTED:
+			onDisconnect();
+			break;
 
 		case MessageTypes.STATE_CONNECTERROR:
 			connectingProgressDialog.dismiss();
@@ -131,6 +121,13 @@ public abstract class RobotView extends BaseActivity implements AccelerometerLis
 		if (AccelerometerManager.isListening()) {
 			AccelerometerManager.stopListening();
 		}
+    }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+
+    	m_bAccelerometer = false;
     }
 
 	@Override

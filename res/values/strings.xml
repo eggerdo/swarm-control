@@ -294,6 +294,13 @@
     <string name="spykee_led3">Led 3</string>
     <string name="spykee_play">Play</string>
     
+    <!--  AC13 Rover -->
+    <string name="ac13rover_title">AC13 Rover</string>
+    <string name="ac13rover_commands">AC13 Rover Commands</string>
+    <string name="ar13rover_infrared">Infrared</string>
+    <string name="ac13rover_res640x480">640 x 480</string>
+    <string name="ac13rover_res320x240">320 x 240</string>
+    
     <!--  Unassigned -->
     <string name="racing_title">Choose your robot</string>
     

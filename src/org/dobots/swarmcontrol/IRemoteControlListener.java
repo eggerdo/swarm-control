@@ -2,7 +2,7 @@ package org.dobots.swarmcontrol;
 
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 
-public interface RemoteControlListener {
+public interface IRemoteControlListener {
 	
 	void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle);
 	

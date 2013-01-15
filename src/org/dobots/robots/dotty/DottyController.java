@@ -2,7 +2,6 @@ package org.dobots.robots.dotty;
 
 import java.io.IOException;
 
-import org.dobots.robots.dotty.DottyTypes.CmdPackage;
 import org.dobots.swarmcontrol.robots.dotty.DottyBluetooth;
 
 public class DottyController {

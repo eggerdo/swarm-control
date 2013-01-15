@@ -1,30 +1,22 @@
 package org.dobots.utility;
 
-import java.util.Set;
-
-import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.R;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.ArrayAdapter;
+import android.view.Window;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class FeedbackDialog extends Activity {
 	
-	private static OnButtonPress onUpPress = null;
-	private static OnButtonPress onDownPress = null;
+	private static IButtonPressListener onUpPress = null;
+	private static IButtonPressListener onDownPress = null;
 	
 	public static final String TITLE = "Title";
 	public static final String MESSAGE = "Message";
@@ -55,7 +47,7 @@ public class FeedbackDialog extends Activity {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
 					if (onUpPress != null) {
-						onUpPress.buttonPressed(false);
+						onUpPress.onButtonPressed(false);
 					} else {
 						setResult(RESULT_UP);
 		                finish();
@@ -65,7 +57,7 @@ public class FeedbackDialog extends Activity {
 					break;
 				case MotionEvent.ACTION_DOWN:
 					if (onUpPress != null) {
-						onUpPress.buttonPressed(true);
+						onUpPress.onButtonPressed(true);
 					} else {
 						// set result once the button is released
 					}
@@ -98,7 +90,7 @@ public class FeedbackDialog extends Activity {
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_UP:
 					if (onDownPress != null) {
-						onDownPress.buttonPressed(false);
+						onDownPress.onButtonPressed(false);
 					} else {
 						setResult(RESULT_DOWN);
 		                finish();
@@ -108,7 +100,7 @@ public class FeedbackDialog extends Activity {
 					break;
 				case MotionEvent.ACTION_DOWN:
 					if (onDownPress != null) {
-						onDownPress.buttonPressed(true);
+						onDownPress.onButtonPressed(true);
 					} else {
 						// set result once the button is released
 					}
@@ -134,7 +126,7 @@ public class FeedbackDialog extends Activity {
         lblMessage.setText(strMessage);
     }
     
-    public static void createAndShow(Activity i_oActivity, String i_strTitle, String i_strMessage, OnButtonPress i_onUpPress, OnButtonPress i_onDownPress) {
+    public static void createAndShow(Activity i_oActivity, String i_strTitle, String i_strMessage, IButtonPressListener i_onUpPress, IButtonPressListener i_onDownPress) {
 
 		Intent oIntent = new Intent(i_oActivity, FeedbackDialog.class);
 		Bundle oParam = new Bundle();

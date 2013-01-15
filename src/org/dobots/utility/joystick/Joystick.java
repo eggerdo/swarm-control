@@ -2,19 +2,13 @@ package org.dobots.utility.joystick;
 
 
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.R.drawable;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Point;
-import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -88,11 +82,11 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawBitmap(m_bmpJoystick, touchPoint.x - m_bmpJoystick.getWidth() / 2, touchPoint.y - m_bmpJoystick.getHeight() / 2, null);
 	}
 	
-	public void setUpdateListener(JoystickListener i_oListener) {
+	public void setUpdateListener(IJoystickListener i_oListener) {
 		m_oController.setUpdateListener(i_oListener);
 	}
 	
-	public void removeUpdateListener(JoystickListener i_oListener) {
+	public void removeUpdateListener(IJoystickListener i_oListener) {
 		m_oController.removeUpdateListener(i_oListener);
 	}
 

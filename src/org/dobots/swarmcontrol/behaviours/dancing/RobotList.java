@@ -3,44 +3,33 @@ package org.dobots.swarmcontrol.behaviours.dancing;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dobots.robots.RobotDevice;
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.RobotDeviceFactory;
-import org.dobots.robots.nxt.NXT;
-import org.dobots.robots.roomba.Roomba;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.BluetoothConnectionHelper;
-import org.dobots.swarmcontrol.BluetoothConnectionListener;
-import org.dobots.swarmcontrol.ConnectListener;
 import org.dobots.swarmcontrol.ConnectionHelper;
+import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.SwarmControlActivity;
-import org.dobots.swarmcontrol.behaviours.ActivityResultListener;
+import org.dobots.swarmcontrol.behaviours.IActivityResultListener;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.RobotViewFactory;
-import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
-import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,7 +38,7 @@ public class RobotList extends BaseActivity {
 
 	private BaseActivity m_oActivity;
 
-	private ArrayList<ActivityResultListener> m_oActivityResultListener;
+	private ArrayList<IActivityResultListener> m_oActivityResultListener;
 	
 	private boolean m_bShowRemoveRobot = false;
 	
@@ -68,7 +57,7 @@ public class RobotList extends BaseActivity {
 		m_oActivity = this;
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
-		m_oActivityResultListener = new ArrayList<ActivityResultListener>();
+		m_oActivityResultListener = new ArrayList<IActivityResultListener>();
 		m_oRobotList = DancingMain.getInstance().getRobotList();
 		
 		setProperties();
@@ -145,7 +134,7 @@ public class RobotList extends BaseActivity {
 
 	private void addRobot(RobotType i_eRobot) {
 		
-		RobotDevice oRobot;
+		IRobotDevice oRobot;
 		try {
 			oRobot = RobotDeviceFactory.getRobotDevice(i_eRobot);
 			int nIndex = RobotInventory.getInstance().addRobot(oRobot);
@@ -162,12 +151,12 @@ public class RobotList extends BaseActivity {
 
 	public class RobotEntry {
 		
-		RobotDevice oRobot;
+		IRobotDevice oRobot;
 		RobotType eType;
 		int nInventoryIdx;
 		boolean bRemove;
 		
-		public RobotEntry(RobotDevice i_oRobot, RobotType eType, int index) {
+		public RobotEntry(IRobotDevice i_oRobot, RobotType eType, int index) {
 			this.oRobot = i_oRobot;
 			this.eType = eType;
 			this.nInventoryIdx = index;
@@ -222,7 +211,7 @@ public class RobotList extends BaseActivity {
 					public void onClick(View v) {
 						final RobotEntry oEntry = (RobotEntry) viewHolder.btnConnect.getTag();
 						
-						ConnectListener oListener = new ConnectListener() {
+						IConnectListener oListener = new IConnectListener() {
 							@Override
 							public void onConnect(boolean i_bConnected) {
 								viewHolder.lblRobotStatus.setText(i_bConnected ? "Connected" : "Disconnected");
@@ -308,7 +297,9 @@ public class RobotList extends BaseActivity {
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		
-		m_oRobotList.remove(info.position);
+		RobotEntry entry = m_oRobotList.get(info.position);
+		m_oRobotList.remove(entry);
+		entry.destroy();
 		m_lvAddedRobots.invalidateViews();
 		return true;
 	}

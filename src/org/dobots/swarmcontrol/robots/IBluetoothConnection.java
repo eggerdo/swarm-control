@@ -2,7 +2,7 @@ package org.dobots.swarmcontrol.robots;
 
 import java.util.concurrent.TimeoutException;
 
-public interface BluetoothConnection {
+public interface IBluetoothConnection {
 	
 	public void send(byte[] buffer);
 	

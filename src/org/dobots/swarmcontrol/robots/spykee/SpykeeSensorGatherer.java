@@ -3,7 +3,6 @@ package org.dobots.swarmcontrol.robots.spykee;
 import org.dobots.robots.spykee.Spykee;
 import org.dobots.robots.spykee.SpykeeController;
 import org.dobots.robots.spykee.SpykeeController.DockState;
-import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
@@ -15,10 +14,7 @@ import android.graphics.Canvas;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 

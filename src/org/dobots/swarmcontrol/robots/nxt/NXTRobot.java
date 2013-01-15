@@ -1,8 +1,5 @@
 package org.dobots.swarmcontrol.robots.nxt;
 
-import java.io.IOException;
-
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
@@ -10,30 +7,23 @@ import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.roboscooper.RoboScooperRobot;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -43,13 +33,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
 
-public class NXTRobot extends BluetoothRobot implements BTConnectable {
+public class NXTRobot extends BluetoothRobot {
 
 	private static String TAG = "NXT";
 	
@@ -167,17 +156,6 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
     }
 
     @Override
-    public void onRestart() {
-    	super.onRestart();
-    	
-    	if (m_strMacAddress != "" && !m_bKeepAlive) {
-    		connectToRobot(m_oBTHelper.getRemoteDevice(m_strMacAddress));
-    	}
-
-//    	m_oSensorGatherer.resumeThread();
-    }
-
-    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		
@@ -233,9 +211,9 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 	}
 
 	@Override
-	public void connectToRobot(BluetoothDevice i_oDevice) {
-		if (m_oBTHelper.initBluetooth()) {
-			m_strMacAddress = i_oDevice.getAddress();
+	public void connect(BluetoothDevice i_oDevice) {
+//		if (m_oBTHelper.initBluetooth()) {
+			m_strAddress = i_oDevice.getAddress();
 			showConnectingDialog();
 			
 			if (m_oNxt.isConnected()) {
@@ -244,10 +222,10 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 
 			m_oNxt.setConnection(new NXTBluetooth(i_oDevice, getResources()));
 			m_oNxt.connect();
-		}
+//		}
 	}
 	
-	public static void connectToNXT(final BaseActivity m_oOwner, NXT i_oNxt, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+	public static void connectToNXT(final BaseActivity m_oOwner, NXT i_oNxt, BluetoothDevice i_oDevice, final IConnectListener i_oConnectListener) {
 		NXTRobot m_oRobot = new NXTRobot(m_oOwner) {
 			public void onConnect() {
 				i_oConnectListener.onConnect(true);
@@ -756,12 +734,6 @@ public class NXTRobot extends BluetoothRobot implements BTConnectable {
 		}
 	}
 
-	@Override
-	public boolean isPairing() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
 	public static String getMacFilter() {
 		return NXTTypes.MAC_FILTER;
 	}

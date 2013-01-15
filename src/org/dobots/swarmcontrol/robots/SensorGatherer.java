@@ -2,7 +2,6 @@ package org.dobots.swarmcontrol.robots;
 
 import org.dobots.swarmcontrol.BaseActivity;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.TextView;

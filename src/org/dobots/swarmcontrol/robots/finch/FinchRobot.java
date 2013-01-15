@@ -2,26 +2,19 @@ package org.dobots.swarmcontrol.robots.finch;
 
 import java.util.Random;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
 
-//import edu.cmu.ri.createlab.terk.robot.finch.Finch;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.ViewDebug.IntToString;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
 public class FinchRobot extends RobotView {
 	

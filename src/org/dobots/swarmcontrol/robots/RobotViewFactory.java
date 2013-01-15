@@ -1,12 +1,13 @@
 package org.dobots.swarmcontrol.robots;
 
+import org.dobots.robots.ac13.AC13RoverTypes;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.parrot.ParrotTypes;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.spykee.SpykeeTypes;
-import org.dobots.swarmcontrol.BaseActivity;
+import org.dobots.swarmcontrol.robots.ac13.AC13RoverRobot;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.swarmcontrol.robots.parrot.ParrotRobot;
@@ -30,6 +31,8 @@ public class RobotViewFactory {
 			return RoboScooperRobot.class;
 		case RBT_SPYKEE:
 			return SpykeeRobot.class;
+		case RBT_AC13ROVER:
+			return AC13RoverRobot.class;
 		default:
 			return UnimplementedRobot.class;
 		}
@@ -49,6 +52,8 @@ public class RobotViewFactory {
 			return RoboScooperTypes.MAC_FILTER;
 		case RBT_SPYKEE:
 			return SpykeeTypes.SSID_FILTER;
+		case RBT_AC13ROVER:
+			return AC13RoverTypes.SSID_FILTER;
 		default:
 			return null;
 		}

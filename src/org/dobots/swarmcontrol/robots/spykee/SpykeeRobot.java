@@ -24,15 +24,14 @@ import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.robots.spykee.SpykeeTypes.SpykeeSound;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.IConnectListener;
+import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RemoteControlListener;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.WifiRobot;
-import org.dobots.swarmcontrol.robots.parrot.ParrotRobot;
 import org.dobots.utility.Utils;
 
 import android.app.AlertDialog;
@@ -54,7 +53,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
+public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 
 	private static String TAG = "Spykee";
 
@@ -277,7 +276,7 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
     public void onRestart() {
     	super.onRestart();
     	
-    	if (m_strMacAddress != "" && !m_bKeepAlive) {
+    	if (m_strAddress != "" && !m_bKeepAlive) {
     		connectToRobot();
     	}
 
@@ -371,20 +370,19 @@ public class SpykeeRobot extends WifiRobot implements RemoteControlListener {
 	}
 
 	@Override
-	protected void connectToRobot() {
-
-        if (checkSettings()) {
-        	showConnectingDialog();
+	protected void connect() {
 		
+        if (checkSettings()) {
         	m_oSpykee.setConnection(m_strAddress, m_strPort, m_strLogin, m_strPassword);
 			m_oSpykee.connect();
 		} else {
+			connectingProgressDialog.dismiss();
 			Utils.showToast("Connection Settings not valid, please check your settings and try connecting again!", Toast.LENGTH_LONG);
 		}
 	}
 
-	public static void connectToSpykee(final BaseActivity m_oOwner, Spykee i_oSpykee, final ConnectListener i_oConnectListener) {
-		ParrotRobot m_oRobot = new ParrotRobot(m_oOwner) {
+	public static void connectToSpykee(final BaseActivity m_oOwner, Spykee i_oSpykee, final IConnectListener i_oConnectListener) {
+		SpykeeRobot m_oRobot = new SpykeeRobot(m_oOwner) {
 			public void onConnect() {
 				i_oConnectListener.onConnect(true);
 			};

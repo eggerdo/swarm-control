@@ -1,6 +1,6 @@
 package org.dobots.robots;
 
-public class DifferentialRobot {
+public abstract class DifferentialRobot extends BaseRobot {
 	
 	protected double m_dblAxleWidth = -1;
 	protected int m_nMaxVelocity = -1;
@@ -14,17 +14,7 @@ public class DifferentialRobot {
 		m_nMaxRadius = i_nMaxRadius;
 	}
 
-	protected double capSpeed(double io_dblSpeed) {
-		// if a negative value was provided as speed
-		// use the absolute value of it.
-		io_dblSpeed = Math.abs(io_dblSpeed);
-		io_dblSpeed = Math.min(io_dblSpeed, 100);
-		io_dblSpeed = Math.max(io_dblSpeed, 0);
-		
-		return io_dblSpeed;
-	}
-
-	protected int capRadius(int io_nRadius) {
+	private int capRadius(int io_nRadius) {
 		io_nRadius = Math.min(io_nRadius, m_nMaxRadius);
 		io_nRadius = Math.max(io_nRadius, -m_nMaxRadius);
 
@@ -40,6 +30,7 @@ public class DifferentialRobot {
 	// if the robot is supposed to drive left or right
 	protected void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
 		if (i_nRadius == 0) {
+			error("DifferentialRobot", "radius is 0");
 			return;
 		}
 		
@@ -65,7 +56,7 @@ public class DifferentialRobot {
 		nOffset = -nVelocity2;
 		if (nOffset > 0) {
 			nVelocity1 = Math.min(nVelocity1 + nOffset, m_nMaxVelocity);
-			nVelocity2 = m_nMaxVelocity;
+			nVelocity2 = 0;
 		}
 		
 		if (nRadius > 0) {

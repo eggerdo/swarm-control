@@ -1,4 +1,4 @@
-package org.dobots.robots;
+package org.dobots.robots.helpers;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -6,17 +6,11 @@ import java.util.logging.Logger;
 import org.dobots.utility.Utils;
 import org.dobots.utility.joystick.JoystickSurfaceThread;
 
-import android.os.Handler;
 import android.util.Log;
 
 public class MoveRepeater extends Thread {
 	
 	private static final String TAG = "MoveRepeater";
-	
-	public interface MoveRepeaterListener {
-		void onDoMove(MoveCommand i_eMove, double i_dblSpeed);
-		void onDoMove(MoveCommand i_eMove, double i_dblSpeed, int i_nRadius);
-	}
 	
     public enum MoveCommand {
     	MOVE_UP, MOVE_DOWN, MOVE_FWD, MOVE_BWD, MOVE_LEFT, MOVE_RIGHT, ROTATE_LEFT, ROTATE_RIGHT
@@ -25,7 +19,7 @@ public class MoveRepeater extends Thread {
 	private boolean m_bRun = true;
     private Runnable m_oCurrentMove = null;
 
-    private MoveRepeaterListener m_oRobot;
+    private IMoveRepeaterListener m_oRobot;
 
 	private Object m_oMoveMutex = new Object();
 	
@@ -39,7 +33,7 @@ public class MoveRepeater extends Thread {
 	//amount of time to sleep for (in milliseconds)
 //	private long m_lDelay=70;
 	
-	public MoveRepeater(MoveRepeaterListener i_oRobot, int i_nInterval) {
+	public MoveRepeater(IMoveRepeaterListener i_oRobot, int i_nInterval) {
 		m_oRobot = i_oRobot;
 		m_nInterval = i_nInterval;
 		start();

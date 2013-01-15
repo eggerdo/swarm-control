@@ -12,20 +12,13 @@ import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.robots.nxt.NXTTypes.MotorData;
 import org.dobots.robots.nxt.NXTTypes.SensorData;
-import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TableLayout;
 import android.widget.TextView;
 

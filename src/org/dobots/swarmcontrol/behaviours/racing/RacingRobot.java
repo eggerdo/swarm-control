@@ -2,16 +2,15 @@ package org.dobots.swarmcontrol.behaviours.racing;
 
 import java.io.IOException;
 
-import org.dobots.robots.RobotDevice;
+import org.dobots.robots.IRobotDevice;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.SwarmControlActivity;
+import org.dobots.utility.joystick.IJoystickListener;
 import org.dobots.utility.joystick.Joystick;
-import org.dobots.utility.joystick.JoystickListener;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -19,14 +18,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
 
-public class RacingRobot extends BaseActivity implements JoystickListener {
+public class RacingRobot extends BaseActivity implements IJoystickListener {
 
 	private static final String TAG = "RacingRobot";
 	
 	private static final int CONNECT_ID = Menu.FIRST;
 	private static final int ROBOT_ID = CONNECT_ID + 1;
 	
-	private RobotDevice m_oRobot;
+	private IRobotDevice m_oRobot;
 	private BaseActivity m_oActivity;
 	
 	private Move lastMove = Move.NONE;

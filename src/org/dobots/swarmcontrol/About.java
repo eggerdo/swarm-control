@@ -4,11 +4,11 @@
 
 package org.dobots.swarmcontrol;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.app.Activity;
-import android.app.Dialog;
 import android.widget.Button;
 
 class About {

@@ -5,15 +5,14 @@ import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.IConnectListener;
+import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RemoteControlListener;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.nxt.BTConnectable;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothDevice;
@@ -30,7 +29,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, RemoteControlListener {
+public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlListener {
 	
 	private static String TAG = "RoboScooper";
 	
@@ -271,17 +270,6 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
     }
 
     @Override
-    public void onRestart() {
-    	super.onRestart();
-    	
-    	if (m_strMacAddress != "" && !m_bKeepAlive) {
-    		connectToRobot(m_oBTHelper.getRemoteDevice(m_strMacAddress));
-    	}
-
-//    	m_oSensorGatherer.resumeThread();
-    }
-
-    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
@@ -328,9 +316,9 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 	}
 
 	@Override
-	public void connectToRobot(BluetoothDevice i_oDevice) {
-		if (m_oBTHelper.initBluetooth()) {
-			m_strMacAddress = i_oDevice.getAddress();
+	public void connect(BluetoothDevice i_oDevice) {
+//		if (m_oBTHelper.initBluetooth()) {
+			m_strAddress = i_oDevice.getAddress();
 			showConnectingDialog();
 			
 			if (m_oRoboScooper.isConnected()) {
@@ -339,10 +327,10 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 
 			m_oRoboScooper.setConnection(i_oDevice);
 			m_oRoboScooper.connect();
-		}
+//		}
 	}
 
-	public static void connectToRoboScooper(final BaseActivity m_oOwner, RoboScooper i_oRoboScooper, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+	public static void connectToRoboScooper(final BaseActivity m_oOwner, RoboScooper i_oRoboScooper, BluetoothDevice i_oDevice, final IConnectListener i_oConnectListener) {
 		RoboScooperRobot m_oRobot = new RoboScooperRobot(m_oOwner) {
 			public void onConnect() {
 				i_oConnectListener.onConnect(true);
@@ -360,12 +348,6 @@ public class RoboScooperRobot extends BluetoothRobot implements BTConnectable, R
 		i_oRoboScooper.setConnection(i_oDevice);
 		i_oRoboScooper.connect();
 		i_oRoboScooper.setHandler(m_oRobot.getUIHandler());
-	}
-	
-	@Override
-	public boolean isPairing() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override

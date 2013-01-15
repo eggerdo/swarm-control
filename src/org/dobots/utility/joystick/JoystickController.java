@@ -1,14 +1,7 @@
 package org.dobots.utility.joystick;
 
-import org.dobots.utility.joystick.JoystickListener;
-
 import android.graphics.Point;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 
 public class JoystickController {
 
@@ -22,7 +15,7 @@ public class JoystickController {
 	
 	public int m_nMaxMoveRadius;
 	
-	private JoystickListener m_oListener;
+	private IJoystickListener m_oListener;
 
 //	public JoystickController(Point i_oPosition, int i_nMaxMoveRadius) {
 //		m_oOrigin = i_oPosition;
@@ -39,11 +32,11 @@ public class JoystickController {
 		m_nMaxMoveRadius = i_nMaxMoveRadius;
 	}
 	
-	public void setUpdateListener(JoystickListener i_oListener) {
+	public void setUpdateListener(IJoystickListener i_oListener) {
 		m_oListener = i_oListener;
 	}
 
-	public void removeUpdateListener(JoystickListener i_oListener) {
+	public void removeUpdateListener(IJoystickListener i_oListener) {
 		if (m_oListener == i_oListener) {
 			m_oListener = null;
 		}

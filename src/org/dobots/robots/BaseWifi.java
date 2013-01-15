@@ -3,19 +3,12 @@ package org.dobots.robots;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.UUID;
 
-import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.swarmcontrol.R;
 import org.dobots.utility.Utils;
 
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 
 public abstract class BaseWifi extends Thread {

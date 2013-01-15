@@ -1,41 +1,32 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
-import org.dobots.robots.MessageTypes;
-import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.IConnectListener;
+import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RemoteControlListener;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
-import org.dobots.swarmcontrol.robots.roomba.RoombaSensorGatherer.SensorEntry;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -46,7 +37,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class RoombaRobot extends BluetoothRobot implements RemoteControlListener {
+public class RoombaRobot extends BluetoothRobot implements IRemoteControlListener {
 	
 	private static String TAG = "Roomba";
 
@@ -283,8 +274,9 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		}
 	}
 
-	public void connectToRobot(BluetoothDevice i_oDevice) {
-		m_strMacAddress = i_oDevice.getAddress();
+	@Override
+	public void connect(BluetoothDevice i_oDevice) {
+		m_strAddress = i_oDevice.getAddress();
 		showConnectingDialog();
 		
 		if (m_oRoomba.isConnected()) {
@@ -326,7 +318,7 @@ public class RoombaRobot extends BluetoothRobot implements RemoteControlListener
 		super.handleUIMessage(msg);
 	}
 
-	public static void connectToRoomba(final BaseActivity m_oOwner, Roomba i_oRoomba, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+	public static void connectToRoomba(final BaseActivity m_oOwner, Roomba i_oRoomba, BluetoothDevice i_oDevice, final IConnectListener i_oConnectListener) {
 		NXTRobot m_oRobot = new NXTRobot(m_oOwner) {
 			public void onConnect() {
 				i_oConnectListener.onConnect(true);

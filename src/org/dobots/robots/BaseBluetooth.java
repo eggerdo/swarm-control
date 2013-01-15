@@ -6,10 +6,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.RobotView;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothDevice;

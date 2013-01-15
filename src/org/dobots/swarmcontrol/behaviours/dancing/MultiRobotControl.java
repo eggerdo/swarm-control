@@ -1,38 +1,18 @@
 package org.dobots.swarmcontrol.behaviours.dancing;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import org.dobots.robots.RobotDevice;
-import org.dobots.robots.parrot.Parrot;
 import org.dobots.swarmcontrol.BaseActivity;
+import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RemoteControlListener;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
-import org.dobots.utility.OnButtonPress;
-import org.dobots.utility.Utils;
 
-import com.codeminders.ardrone.NavData.FlyingState;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
-import android.widget.Toast;
 
 public class MultiRobotControl extends BaseActivity implements
-		RemoteControlListener {
+		IRemoteControlListener {
 
 	private static final String TAG = "MultiRobotControl";
 

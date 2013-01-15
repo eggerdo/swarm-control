@@ -3,30 +3,21 @@ package org.dobots.swarmcontrol.robots.dotty;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
-import org.dobots.robots.nxt.NXT;
-import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
+import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.ConnectListener;
+import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
-import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
@@ -280,17 +271,6 @@ public class DottyRobot extends BluetoothRobot {
     }
 
     @Override
-    public void onRestart() {
-    	super.onRestart();
-    	
-    	if (m_strMacAddress != "") {
-    		connectToRobot(m_oBTHelper.getRemoteDevice(m_strMacAddress));
-    	}
-
-//    	m_oSensorGatherer.resumeThread();
-    }
-
-    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
@@ -391,9 +371,9 @@ public class DottyRobot extends BluetoothRobot {
 	}
 	
 	@Override
-	public void connectToRobot(BluetoothDevice i_oDevice) {
-		if (m_oBTHelper.initBluetooth()) {
-			m_strMacAddress = i_oDevice.getAddress();
+	public void connect(BluetoothDevice i_oDevice) {
+//		if (m_oBTHelper.initBluetooth()) {
+			m_strAddress = i_oDevice.getAddress();
 			showConnectingDialog();
 			
 			if (m_oDotty.getConnection() != null) {
@@ -404,10 +384,10 @@ public class DottyRobot extends BluetoothRobot {
 			}
 			m_oDotty.setConnection(new DottyBluetooth(i_oDevice));
 			m_oDotty.connect();
-		}
+//		}
 	}
 
-	public static void connectToDotty(final BaseActivity m_oOwner, Dotty i_oDotty, BluetoothDevice i_oDevice, final ConnectListener i_oConnectListener) {
+	public static void connectToDotty(final BaseActivity m_oOwner, Dotty i_oDotty, BluetoothDevice i_oDevice, final IConnectListener i_oConnectListener) {
 		DottyRobot m_oRobot = new DottyRobot(m_oOwner) {
 			public void onConnect() {
 				i_oConnectListener.onConnect(true);

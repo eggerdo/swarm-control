@@ -1,10 +1,5 @@
 package org.dobots.robots.dotty;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
@@ -23,7 +18,10 @@ public class DottyTypes {
 	public static final String MAC_FILTER = "00:06:66";
 	
 	public static final int MAX_VELOCITY = 255;
-	public static final int MAX_RADIUS = 1;
+	public static final int MAX_RADIUS = 1000;
+	public static final int MIN_RADIUS = 1;
+
+	public static final double AXLE_WIDTH = 100.0; // in mm
 
 	public static final int MIN_SENSOR_INTERVAL = 100;
 	public static final int DEFAULT_SENSOR_INTERVAL = 500;

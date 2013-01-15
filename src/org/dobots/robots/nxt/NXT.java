@@ -1,39 +1,30 @@
 package org.dobots.robots.nxt;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.DifferentialRobot;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.RobotDevice;
-import org.dobots.robots.dotty.DottyTypes;
+import org.dobots.robots.msg.MsgTypes;
+import org.dobots.robots.msg.MsgTypes.MotorDataRequestMsg;
+import org.dobots.robots.msg.MsgTypes.MotorSpeedMsg;
+import org.dobots.robots.msg.MsgTypes.RawDataMsg;
+import org.dobots.robots.msg.MsgTypes.ResetMotorPositionMsg;
+import org.dobots.robots.msg.MsgTypes.SensorDataRequestMsg;
+import org.dobots.robots.msg.MsgTypes.SensorTypeMsg;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.robots.nxt.msg.MsgTypes.MotorDataRequestMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.MotorSpeedMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.ResetMotorPositionMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.SensorDataRequestMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.SensorTypeMsg;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
-import org.dobots.swarmcontrol.robots.nxt.BTConnectable;
 import org.dobots.utility.Utils;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
 
-public class NXT implements RobotDevice, BTConnectable {
+public class NXT extends DifferentialRobot {
 
 	private static String TAG = "NXT";
 
@@ -41,8 +32,6 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	private double m_dblBaseSpeed = 50.0;
 	
-	private boolean m_bPairing;
-
 	int motorLeft;
 	int motorRight;
 
@@ -61,7 +50,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	
 	private int m_nInvertFactor = -1;	// normal = 1, inverted = -1
 	
-	private double m_dblAxleWidth = 160.0;
+	private double m_dblAxleWidth = NXTTypes.AXLE_WIDTH;
 	
 	private class NXTReceiver extends Thread {
 		
@@ -242,6 +231,8 @@ public class NXT implements RobotDevice, BTConnectable {
 	};
 
 	public NXT() {
+		super(NXTTypes.AXLE_WIDTH, NXTTypes.MAX_VELOCITY, NXTTypes.MIN_RADIUS, NXTTypes.MAX_RADIUS);
+		
 		m_oReceiver = new NXTReceiver();
 		m_oReceiver.start();
 		
@@ -273,14 +264,6 @@ public class NXT implements RobotDevice, BTConnectable {
 		} else {
 			return "";
 		}
-	}
-
-	/**
-	 * @return true, when currently pairing 
-	 */
-	@Override
-	public boolean isPairing() {
-		return m_bPairing;
 	}
 
 	@Override
@@ -358,72 +341,55 @@ public class NXT implements RobotDevice, BTConnectable {
 		sendCmdMessage(NXTTypes.RESET_MOTOR_POSITION, MsgTypes.assembleResetMotorPositionMsg(i_eMotorID, i_bRelative));
 	}
 
-	private double capSpeed(double io_dblSpeed) {
-		// if a negative value was provided as speed
-		// use the absolute value of it.
-		io_dblSpeed = Math.abs(io_dblSpeed);
-		io_dblSpeed = Math.min(io_dblSpeed, 100);
-		io_dblSpeed = Math.max(io_dblSpeed, 0);
-		
-		return io_dblSpeed;
-	}
-	
-	private int capRadius(int io_nRadius) {
-		io_nRadius = Math.min(io_nRadius, NXTTypes.MAX_RADIUS);
-		io_nRadius = Math.max(io_nRadius, -NXTTypes.MAX_RADIUS);
-
-		return io_nRadius;
-	}
-	
-	private int calculateVelocity(double i_dblSpeed) {
-		return (int) Math.round(i_dblSpeed);
-	}
-
-	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
-		int nBaseVelocity = calculateVelocity(i_dblSpeed);
-		int nVelocity1, nVelocity2;
-		
-		int nAbsRadius = Math.abs(i_nRadius);
-		
-		if (i_nRadius == 0) {
-			io_rgnVelocity[0] = nBaseVelocity;
-			io_rgnVelocity[1] = nBaseVelocity;
-		} else {
-			nVelocity1 = (int) Math.round(nBaseVelocity * (nAbsRadius + m_dblAxleWidth) / (nAbsRadius + m_dblAxleWidth / 2.0));
-			nVelocity2 = (int) Math.round(nBaseVelocity * nAbsRadius / (nAbsRadius + m_dblAxleWidth / 2.0));
-			
-			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
-			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
-			// velocity would fall below 0 we set it to 0
-			int nOffset = nVelocity1 - NXTTypes.MAX_VELOCITY;
-			if (nOffset > 0) {
-				nVelocity1 = 100;
-				nVelocity2 = Math.max(nVelocity2 - nOffset, 0);
-			}
-			// for the same reason we have to make sure that the lower velocity of the two wheels cannot be less than 0. if the
-			// higher velocity would go above 100 we set it to 100
-			nOffset = -nVelocity2;
-			if (nOffset > 0) {
-				nVelocity1 = Math.min(nVelocity1 + nOffset, 100);
-				nVelocity2 = 0;
-			}
-			
-			if (i_nRadius > 0) {
-				io_rgnVelocity[0] = nVelocity2;
-				io_rgnVelocity[1] = nVelocity1;
-			} else if (i_nRadius < 0) {
-				io_rgnVelocity[0] = nVelocity1;
-				io_rgnVelocity[1] = nVelocity2;
-			}
-		}
-	}
+//	private int calculateVelocity(double i_dblSpeed) {
+//		return (int) Math.round(i_dblSpeed);
+//	}
+//
+//	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
+//		int nBaseVelocity = calculateVelocity(i_dblSpeed);
+//		int nVelocity1, nVelocity2;
+//		
+//		int nAbsRadius = Math.abs(i_nRadius);
+//		
+//		if (i_nRadius == 0) {
+//			io_rgnVelocity[0] = nBaseVelocity;
+//			io_rgnVelocity[1] = nBaseVelocity;
+//		} else {
+//			nVelocity1 = (int) Math.round(nBaseVelocity * (nAbsRadius + m_dblAxleWidth) / (nAbsRadius + m_dblAxleWidth / 2.0));
+//			nVelocity2 = (int) Math.round(nBaseVelocity * nAbsRadius / (nAbsRadius + m_dblAxleWidth / 2.0));
+//			
+//			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
+//			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
+//			// velocity would fall below 0 we set it to 0
+//			int nOffset = nVelocity1 - NXTTypes.MAX_VELOCITY;
+//			if (nOffset > 0) {
+//				nVelocity1 = 100;
+//				nVelocity2 = Math.max(nVelocity2 - nOffset, 0);
+//			}
+//			// for the same reason we have to make sure that the lower velocity of the two wheels cannot be less than 0. if the
+//			// higher velocity would go above 100 we set it to 100
+//			nOffset = -nVelocity2;
+//			if (nOffset > 0) {
+//				nVelocity1 = Math.min(nVelocity1 + nOffset, 100);
+//				nVelocity2 = 0;
+//			}
+//			
+//			if (i_nRadius > 0) {
+//				io_rgnVelocity[0] = nVelocity2;
+//				io_rgnVelocity[1] = nVelocity1;
+//			} else if (i_nRadius < 0) {
+//				io_rgnVelocity[0] = nVelocity1;
+//				io_rgnVelocity[1] = nVelocity2;
+//			}
+//		}
+//	}
 
 	private void setMotorSpeed(ENXTMotorID i_eMotor, int i_nVelocity) {
 		sendCmdMessage(NXTTypes.SET_OUTPUT_STATE, MsgTypes.assembleMotorSpeedMsg(i_eMotor, i_nVelocity * m_nInvertFactor));
 	}
 	
 	private void drive(int i_nLeftVelocity, int i_nRightVelocity) {
-		Log.d(TAG, "left=" + i_nLeftVelocity + ", right=" + i_nRightVelocity);
+		debug(TAG, "left=" + i_nLeftVelocity + ", right=" + i_nRightVelocity);
 		
 		setMotorSpeed(ENXTMotorID.motor_1, i_nLeftVelocity);
 		setMotorSpeed(ENXTMotorID.motor_2, i_nRightVelocity);
@@ -431,7 +397,6 @@ public class NXT implements RobotDevice, BTConnectable {
 	
 	@Override
 	public void moveForward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		drive(nVelocity, nVelocity);
@@ -439,9 +404,7 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	@Override
 	public void moveForward(double i_dblSpeed, int i_nRadius) {
-		Log.d(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
+		debug(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
 		
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
@@ -454,16 +417,13 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 
 	public void moveForward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
-		
-		int nRadius = (int)(NXTTypes.MAX_RADIUS / 90.0 * dblAngle);
+		int nRadius = angleToRadius(i_dblAngle);
 		
 		moveForward(i_dblSpeed, nRadius);
 	}
 
 	@Override
 	public void moveBackward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		drive(-nVelocity, -nVelocity);
@@ -475,11 +435,8 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	@Override
 	public void moveBackward(double i_dblSpeed, int i_nRadius) {
-		Log.d(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
+		debug(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
 		
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
-
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
 		
@@ -487,16 +444,13 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 
 	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
-		double dblAngle = Math.signum(i_dblAngle) * (90 - Math.abs(i_dblAngle));
-		
-		int nRadius = (int)(NXTTypes.MAX_RADIUS / 90.0 * dblAngle);
+		int nRadius = angleToRadius(i_dblAngle);
 		
 		moveBackward(i_dblSpeed, nRadius);
 	}
 
 	@Override
 	public void rotateClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		drive(nVelocity, -nVelocity);
@@ -508,7 +462,6 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	@Override
 	public void rotateCounterClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		drive(-nVelocity, nVelocity);

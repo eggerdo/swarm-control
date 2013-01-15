@@ -8,8 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class WifiConnectionHelper{
@@ -65,7 +63,7 @@ public class WifiConnectionHelper{
 				} else {
 					showAlertDialog("WiFi Error", 
 							"Wrong WiFi connection!\n"
-							+ "It should be a connection starting with " + m_strSSID_Filter + ".");
+							+ "It should be a connection starting with \"" + m_strSSID_Filter + "\".");
 				}
 			} else {
 				showAlertDialog("Wifi Error", 

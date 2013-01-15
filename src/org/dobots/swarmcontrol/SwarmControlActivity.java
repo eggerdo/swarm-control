@@ -100,7 +100,7 @@ public class SwarmControlActivity extends Activity {
         
         writeChangeLog();
         
-//        showRobot(RobotType.RBT_ROOMBA);
+//        showRobot(RobotType.RBT_AC13ROVER);
 //        showBehaviour(SwarmAction.sa_Dance);
     }
 

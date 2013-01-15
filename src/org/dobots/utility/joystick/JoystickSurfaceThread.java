@@ -3,12 +3,8 @@ package org.dobots.utility.joystick;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.os.Handler;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 public class JoystickSurfaceThread extends Thread {

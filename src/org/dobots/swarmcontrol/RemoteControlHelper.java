@@ -1,10 +1,10 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.robots.RobotDevice;
+import org.dobots.robots.IRobotDevice;
 import org.dobots.utility.LockableScrollView;
 import org.dobots.utility.Utils;
+import org.dobots.utility.joystick.IJoystickListener;
 import org.dobots.utility.joystick.Joystick;
-import org.dobots.utility.joystick.JoystickListener;
 
 import android.app.Activity;
 import android.os.SystemClock;
@@ -17,7 +17,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
-public class RemoteControlHelper implements JoystickListener, RemoteControlListener {
+public class RemoteControlHelper implements IJoystickListener, IRemoteControlListener {
 
 	private static final String TAG = "RemoteControlHelper";
 	
@@ -25,7 +25,7 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 		NONE, STRAIGHT_FORWARD, FORWARD, STRAIGHT_BACKWARD, BACKWARD, LEFT, RIGHT
 	}
 	
-	private RemoteControlListener m_oRemoteControlListener;
+	private IRemoteControlListener m_oRemoteControlListener;
 	
 	private Move lastMove = Move.NONE;
 
@@ -49,11 +49,11 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 	
 	private Joystick m_oJoystick;
 	
-	private RobotDevice m_oRobot;
+	private IRobotDevice m_oRobot;
 
 	// At least one of the parameters i_oRobot or i_oListener has to be assigned! the other can be null.
 	// It is also possible to assign both
-	public RemoteControlHelper(Activity i_oActivity, RobotDevice i_oRobot, RemoteControlListener i_oListener) {
+	public RemoteControlHelper(Activity i_oActivity, IRobotDevice i_oRobot, IRemoteControlListener i_oListener) {
 		this.m_oActivity = i_oActivity;
 		
 		// one of the two parameters, RobotDevice or RemoteControlListener has to be assigned!
@@ -71,11 +71,11 @@ public class RemoteControlHelper implements JoystickListener, RemoteControlListe
 		}
 	}
 	
-	public void setRemoteControlListener(RemoteControlListener i_oListener) {
+	public void setRemoteControlListener(IRemoteControlListener i_oListener) {
 		m_oRemoteControlListener = i_oListener;
 	}
 	
-	public void removeRemoteControlListener(RemoteControlListener i_oListener) {
+	public void removeRemoteControlListener(IRemoteControlListener i_oListener) {
 		if (m_oRemoteControlListener == i_oListener) {
 			m_oRemoteControlListener = this;
 		}

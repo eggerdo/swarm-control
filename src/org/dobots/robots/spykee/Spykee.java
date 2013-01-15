@@ -9,10 +9,9 @@ import javax.security.auth.login.LoginException;
 
 import org.dobots.robots.DifferentialRobot;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.MoveRepeater;
-import org.dobots.robots.MoveRepeater.MoveCommand;
-import org.dobots.robots.MoveRepeater.MoveRepeaterListener;
-import org.dobots.robots.RobotDevice;
+import org.dobots.robots.helpers.IMoveRepeaterListener;
+import org.dobots.robots.helpers.MoveRepeater;
+import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
 import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeTypes.SpykeeSound;
 import org.dobots.swarmcontrol.robots.RobotType;
@@ -20,9 +19,8 @@ import org.dobots.utility.Utils;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
-public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeaterListener {
+public class Spykee extends DifferentialRobot implements IMoveRepeaterListener {
 	
 	private static final String TAG = "Spykee";
 	
@@ -237,7 +235,7 @@ public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeat
 			executeRotateClockwise(i_dblSpeed);
 			break;
 		default:
-			Log.d(TAG, "Move not available");
+			error(TAG, "Move not available");
 			return;
 		}
 	}
@@ -277,13 +275,13 @@ public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeat
 			executeMoveForward(i_dblSpeed, i_nRadius);
 			break;
 		default:
-			Log.d(TAG, "Move not available");
+			error(TAG, "Move not available");
 			return;
 		}
 	}
 
 	private void executeMoveForward(double i_dblSpeed, int i_nRadius) {
-		Log.w(TAG, String.format("fwd (s=%f, r=%d)", i_dblSpeed, i_nRadius));
+		debug(TAG, String.format("fwd (s=%f, r=%d)", i_dblSpeed, i_nRadius));
 		
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
@@ -292,7 +290,7 @@ public class Spykee extends DifferentialRobot implements RobotDevice, MoveRepeat
 	}
 
 	private void executeMoveBackward(double i_dblSpeed, int i_nRadius) {
-		Log.w(TAG, String.format("fwd (s=%f, r=%d)", i_dblSpeed, i_nRadius));
+		debug(TAG, String.format("fwd (s=%f, r=%d)", i_dblSpeed, i_nRadius));
 		
 		int velocity[] = {0, 0};
 		calculateVelocity(i_dblSpeed, i_nRadius, velocity);

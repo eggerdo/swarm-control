@@ -11,7 +11,6 @@ import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.utility.Utils;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;

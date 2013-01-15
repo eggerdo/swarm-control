@@ -1,18 +1,12 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.robots.RobotDevice;
-import org.dobots.robots.RobotDevice.OnFinishListener;
-import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.IRobotDevice;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.SwarmControlActivity;
 import org.dobots.utility.CalibrationDialogSelf;
 import org.dobots.utility.CalibrationDialogSelf.OnRunClick;
 import org.dobots.utility.CalibrationDialogUser;
-import org.dobots.utility.DeviceListActivity;
-import org.dobots.utility.FeedbackDialog;
-import org.dobots.utility.OnButtonPress;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,7 +17,7 @@ import android.widget.Button;
 
 public class RobotCalibration extends BaseActivity {
 	
-	private RobotDevice m_oRobot;
+	private IRobotDevice m_oRobot;
 	
 	private Button m_btnCalibrateCircleSelf;
 	private Button m_btnCalibrateCircleUser;

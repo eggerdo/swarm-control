@@ -22,7 +22,7 @@ public class AccelerometerManager {
 //	private static long interval = 1000000000L; //one second
 	private static Sensor sensor;
 	private static SensorManager sensorManager;
-	private static AccelerometerListener listener;
+	private static IAccelerometerListener listener;
 
 	private static Boolean supported;
 	private static boolean running = false;
@@ -78,7 +78,7 @@ public class AccelerometerManager {
 	/**
 	 * Registers a listener and starts listening
 	 */
-	public static void startListening( AccelerometerListener accelerometerListener )
+	public static void startListening( IAccelerometerListener accelerometerListener )
 	{
 		sensorManager = (SensorManager) SwarmControlActivity.getContext().
 				getSystemService( Context.SENSOR_SERVICE );
@@ -96,7 +96,7 @@ public class AccelerometerManager {
 	 * Configures threshold and interval
 	 * And registers a listener and starts listening
 	 */
-	public static void startListening( AccelerometerListener accelerometerListener, long interval )
+	public static void startListening( IAccelerometerListener accelerometerListener, long interval )
 	{
 		configure( interval );
 		startListening( accelerometerListener );

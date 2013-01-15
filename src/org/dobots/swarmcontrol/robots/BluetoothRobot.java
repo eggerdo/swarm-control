@@ -3,7 +3,7 @@ package org.dobots.swarmcontrol.robots;
 import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
-import org.dobots.swarmcontrol.BluetoothConnectionListener;
+import org.dobots.swarmcontrol.IBluetoothConnectionListener;
 import org.dobots.swarmcontrol.R;
 
 import android.app.AlertDialog;
@@ -13,7 +13,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 
-public abstract class BluetoothRobot extends RobotView implements BluetoothConnectionListener {
+public abstract class BluetoothRobot extends RobotView implements IBluetoothConnectionListener {
 
 	protected BluetoothConnectionHelper m_oBTHelper;
 
@@ -35,6 +35,17 @@ public abstract class BluetoothRobot extends RobotView implements BluetoothConne
 
 		m_oBTHelper = new BluetoothConnectionHelper(this, RobotViewFactory.getRobotAddressFilter(m_eRobot));
 		m_oBTHelper.SetOnConnectListener(this);
+    }
+
+    @Override
+    public void onRestart() {
+    	super.onRestart();
+    	
+    	if (m_strAddress != "") {
+    		if (m_oBTHelper.initBluetooth()) {
+    			connect(m_oBTHelper.getRemoteDevice(m_strAddress));
+    		}
+    	}
     }
 
     protected void onConnectError() {

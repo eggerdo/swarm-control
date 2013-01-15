@@ -4,11 +4,7 @@ import java.io.IOException;
 
 import org.dobots.swarmcontrol.robots.RobotType;
 
-public interface RobotDevice {
-
-	public interface OnFinishListener {
-		public void onFinish();
-	}
+public interface IRobotDevice {
 	
 	public RobotType getType();
 	public String getAddress();
