@@ -9,6 +9,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.WifiRobot;
+import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
 
 import android.app.AlertDialog;
@@ -92,7 +93,10 @@ public class AC13RoverRobot extends WifiRobot {
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
     	m_oActivity.setContentView(R.layout.ac13rover_main);
-    	
+
+        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+		
     	m_btnInfrared = (ToggleButton) m_oActivity.findViewById(R.id.btnInfrared);
     	m_btnInfrared.setOnClickListener(new OnClickListener() {
 			

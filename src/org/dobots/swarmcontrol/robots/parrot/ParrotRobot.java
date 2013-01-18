@@ -10,6 +10,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.WifiRobot;
+import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
 
 import android.content.Intent;
@@ -265,31 +266,10 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.parrot_main);
-        
-//		m_btnCalibrate = (Button) m_oActivity.findViewById(R.id.btnCalibrate);
-//		m_btnCalibrate.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//
-//				int nIndex = RobotInventory.getInstance().findRobot(m_oARDrone);
-//				if (nIndex == -1) {
-//					nIndex = RobotInventory.getInstance().addRobot(m_oARDrone);
-//				}
-//				m_bKeepAlive = true;
-//				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex, m_dblSpeed);
-//			}
-//		});
-        
-//        m_btnEmergency = (Button) findViewById(R.id.btnEmergency);
-//        m_btnEmergency.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				m_oParrot.sendEmergencySignal();
-//			}
-//		});
-        
+
+        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+		
         m_edtAltitude = (EditText) findViewById(R.id.edtAltitude);
         
         edtKp = (EditText) findViewById(R.id.edtKp);

@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -298,4 +299,14 @@ public class Utils {
 //		}
 //		
 //	}
+	
+	public static void runAsyncTask(Runnable runner) {
+		new Thread(runner).start();
+	}
+	
+	public static void runAsyncUiTask(Runnable runner) {
+		Handler oHandler = new Handler(Looper.getMainLooper());
+		oHandler.post(runner);
+	}
+	
 }

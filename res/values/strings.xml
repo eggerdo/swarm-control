@@ -6,18 +6,9 @@
     <string name="about">About</string>
     
     <string-array name="changelog">
-        <item>"Roomba Update: Bugs fixed and more Sensors added"</item>
-		<item>""</item>
-        <item>"Joystick added as Remote Control Feature"</item>
-		<item>""</item>
-		<item>"4 new Robots added:"</item>
-		<item>"- Meccano Spykee (Remote Control, Video Stream and Audio Playback)"</item>
-		<item>"- Wowwee RoboScooper (Remote Control, Brainlink Sensor Display)"</item>
-		<item>"- Parrot AR Drone and AR Drone 2.0 (Basic Remote Control, Video Stream and Sensor Display)"</item>
-		<item>"- Dotty (Remote Control and Sensor Display)"</item>
-		<item>""</item>
-		<item>"Swarm Action added:"</item>
-		<item>"- In Dancing a swarm of robots robots can be controlled and programmed to execute a series of moves"</item>
+        <item>- Brookstone AC13 Rover added (Remote Control and Video Playback)</item>
+        <item></item>
+        <item>- Swarm Control made social (Like, Share and Comment as much as you want)</item>
 	</string-array>
     
     <string name="connect">Connect</string>
@@ -303,6 +294,7 @@
     
     <!--  Unassigned -->
     <string name="racing_title">Choose your robot</string>
+    <string name="preferences_hidesocialize">Hide Socialize Action Bar</string>
     
     
     

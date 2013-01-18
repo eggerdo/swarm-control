@@ -30,5 +30,9 @@ public class SwarmControlTypes {
 			return bEnabled;
 		}
 	}
+	
+	public static final String HIDE_ACTION_BAR 	= "hide_action_bar";
+
+	public static final boolean HIDE_ACTION_BAR_DEFAULT 	= false;
 
 }

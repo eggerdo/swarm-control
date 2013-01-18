@@ -7,6 +7,15 @@ public class Loggable {
 	
 	// receives debug events
 	protected ILogListener m_oLogListener = null;
+	
+	protected static Loggable INSTANCE = null;
+	
+	protected static Loggable getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new Loggable();
+		}
+		return INSTANCE;
+	}
 
 	public void setDebug(boolean i_bDebug) {
 		m_bDebug = i_bDebug;

@@ -14,6 +14,7 @@ import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothDevice;
@@ -355,6 +356,9 @@ public class NXTRobot extends BluetoothRobot {
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.nxt_main);
+
+        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
         
         // adapter is the same, for each sensor we can choose the same types
 		final ArrayAdapter<ENXTSensorType> oSensorTypeAdapter = new ArrayAdapter<ENXTSensorType>(m_oActivity, 

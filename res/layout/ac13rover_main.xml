@@ -11,12 +11,29 @@
 	    android:gravity="fill"
 	    android:orientation="vertical" >
 	
-	    <TextView
-	        android:id="@+id/lblRobot"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/ac13rover_title"
-	        android:textAppearance="?android:attr/textAppearanceLarge" />
+		<LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content" >
+				
+		    <TextView
+		        android:id="@+id/lblRobot"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/ac13rover_title"
+		        android:textAppearance="?android:attr/textAppearanceLarge" />
+		
+			<View
+			    android:layout_width="0dp"
+			    android:layout_weight="1"
+			    android:layout_height="wrap_content" />
+
+			<CheckBox
+			    android:id="@+id/btnComments"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:button="@drawable/comment" />
+
+		</LinearLayout>
 	
 	    <TextView
 	        android:id="@+id/lblCommands"

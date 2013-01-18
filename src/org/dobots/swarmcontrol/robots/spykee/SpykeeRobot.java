@@ -32,6 +32,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.WifiRobot;
+import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
 
 import android.app.AlertDialog;
@@ -138,7 +139,10 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
     	m_oActivity.setContentView(R.layout.spykee_main);
-    	
+
+        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+		
     	m_layControls = (LinearLayout) m_oActivity.findViewById(R.id.layControls);
     	
     	m_btnDock = (Button) m_oActivity.findViewById(R.id.btnDock);

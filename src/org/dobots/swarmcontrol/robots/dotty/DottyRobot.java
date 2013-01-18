@@ -14,6 +14,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothDevice;
@@ -127,7 +128,10 @@ public class DottyRobot extends BluetoothRobot {
     @Override
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.dotty_main);
-        
+
+        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+		
         m_cbDistance = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Distance);
         m_cbLight = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Light);
         m_cbSound = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Sound);

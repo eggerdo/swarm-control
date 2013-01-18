@@ -1,111 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<org.dobots.utility.LockableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scrollview"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="fill" >
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/intro" />
+	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/scrollview"
+	    android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+	
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical" >
+	
+	    <TextView
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/intro" />
+	
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" >
+	
+	        <ImageView
+	            android:id="@+id/imgRoomba"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/roomba" />
+	
+	        <ImageView
+	            android:id="@+id/imgNXT"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/nxt" />
+	
+	        <ImageView
+	            android:id="@+id/imgFinch"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/finch" />
+	
+	        <ImageView
+	            android:id="@+id/imgRover"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/rover" />
+	
+	        <ImageView
+	            android:id="@+id/imgTrakr"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/trakr" />
+	
+	        <ImageView
+	            android:id="@+id/imgSpykee"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/spykee" />
+	        
+	    </LinearLayout>
+	
+	    <View
+	        android:layout_width="wrap_content"
+	        android:layout_height="20dp" />
+	
+	    <TextView
+	        android:id="@+id/lblRobots"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/swarmcontrol_robots" />
+	
+	    <Button 
+	        android:id="@+id/btnRobots"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:background="@android:drawable/btn_dropdown"
+	        android:hint="@string/choose_robot"
+	        android:gravity="left|center_vertical" />
+	
+	    <TextView
+	        android:id="@+id/lblSwarmActions"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/swarmcontrol_behaviours" />
+	
+	    <Button 
+	        android:id="@+id/btnSwarmActions"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:background="@android:drawable/btn_dropdown"
+	        android:hint="@string/choose_swarm_action"
+	        android:gravity="left|center_vertical" />
+	    
+	    <View
+	        android:layout_width="wrap_content"
+	        android:layout_height="20dp" />
+	
+	    <TextView
+	        android:id="@+id/lblChangeLog"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/change_log" />
+	
+	</LinearLayout>
+	
+	</ScrollView>
+	
+	<LinearLayout
+	    android:id="@+id/laySocializeActionBar"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:background="@android:drawable/title_bar"
+	    android:clickable="false" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+		<CheckBox
+		    android:id="@+id/btnCustomCheckBoxLike"
+		    android:layout_width="0dp"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="left|center_vertical"
+		    android:layout_weight="5"
+		    android:button="@drawable/like_button_state"
+		    android:text="Like" />
 
-        <ImageView
-            android:id="@+id/imgRoomba"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/roomba" />
+		<View
+		    android:layout_width="1dp"
+		    android:layout_height="fill_parent"
+		    android:background="#FF000000" />
 
-        <ImageView
-            android:id="@+id/imgNXT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/nxt" />
+		<CheckBox
+		    android:id="@+id/btnCustomCheckBoxShare"
+		    android:layout_width="0dp"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="left|center_vertical"
+		    android:layout_weight="5"
+		    android:button="@drawable/share"
+		    android:text="Share" />
 
-        <ImageView
-            android:id="@+id/imgFinch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/finch" />
+		<View
+		    android:layout_width="1dp"
+		    android:layout_height="fill_parent"
+		    android:background="#FF000000" />
 
-        <ImageView
-            android:id="@+id/imgRover"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/rover" />
-
-        <ImageView
-            android:id="@+id/imgTrakr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/trakr" />
-
-        <ImageView
-            android:id="@+id/imgSpykee"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/spykee" />
-        
-    </LinearLayout>
-
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="20dp" />
-
-    <TextView
-        android:id="@+id/lblRobots"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/swarmcontrol_robots" />
-
-    <Button 
-        android:id="@+id/btnRobots"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/btn_dropdown"
-        android:hint="@string/choose_robot"
-        android:gravity="left|center_vertical" />
-
-    <TextView
-        android:id="@+id/lblSwarmActions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/swarmcontrol_behaviours" />
-
-    <Button 
-        android:id="@+id/btnSwarmActions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/btn_dropdown"
-        android:hint="@string/choose_swarm_action"
-        android:gravity="left|center_vertical" />
-    
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="20dp" />
-
-    <TextView
-        android:id="@+id/lblChangeLog"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/change_log" />
-
+		<CheckBox
+		    android:id="@+id/btnCustomCheckBoxComment"
+		    android:layout_width="0dp"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="left|center_vertical"
+		    android:layout_weight="6"
+		    android:button="@drawable/comment"
+		    android:text="Comment" />
+	    
+	</LinearLayout>
+	
 </LinearLayout>
-
-</org.dobots.utility.LockableScrollView>

@@ -15,7 +15,10 @@ import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
+import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
+
+import com.socialize.entity.Entity;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -75,6 +78,8 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	private Button m_btnCalibrate;
 
 	private double m_dblSpeed;
+
+	private Entity m_oEntity;
 
 	public RoombaRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -362,6 +367,9 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.roomba_main);
+        
+        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
 		
         m_spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		final ArrayAdapter<ERoombaSensorPackages> adapter = new ArrayAdapter<ERoombaSensorPackages>(m_oActivity, 
