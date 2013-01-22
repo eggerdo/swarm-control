@@ -9,6 +9,7 @@
         <item>- Brookstone AC13 Rover added (Remote Control and Video Playback)</item>
         <item></item>
         <item>- Swarm Control made social (Like, Share and Comment as much as you want)</item>
+        <item>Update (0.3.1): Authentication not required for Like and Share</item>
 	</string-array>
     
     <string name="connect">Connect</string>

@@ -8,11 +8,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.SwarmControlActivity;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -307,6 +309,10 @@ public class Utils {
 	public static void runAsyncUiTask(Runnable runner) {
 		Handler oHandler = new Handler(Looper.getMainLooper());
 		oHandler.post(runner);
+	}
+
+	public static boolean isDebugVersion(BaseActivity i_oContext) {
+		return ( 0 != ( i_oContext.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE ) );
 	}
 	
 }

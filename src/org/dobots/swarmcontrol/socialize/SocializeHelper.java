@@ -44,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class SocializeHelper extends Loggable {
@@ -215,7 +216,6 @@ public class SocializeHelper extends Loggable {
     	CheckBox btnCustomCheckBoxComment = (CheckBox) i_oContext.findViewById(R.id.btnCustomCheckBoxComment);
     	setupComments(i_oContext, i_oEntity, btnCustomCheckBoxComment);
     	
-    	boolean isDebuggable =  ( 0 != ( i_oContext.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE ) );
 //    	if (!isDebuggable) {
     		
 //    	}
@@ -255,17 +255,23 @@ public class SocializeHelper extends Loggable {
 	//----------------------------------------------------------------------------------------
 	// blocking call
 	private static void registerView(final BaseActivity i_oContext, final Entity i_oEntity) {
-		ViewUtils.view(i_oContext, i_oEntity, new ViewAddListener() {
-			
-			@Override
-			public void onError(SocializeException arg0) {
-			}
-			
-			@Override
-			public void onCreate(com.socialize.entity.View arg0) {
-				Log.i(TAG, "view registered");
-			}
-		});
+    	boolean bIsDebugVersion = Utils.isDebugVersion(i_oContext);
+    	
+    	// avoid registering views while in debug mode, otherwise the statistics of getsocialize will be
+    	// corrupted. only register views in the release version
+    	if (!bIsDebugVersion) {
+			ViewUtils.view(i_oContext, i_oEntity, new ViewAddListener() {
+				
+				@Override
+				public void onError(SocializeException arg0) {
+				}
+				
+				@Override
+				public void onCreate(com.socialize.entity.View arg0) {
+					Log.i(TAG, "view registered");
+				}
+			});
+    	}
 	}
 
 	// Comments ==============================================================================
