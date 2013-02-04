@@ -118,7 +118,7 @@ public class Roomba extends BaseRobot {
 	public boolean init() {
 		try {
 			oRoombaCtrl.start();
-			Thread.sleep(20);
+			Thread.sleep(200);
 //			oRoombaCtrl.control();
 			
 			if (getSensors(ERoombaSensorPackages.sensPkg_1) == null) {

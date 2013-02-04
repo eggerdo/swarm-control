@@ -28,24 +28,25 @@ public class SocializeEntityHelper {
 		if ((oEntity = getMainEntity(i_oContext)) == null) {
 			createMainEntity(i_oContext);
 		} else {
-//			updateMainEntity(i_oContext, oEntity);
+			updateMainEntity(i_oContext, oEntity);
 		}
 		
-		for (RobotType eRobot : RobotType.values()) {
-			if (eRobot.isEnabled()) {
-				if ((oEntity = getRobotEntity(i_oContext, eRobot)) == null) {
-					createRobotEntity(i_oContext, eRobot);
-				} else {
-//					updateRobotEntity(i_oContext, eRobot);
-				}
-			}
-		}
+//		for (RobotType eRobot : RobotType.values()) {
+//			if (eRobot.isEnabled()) {
+//				if ((oEntity = getRobotEntity(i_oContext, eRobot)) == null) {
+//					createRobotEntity(i_oContext, eRobot);
+//				} else {
+////					updateRobotEntity(i_oContext, eRobot);
+//				}
+//			}
+//		}
+//		
+//		for (SwarmAction eAction : SwarmAction.values()) {
+//			if (eAction.isEnabled()) {
+//				createSwarmActionEntity(i_oContext, eAction);
+//			}
+//		}
 		
-		for (SwarmAction eAction : SwarmAction.values()) {
-			if (eAction.isEnabled()) {
-				createSwarmActionEntity(i_oContext, eAction);
-			}
-		}
 	}
 
 	// --------------------------------------------------------------------------------------
@@ -109,32 +110,34 @@ public class SocializeEntityHelper {
 
 	}
 	
-	public static void updateMainEntity(BaseActivity i_oContext, final Entity i_oEntity) {
-//		String strMetaData = i_oEntity.getMetaData();
-//		try {
-//			JSONObject oMetaData = new JSONObject(strMetaData);
-//			oMetaData.put("szsd_title", "Swarm");
-//			oMetaData.put("szsd_description", "Swarm");
-//			oMetaData.put("szsd_continue_link", "http://www.dobots.nl/blog/-/blogs/swarm-control-update");
-//			i_oEntity.setMetaData(oMetaData.toString());
-//
-//			// The "this" argument refers to the current Activity
-//			EntityUtils.saveEntity(i_oContext, i_oEntity, new EntityAddListener() {
-//				
-//				@Override
-//				public void onError(SocializeException error) {
-//					Log.e(TAG, String.format("entity update '%s' error", i_oEntity.getKey()));
-//				}
-//				
-//				@Override
-//				public void onCreate(Entity result) {
-//					Log.d(TAG, String.format("entity update '%s' created", i_oEntity.getKey()));
-//				}
-//			});
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	public static void updateMainEntity(BaseActivity i_oContext, Entity i_oEntity) {
+		String strMetaData = i_oEntity.getMetaData();
+		final String strKey = i_oEntity.getKey();
+		try {
+			JSONObject oMetaData = new JSONObject(strMetaData);
+			oMetaData.put("szsd_title", "Swarm");
+			oMetaData.put("szsd_description", "Swarm Update Test");
+			oMetaData.put("szsd_continue_link", "http://www.dobots.nl/blog/-/blogs/swarm-control-update");
+			i_oEntity.setMetaData(oMetaData.toString());
+
+			// The "this" argument refers to the current Activity
+			EntityUtils.saveEntity(i_oContext, i_oEntity, new EntityAddListener() {
+				
+				@Override
+				public void onError(SocializeException error) {
+					Log.e(TAG, String.format("entity update '%s' error", strKey));
+				}
+				
+				@Override
+				public void onCreate(Entity result) {
+					Log.d(TAG, String.format("entity update '%s' created", strKey));
+				}
+				
+			});
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	// --------------------------------------------------------------------------------------

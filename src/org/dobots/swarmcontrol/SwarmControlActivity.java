@@ -97,7 +97,7 @@ public class SwarmControlActivity extends BaseActivity {
 	private Entity m_oEntity;
 	
 	// set to true if Socialize Entities need to be created
-	private final boolean m_bInitSocializeEntities = true; 
+	private final boolean m_bInitSocializeEntities = false; 
 	
 	/** Called when the activity is first created. */
     @Override

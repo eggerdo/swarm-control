@@ -147,7 +147,7 @@ public class RoombaSensorGatherer extends SensorGatherer {
 
 	@Override
 	public void execute() {
-		if (m_bEnabled && m_oRoomba.isPowerOn()) {
+		if (m_bEnabled && m_oRoomba.isPowerOn() && m_oRoomba.isConnected()) {
 			m_oSensorData = m_oRoomba.getSensors(m_eSensor);
 			m_oUiHandler.postDelayed(m_oGUIUpdater, 10);
 		} else {

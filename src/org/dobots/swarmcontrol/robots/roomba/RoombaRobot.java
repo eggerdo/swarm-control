@@ -175,6 +175,13 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
     	shutDown();
     }
     
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	
+    	disconnect();
+    }
+    
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
