@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol;
 
+import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.behaviours.IActivityResultListener;
 import org.dobots.utility.DeviceListActivity;
 
@@ -24,9 +25,6 @@ public class BluetoothConnectionHelper implements IActivityResultListener {
 	public static String MAC_FILTER = "MAC_FILTER";
 	public static String TITLE = "TITLE";
 
-	public static final int REQUEST_CONNECT_ROBOT = 1000;
-	public static final int REQUEST_ENABLE_BT = 1001;
-	
 	private IBluetoothConnectionListener m_oListener;
 
 	private String m_strTitle = "";
@@ -50,7 +48,7 @@ public class BluetoothConnectionHelper implements IActivityResultListener {
 			if (!m_oBTAdapter.isEnabled()) {
 				m_bBTOnByUs = true;
 				Intent oEnableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				m_oParent.startActivityForResult(oEnableBTIntent, REQUEST_ENABLE_BT, this);
+				m_oParent.startActivityForResult(oEnableBTIntent, MessageTypes.REQUEST_ENABLE_BT, this);
 				return false;
 			} else
 				return true;
@@ -87,7 +85,7 @@ public class BluetoothConnectionHelper implements IActivityResultListener {
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case REQUEST_CONNECT_ROBOT:
+		case MessageTypes.REQUEST_CONNECT_ROBOT:
 			Log.d(TAG, "DeviceListActivity returns with device to connect");
 			// When DeviceListActivity returns with a device to connect
 			if (resultCode == Activity.RESULT_OK) {
@@ -97,7 +95,7 @@ public class BluetoothConnectionHelper implements IActivityResultListener {
 				m_oListener.connect(m_oBTAdapter.getRemoteDevice(address));
 			}
 			break;
-		case REQUEST_ENABLE_BT:
+		case MessageTypes.REQUEST_ENABLE_BT:
 			Log.d(TAG, "SelectRobot request received");
 			if (resultCode == Activity.RESULT_OK) {
 				selectRobot();
@@ -113,7 +111,7 @@ public class BluetoothConnectionHelper implements IActivityResultListener {
 		oParam.putString(MAC_FILTER, m_strMacFilter);
 		oParam.putString(TITLE, m_strTitle);
 		serverIntent.putExtras(oParam);
-		m_oParent.startActivityForResult(serverIntent, REQUEST_CONNECT_ROBOT, this);
+		m_oParent.startActivityForResult(serverIntent, MessageTypes.REQUEST_CONNECT_ROBOT, this);
 	}
 	
 	public void setTitle(String i_strTitle) {

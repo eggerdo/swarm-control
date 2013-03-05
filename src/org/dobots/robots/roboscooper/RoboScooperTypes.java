@@ -4,8 +4,6 @@ import org.dobots.robots.MessageTypes;
 
 public class RoboScooperTypes {
 	
-	public static final int INITIALISATION_FAILED = MessageTypes.USER;
-
 	public static final String MAC_FILTER 		= "00:06:66";
 	
 	// name of the device file containing the IR signal definitions

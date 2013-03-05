@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.robots.roboscooper;
 import org.dobots.robots.BrainlinkDevice;
 import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
 import org.dobots.robots.roboscooper.RoboScooper;
+import org.dobots.robots.roboscooper.RoboScooperMessageTypes;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.IConnectListener;
@@ -215,7 +216,7 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 	
 	protected void handleUIMessage(Message msg) {
 		switch (msg.what) {
-		case RoboScooperTypes.INITIALISATION_FAILED:
+		case RoboScooperMessageTypes.INITIALISATION_FAILED:
 			showToast("Brainlink initialisation failed, make sure that the signal definition file was copied to ...", Toast.LENGTH_LONG);
 			updateButtons(false);
 			break;

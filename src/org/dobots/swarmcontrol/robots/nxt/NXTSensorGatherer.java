@@ -4,6 +4,7 @@ import java.util.EnumMap;
 
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.nxt.NXTMessageTypes;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.NXTTypes.DistanceData;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
@@ -128,17 +129,17 @@ public class NXTSensorGatherer extends SensorGatherer {
 		@Override
 		public void handleMessage(Message myMessage) {
 			switch(myMessage.what) {
-			case NXTTypes.SENSOR_DATA_RECEIVED:
+			case NXTMessageTypes.SENSOR_DATA_RECEIVED:
 //				SensorData oSensorData = m_oNxt.getReceivedSensorData();
 				SensorData oSensorData = (SensorData) myMessage.obj;
 				updateGUI(oSensorData);
 				break;
-			case NXTTypes.DISTANCE_DATA_RECEIVED:
+			case NXTMessageTypes.DISTANCE_DATA_RECEIVED:
 //				DistanceData oDistanceData = m_oNxt.getReceivedDistanceData();
 				DistanceData oDistanceData = (DistanceData) myMessage.obj;
 				updateGUI(oDistanceData);
 				break;
-			case NXTTypes.MOTOR_DATA_RECEIVED:
+			case NXTMessageTypes.MOTOR_DATA_RECEIVED:
 //				MotorData oMotorData = m_oNxt.getReceivedMotorData();
 				MotorData oMotorData = (MotorData) myMessage.obj;
 				updateGUI(oMotorData);

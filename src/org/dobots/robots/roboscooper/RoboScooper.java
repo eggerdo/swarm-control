@@ -131,7 +131,7 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 			boolean success = m_oBrainLink.initializeDevice(RoboScooperTypes.SIGNAL_FILE_NAME, RoboScooperTypes.SIGNAL_FILE_ENCODED);
 			
 			if (!success) {
-				Utils.sendMessage(m_oUiHandler, RoboScooperTypes.INITIALISATION_FAILED, null);
+				Utils.sendMessage(m_oUiHandler, RoboScooperMessageTypes.INITIALISATION_FAILED, null);
 			}
 			
 		} catch (IOException e) {

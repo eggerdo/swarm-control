@@ -20,6 +20,7 @@ package org.dobots.swarmcontrol.robots.spykee;
 
 import org.dobots.robots.spykee.Spykee;
 import org.dobots.robots.spykee.SpykeeController;
+import org.dobots.robots.spykee.SpykeeMessageTypes;
 import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.robots.spykee.SpykeeTypes.SpykeeSound;
@@ -212,12 +213,12 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 		super.handleUIMessage(msg);
 		
 		switch (msg.what) {
-		case SpykeeTypes.LOGIN_ERROR:
+		case SpykeeMessageTypes.LOGIN_ERROR:
 			showToast("Login failed, please check your settings!", Toast.LENGTH_LONG);
 			connectingProgressDialog.dismiss();
 			break;
 
-		case SpykeeController.SPYKEE_DOCK:
+		case SpykeeMessageTypes.DOCKINGSTATE_RECEIVED:
 			switch ((DockState)msg.obj) {
 			case DOCKED:
 				m_btnDock.setText(R.string.spykee_undock);
@@ -229,9 +230,9 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 				m_btnDock.setText(R.string.spykee_canceldock);
 				break;
 			}
-		case SpykeeController.SPYKEE_BATTERY_LEVEL:
-		case SpykeeController.SPYKEE_VIDEO_FRAME:
-		case SpykeeController.SPYKEE_AUDIO:
+		case SpykeeMessageTypes.BATTERY_LEVEL_RECEIVED:
+		case SpykeeMessageTypes.VIDEO_FRAME_RECEIVED:
+		case SpykeeMessageTypes.AUDIO_RECEIVED:
 			m_oSensorGatherer.dispatchMessage(msg);
 			break;
 		}

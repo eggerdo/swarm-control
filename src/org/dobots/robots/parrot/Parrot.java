@@ -79,10 +79,11 @@ public class Parrot extends BaseRobot implements DroneStatusChangeListener, NavD
 		}
 	}
 
-	private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
+	
+	private class DroneStarter implements Runnable {
 
 		@Override
-		protected Boolean doInBackground(ARDrone... drones) {
+		public void run() {
 			try {
 				m_oController = new ARDrone(InetAddress.getByName(ParrotTypes.PARROT_IP), 10000, 60000);
 				m_oController.connect();
@@ -92,7 +93,10 @@ public class Parrot extends BaseRobot implements DroneStatusChangeListener, NavD
 				m_oController.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
 				m_oController.setCombinedYawMode(true);
 				m_oController.addNavDataListener(m_oInstance);
-				return true;
+				
+				m_bConnected = true;
+				Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTED, null);
+				return;
 			} catch (Exception e) {
 				try {
 					m_oController.clearEmergencySignal();
@@ -102,25 +106,19 @@ public class Parrot extends BaseRobot implements DroneStatusChangeListener, NavD
 					m_oController.disconnect();
 				} catch (Exception e1) {
 				}
-
+	
 			}
-			return false;
+			m_bConnected = false;
+			Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTERROR, null);
 		}
-
-		protected void onPostExecute(Boolean success) {
-			if (success.booleanValue()) {
-				m_bConnected = true;
-				Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTED, null);
-			} else {
-				m_bConnected = false;
-				Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTERROR, null);
-			}
-		}
+		
 	}
+	
+	private DroneStarter m_oDroneStarter = new DroneStarter();
 
 	@Override
 	public void connect() {
-		(new DroneStarter()).execute(m_oController);
+		new Thread(new DroneStarter()).start();
 	}
 
 	public void setVideoListener(DroneVideoListener i_oListener) {

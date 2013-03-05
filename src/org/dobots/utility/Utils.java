@@ -315,4 +315,12 @@ public class Utils {
 		return ( 0 != ( i_oContext.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE ) );
 	}
 	
+	public static boolean isInt(String str) {
+		try {
+			int n = Integer.valueOf(str);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
 }

@@ -111,6 +111,7 @@ public class ParrotVideoProcessor extends Thread {
             {
     			if (!m_bVideoConnected) {
     		        m_oConnectListener.onConnect(true);
+    		        m_bVideoConnected = true;
     			}
 
     			nResult = nativeUpdateBitmap();

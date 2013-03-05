@@ -56,15 +56,8 @@ public class SpykeeController extends Loggable {
 	private DataOutputStream mOutput;
 	public enum DockState { DOCKED, UNDOCKED, DOCKING };
 	private DockState mDockState;
+	private boolean mConnected;
 
-	public static final int SPYKEE_AUDIO = 1;
-	public static final int SPYKEE_VIDEO_FRAME = 2;
-	public static final int SPYKEE_BATTERY_LEVEL = 3;
-	public static final int SPYKEE_DOCK = 16;
-	public static final int SPYKEE_DOCK_UNDOCKED = 1;
-	public static final int SPYKEE_DOCK_DOCKED = 2;
-
-	private static final int DEFAULT_VOLUME = 50;  // volume is between [0, 100]
 	private static final byte[] CMD_LOGIN       = { 'P', 'K', 0x0a, 0 };
 	private static final byte[] CMD_UNDOCK      = { 'P', 'K', 0x10, 0, 1, 5 };
 	private static final byte[] CMD_DOCK        = { 'P', 'K', 0x10, 0, 1, 6 };
@@ -74,18 +67,10 @@ public class SpykeeController extends Loggable {
 	private static final byte[] CMD_START_AUDIO = { 'P', 'K', 0x0f, 0, 2, 2, 1 };
 	private static final byte[] CMD_STOP_AUDIO  = { 'P', 'K', 0x0f, 0, 2, 2, 0 };
 	private static byte[] mCmdSoundEffect       = { 'P', 'K', 0x07, 0, 1, 0 };
-	private static byte[] mCmdSetVolume         = { 'P', 'K', 0x09, 0, 1, DEFAULT_VOLUME };
+	private static byte[] mCmdSetVolume         = { 'P', 'K', 0x09, 0, 1, SpykeeTypes.DEFAULT_VOLUME };
 	private static byte[] mCmdMove              = { 'P', 'K', 0x05, 0, 0x02, 0, 0 };
 	private static byte[] mCmdLed				= { 'P', 'K', 0x04, 0, 0x02, 0, 0 };
 	
-	// The number of characters decoded per line in the hex dump
-	private static final int CHARS_PER_LINE = 32;
-	
-	// After this many characters in the hex dump, an extra space is inserted
-	// (this must be a power of two).
-	private static final int EXTRA_SPACE_FREQ = 8;
-	private static final int EXTRA_SPACE_MASK = EXTRA_SPACE_FREQ - 1;
-
 	// Create a single Runnable that we can reuse for stopping the motor.
 	private MotorStopper mMotorStopper = new MotorStopper();
 
@@ -109,7 +94,9 @@ public class SpykeeController extends Loggable {
 		mSocket.connect(addr, 5000);
 		mOutput = new DataOutputStream(mSocket.getOutputStream());
 		mInput = new DataInputStream(mSocket.getInputStream());
+		mConnected = true;
 		debug(TAG, "Connection OK");
+		
 		sendLogin(login, password);
 		readLoginResponse();
 		startNetworkReaderThread();
@@ -118,6 +105,7 @@ public class SpykeeController extends Loggable {
 
 	public void close() {
 		try {
+			mConnected = false;
 			if (mOutput != null) {
 				mOutput.close();
 				mInput.close();
@@ -315,7 +303,7 @@ public class SpykeeController extends Loggable {
 		// don't start video and audio automatically but only on request
 //		startVideo();
 //		startAudio();
-		setVolume(DEFAULT_VOLUME);
+		setVolume(SpykeeTypes.DEFAULT_VOLUME);
 	}
 
 	public DockState getDockState() {
@@ -326,7 +314,7 @@ public class SpykeeController extends Loggable {
 		mDockState = i_eState;
 
 		// inform the UI about the docking state change
-		Message msg = mHandler.obtainMessage(SPYKEE_DOCK);
+		Message msg = mHandler.obtainMessage(SpykeeMessageTypes.DOCKINGSTATE_RECEIVED);
 		msg.obj = i_eState;
 		mHandler.sendMessage(msg);
 	}
@@ -481,14 +469,14 @@ public class SpykeeController extends Loggable {
 					len = ((bytes[3] & 0xff) << 8) | (bytes[4] & 0xff);
 					debug(TAG, "cmd: " + cmd + " len: " + len);
 					switch (cmd) {
-					case SPYKEE_BATTERY_LEVEL:
+					case SpykeeTypes.SPYKEE_BATTERY_LEVEL:
 						num += readBytes(bytes, 5, len);
 						int level = bytes[5] & 0xff;
-						msg = mHandler.obtainMessage(SPYKEE_BATTERY_LEVEL);
+						msg = mHandler.obtainMessage(SpykeeMessageTypes.BATTERY_LEVEL_RECEIVED);
 						msg.arg1 = level;
 						mHandler.sendMessage(msg);
 						break;
-					case SPYKEE_VIDEO_FRAME:
+					case SpykeeTypes.SPYKEE_VIDEO_FRAME:
 						// Avoid an extra data copy by reading directly into
 						// the video frame
 						frame = new byte[len];
@@ -499,27 +487,27 @@ public class SpykeeController extends Loggable {
 		    			if (bitmap == null) {
 		    				break;
 		    			}
-						msg = mHandler.obtainMessage(SPYKEE_VIDEO_FRAME);
+						msg = mHandler.obtainMessage(SpykeeMessageTypes.VIDEO_FRAME_RECEIVED);
 						msg.obj = bitmap;
 						mHandler.sendMessage(msg);
 						break;
-					case SPYKEE_AUDIO:
+					case SpykeeTypes.SPYKEE_AUDIO:
 						// Avoid an extra data copy by reading directly into
 						// the audio buffer
 						frame = new byte[len];
 						num += readBytes(frame, 0, len);
 //						writeNextAudioFile(frame, len);
 						//showBuffer("audio", frame, len);
-						msg = mHandler.obtainMessage(SPYKEE_AUDIO);
+						msg = mHandler.obtainMessage(SpykeeMessageTypes.AUDIO_RECEIVED);
 						mHandler.sendMessage(msg);
 						break;
-					case SPYKEE_DOCK:
+					case SpykeeTypes.SPYKEE_DOCK:
 						num += readBytes(bytes, 5, len);
 						showBuffer("recv", bytes, num);
 						int val = bytes[5] & 0xff;
-						if (val == SPYKEE_DOCK_DOCKED) {
+						if (val == SpykeeTypes.SPYKEE_DOCK_DOCKED) {
 							setDockingState(DockState.DOCKED);
-						} else if (val == SPYKEE_DOCK_UNDOCKED) {
+						} else if (val == SpykeeTypes.SPYKEE_DOCK_UNDOCKED) {
 							setDockingState(DockState.UNDOCKED);
 						}
 						break;
@@ -547,7 +535,9 @@ public class SpykeeController extends Loggable {
 	 * @throws IOException
 	 */
 	private void sendBytes(byte[] bytes) throws IOException {
-		mOutput.write(bytes);
+		if (mConnected) {
+			mOutput.write(bytes);
+		}
 	}
 
 	/**
@@ -561,17 +551,21 @@ public class SpykeeController extends Loggable {
 	 * @throws IOException
 	 */
 	private int readBytes(byte[] bytes, int offset, int len) throws IOException {
-		int remaining = len;
-		while (remaining > 0) {
-			int numRead = mInput.read(bytes, offset, remaining);
-			//Log.i(TAG, "readBytes(): " + numRead);
-			if (numRead <= 0) {
-				break;
+		if (mConnected) {
+			int remaining = len;
+			while (remaining > 0) {
+				int numRead = mInput.read(bytes, offset, remaining);
+				//Log.i(TAG, "readBytes(): " + numRead);
+				if (numRead <= 0) {
+					break;
+				}
+				offset += numRead;
+				remaining -= numRead;
 			}
-			offset += numRead;
-			remaining -= numRead;
+			return len - remaining;
+		} else {
+			return -1;
 		}
-		return len - remaining;
 	}
 
 	/**
@@ -583,7 +577,7 @@ public class SpykeeController extends Loggable {
 		if (len > 256) {
 			len = 256;
 		}
-		int charsPerLine = CHARS_PER_LINE;
+		int charsPerLine = SpykeeTypes.CHARS_PER_LINE;
 		if (len < charsPerLine) {
 			charsPerLine = len;
 		}
@@ -596,14 +590,14 @@ public class SpykeeController extends Loggable {
 				}
 				byte val = bytes[i + j];
 				builder.append(String.format("%02x ", val));
-				if ((j & EXTRA_SPACE_MASK) == EXTRA_SPACE_MASK) {
+				if ((j & SpykeeTypes.EXTRA_SPACE_MASK) == SpykeeTypes.EXTRA_SPACE_MASK) {
 					builder.append(" ");
 				}
 			}
 			if (len - i < charsPerLine) {
 				for (int j = len - i; j < charsPerLine; j++) {
 					builder.append("   ");
-					if ((j & EXTRA_SPACE_MASK) == EXTRA_SPACE_MASK) {
+					if ((j & SpykeeTypes.EXTRA_SPACE_MASK) == SpykeeTypes.EXTRA_SPACE_MASK) {
 						builder.append(" ");
 					}
 				}
@@ -620,7 +614,7 @@ public class SpykeeController extends Loggable {
 					val = '.';
 				}
 				builder.append(String.format("%c", val));
-				if ((j & EXTRA_SPACE_MASK) == EXTRA_SPACE_MASK) {
+				if ((j & SpykeeTypes.EXTRA_SPACE_MASK) == SpykeeTypes.EXTRA_SPACE_MASK) {
 					builder.append(" ");
 				}
 			}

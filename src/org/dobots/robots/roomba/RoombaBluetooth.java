@@ -90,7 +90,9 @@ public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnecti
 	}
 	
 	public void send(byte[] buffer) {
-		write(buffer);
+		if (connected) {
+			write(buffer);
+		}
 	}
 	
 	public synchronized byte[] read() throws TimeoutException {

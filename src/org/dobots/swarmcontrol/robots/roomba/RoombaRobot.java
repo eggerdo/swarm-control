@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
@@ -187,7 +188,7 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 		super.onActivityResult(requestCode, resultCode, data);
 		
 		switch (requestCode) {
-		case RobotCalibration.ROBOT_CALIBRATION_RESULT:
+		case MessageTypes.ROBOT_CALIBRATION_RESULT:
 			if (resultCode == RESULT_OK) {
 				m_dblSpeed = data.getExtras().getDouble(RobotCalibration.CALIBRATED_SPEED);
 				m_oRoomba.setBaseSpeed(m_dblSpeed);

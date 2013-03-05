@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.robots.spykee;
 import org.dobots.robots.spykee.Spykee;
 import org.dobots.robots.spykee.SpykeeController;
 import org.dobots.robots.spykee.SpykeeController.DockState;
+import org.dobots.robots.spykee.SpykeeMessageTypes;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.SensorGatherer;
@@ -102,16 +103,16 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case SpykeeController.SPYKEE_BATTERY_LEVEL:
+			case SpykeeMessageTypes.BATTERY_LEVEL_RECEIVED:
 				updateBatteryLevel(msg.arg1);
 				break;
-			case SpykeeController.SPYKEE_DOCK:
+			case SpykeeMessageTypes.DOCKINGSTATE_RECEIVED:
 				updateDockingState((DockState)msg.obj);
 				break;
-			case SpykeeController.SPYKEE_VIDEO_FRAME:
+			case SpykeeMessageTypes.VIDEO_FRAME_RECEIVED:
 				updateVideo((Bitmap)msg.obj);
 				break;
-			case SpykeeController.SPYKEE_AUDIO:
+			case SpykeeMessageTypes.AUDIO_RECEIVED:
 //				if (mMediaPlayer == null) {
 //					return;
 //				}

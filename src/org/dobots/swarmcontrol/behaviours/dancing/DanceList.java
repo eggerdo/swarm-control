@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.parrot.Parrot;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
@@ -57,9 +58,6 @@ public class DanceList extends BaseActivity {
 	private Button m_btnDance1;
 	private NumberPicker m_npDuration;
 	
-	private static final int SHOW_STEP = 1000;
-	private static final int CLEAR = 1001;
-
 	private boolean m_bShowRemoveSteps = false;
 	
 	private boolean m_bStopped = false;
@@ -86,12 +84,12 @@ public class DanceList extends BaseActivity {
 		public void handleMessage(Message msg) {
 
             switch (msg.what) {
-            case SHOW_STEP:
+            case DancingMessageTypes.SHOW_STEP:
             	int nStepNr = msg.arg1;
     			m_oDanceListAdapter.setSelection(nStepNr);
     			m_lvDanceList.invalidateViews();
     			break;
-            case CLEAR:
+            case DancingMessageTypes.CLEAR:
             	m_oDanceListAdapter.clearSelection();
             	m_lvDanceList.invalidateViews();
             	break;
@@ -387,7 +385,7 @@ public class DanceList extends BaseActivity {
 		
 		protected void showStep() {
 			Message msg = Message.obtain();
-			msg.what = SHOW_STEP;
+			msg.what = DancingMessageTypes.SHOW_STEP;
 			msg.arg1 = nStepNr;
 			uiHandler.sendMessage(msg);
 		}

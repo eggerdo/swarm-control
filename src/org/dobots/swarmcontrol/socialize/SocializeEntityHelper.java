@@ -20,6 +20,8 @@ import com.socialize.listener.entity.EntityGetListener;
 public class SocializeEntityHelper {
 	
 	private static final String TAG = "SocializeEntityHelper";
+	
+	private static Object m_oMutex = new Object();
 
 	// --------------------------------------------------------------------------------------
 	public static void initAllEntities(BaseActivity i_oContext) {
@@ -143,7 +145,7 @@ public class SocializeEntityHelper {
 	// --------------------------------------------------------------------------------------
 	public static Entity getMainEntity(BaseActivity i_oContext) {
 
-		synchronized(i_oContext) {
+		synchronized(m_oMutex) {
 			Entity oEntity;
 			String strKey = "swarm_control_main";
 	
@@ -206,7 +208,7 @@ public class SocializeEntityHelper {
 	// --------------------------------------------------------------------------------------
 	public static Entity getRobotEntity(BaseActivity i_oContext, RobotType i_eRobot) {
 		
-		synchronized(i_oContext) {
+		synchronized(m_oMutex) {
 			Entity oEntity;
 			String strKey = getKey(i_eRobot);
 			
@@ -269,7 +271,7 @@ public class SocializeEntityHelper {
 			
 			synchronized(lock) {
 				try {
-					lock.wait();
+					lock.wait(20000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

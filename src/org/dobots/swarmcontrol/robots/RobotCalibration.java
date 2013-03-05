@@ -1,6 +1,7 @@
 package org.dobots.swarmcontrol.robots;
 
 import org.dobots.robots.IRobotDevice;
+import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RobotInventory;
@@ -31,8 +32,6 @@ public class RobotCalibration extends BaseActivity {
 
 	public static final String CALIBRATED_SPEED = "CALIBRATED_SPEED";
 	
-	public static final int ROBOT_CALIBRATION_RESULT = 1060;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -53,7 +52,7 @@ public class RobotCalibration extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		switch (requestCode) {
-		case CalibrationDialogSelf.CALIBRATION_RESULT:
+		case MessageTypes.CALIBRATION_RESULT:
 			if (resultCode == RESULT_OK) {
 				m_dblSpeed = data.getExtras().getDouble(CalibrationDialogSelf.CALIBRATED_VALUE);
 			}
@@ -126,7 +125,7 @@ public class RobotCalibration extends BaseActivity {
 		intent.putExtra("RobotType", i_eType);
 		intent.putExtra("InventoryIndex", i_nIndex);
 		intent.putExtra("Speed", i_dblSpeed);
-		i_oActivity.startActivityForResult(intent, ROBOT_CALIBRATION_RESULT);
+		i_oActivity.startActivityForResult(intent, MessageTypes.ROBOT_CALIBRATION_RESULT);
 	}
 	
 }

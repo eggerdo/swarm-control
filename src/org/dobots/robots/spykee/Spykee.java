@@ -81,7 +81,7 @@ public class Spykee extends DifferentialRobot implements IMoveRepeaterListener {
 			// we handle the battery level message so that we can provide the
 			// current battery level in the function getBatteryLevel since there
 			// is no way to poll Spykee for the battery level
-			case SpykeeController.SPYKEE_BATTERY_LEVEL:
+			case SpykeeMessageTypes.BATTERY_LEVEL_RECEIVED:
 				m_nBatteryLevel = msg.arg1;
 				break;
 			}
@@ -123,7 +123,7 @@ public class Spykee extends DifferentialRobot implements IMoveRepeaterListener {
 				} catch (LoginException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Utils.sendMessage(m_oUiHandler, SpykeeTypes.LOGIN_ERROR, null);
+					Utils.sendMessage(m_oUiHandler, SpykeeMessageTypes.LOGIN_ERROR, null);
 					return;
 				}
 				

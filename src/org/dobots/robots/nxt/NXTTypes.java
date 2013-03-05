@@ -13,47 +13,13 @@ public class NXTTypes {
     public static final int MOTOR_C = 2;
 //    public static final int MOTOR_B_ACTION = 40;
 //    public static final int MOTOR_RESET = 10;
-    public static final int DO_BEEP = 51;
-    public static final int DO_ACTION = 52;    
 //    public static final int READ_MOTOR_STATE = 60;
-    public static final int GET_FIRMWARE_VERSION = 70;
-    public static final int DISCONNECT = 99;
-
-    public static final int FIRMWARE_VERSION = 1006;
-    public static final int FIND_FILES = 1007;
-    public static final int START_PROGRAM = 1008;
-    public static final int STOP_PROGRAM = 1009;
-    public static final int GET_PROGRAM_NAME = 1010;
-    public static final int PROGRAM_NAME = 1011;
-    public static final int SET_INPUT_MODE = 1012;
-    public static final int GET_INPUT_VALUES = 1013;
-    public static final int SET_OUTPUT_STATE = 1014;
-    public static final int GET_OUTPUT_STATE = 1015;
-    public static final int RESET_MOTOR_POSITION = 1016;
-    public static final int GET_BATTERY_LEVEL = 1017;
-    public static final int RESET_INPUT_SCALED = 1018;
-    public static final int LS_GET_STATUS = 1019;
-    public static final int LS_READ = 1020;
-    public static final int LS_WRITE = 1021;
-    public static final int MOTOR_STATE = 1022;
-    public static final int GET_DISTANCE = 1023;
-    public static final int KEEP_ALIVE = 1024;
-    
-    public static final int MAKE_CIRLCE = 1025;
-    
-    public static final int SAY_TEXT = 1030;
-    public static final int VIBRATE_PHONE = 1031;
 
     public static final int NO_DELAY = 0;
 
-    public static final int DESTROY = 9999;
     
 	public static String MAC_FILTER = "00:16:53";
 	
-	public static final int SENSOR_DATA_RECEIVED 	= 1000;
-	public static final int DISTANCE_DATA_RECEIVED 	= 1001;
-	public static final int MOTOR_DATA_RECEIVED 	= 1002;
-
 	public static final UUID SERIAL_PORT_SERVICE_CLASS_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     // this is the only OUI registered by LEGO, see http://standards.ieee.org/regauth/oui/index.shtml
     public static final String OUI_LEGO = "00:16:53";

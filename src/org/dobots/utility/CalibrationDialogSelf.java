@@ -1,5 +1,6 @@
 package org.dobots.utility;
 
+import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.R;
 
 import android.app.Activity;
@@ -22,8 +23,6 @@ public class CalibrationDialogSelf extends Activity {
 	public static final String MESSAGE = "Message";
 	public static final String SPEED = "Speed";
 	public static final String CALIBRATED_VALUE = "CALIBRATED_VALUE";
-	
-	public static final int CALIBRATION_RESULT = 1050;
 	
 	public static final int RESULT_UP = RESULT_FIRST_USER;
 	public static final int RESULT_DOWN = RESULT_UP + 1;
@@ -158,7 +157,7 @@ public class CalibrationDialogSelf extends Activity {
 		
 		CalibrationDialogSelf.onRunClicked = i_onRunClicked;
 		
-		i_oActivity.startActivityForResult(oIntent, CALIBRATION_RESULT);
+		i_oActivity.startActivityForResult(oIntent, MessageTypes.CALIBRATION_RESULT);
     }
 
 }

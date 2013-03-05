@@ -655,7 +655,6 @@ public class RoombaSensorGatherer extends SensorGatherer {
 		
 		private void resetSensorDataAll() {
 
-			SensorPackageAll oData = (SensorPackageAll) m_oSensorData;
 			for (SensorType eType : SensorType.values()) {
 				SensorEntry oEntry = m_oSensorSelected.get(eType);
 				if (oEntry != null) {

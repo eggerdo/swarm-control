@@ -1,6 +1,8 @@
 package org.dobots.swarmcontrol.robots.nxt;
 
+import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.nxt.NXTMessageTypes;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
@@ -310,7 +312,7 @@ public class NXTRobot extends BluetoothRobot {
 		super.onActivityResult(requestCode, resultCode, data);
 		
 		switch (requestCode) {
-		case RobotCalibration.ROBOT_CALIBRATION_RESULT:
+		case MessageTypes.ROBOT_CALIBRATION_RESULT:
 			if (resultCode == RESULT_OK) {
 				m_dblSpeed = data.getExtras().getDouble(RobotCalibration.CALIBRATED_SPEED);
 				m_oNxt.setBaseSpeed(m_dblSpeed);
@@ -338,16 +340,16 @@ public class NXTRobot extends BluetoothRobot {
 		super.handleUIMessage(msg);
 		
 		switch (msg.what) {
-		case NXTTypes.GET_INPUT_VALUES:
-			m_oSensorGatherer.sendMessage(NXTTypes.SENSOR_DATA_RECEIVED, msg.obj);
+		case NXTMessageTypes.GET_INPUT_VALUES:
+			m_oSensorGatherer.sendMessage(NXTMessageTypes.SENSOR_DATA_RECEIVED, msg.obj);
 			break;
 			
-		case NXTTypes.GET_DISTANCE:
-			m_oSensorGatherer.sendMessage(NXTTypes.DISTANCE_DATA_RECEIVED, msg.obj);
+		case NXTMessageTypes.GET_DISTANCE:
+			m_oSensorGatherer.sendMessage(NXTMessageTypes.DISTANCE_DATA_RECEIVED, msg.obj);
 			break;
 			
-		case NXTTypes.MOTOR_STATE:
-			m_oSensorGatherer.sendMessage(NXTTypes.MOTOR_DATA_RECEIVED, msg.obj);
+		case NXTMessageTypes.MOTOR_STATE:
+			m_oSensorGatherer.sendMessage(NXTMessageTypes.MOTOR_DATA_RECEIVED, msg.obj);
 			break;
 		
 		}
@@ -529,6 +531,10 @@ public class NXTRobot extends BluetoothRobot {
 				int nIndex = RobotInventory.getInstance().findRobot(m_oNxt);
 				if (nIndex == -1) {
 					nIndex = RobotInventory.getInstance().addRobot(m_oNxt);
+					if (nIndex == -1) {
+						Log.e(TAG, "add robot failed");
+						return;
+					}
 				}
 				m_bKeepAlive = true;
 				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex, m_dblSpeed);
