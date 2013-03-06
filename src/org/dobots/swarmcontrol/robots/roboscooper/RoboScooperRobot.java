@@ -1,6 +1,7 @@
 package org.dobots.swarmcontrol.robots.roboscooper;
 
 import org.dobots.robots.BrainlinkDevice;
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roboscooper.RoboScooperMessageTypes;
@@ -14,6 +15,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
 
@@ -71,6 +73,14 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 	
 	public RoboScooperRobot() {
 		super();
+	}
+
+	protected IRobotDevice getRobot() {
+		return m_oRoboScooper;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return m_oSensorGatherer;
 	}
 
     @Override
@@ -237,42 +247,6 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 
 		m_oSensorGatherer.initialize();
 	}
-        
-        
-    @Override
-    public void onDestroy() {
-    	super.onDestroy();
-
-    	shutDown();
-    }
-    
-    protected void shutDown() {
-
-    	m_oSensorGatherer.stopThread();
-    	
-    	if (m_oRoboScooper.isConnected() && !m_bKeepAlive) {
-    		m_oRoboScooper.destroy();
-    	}
-    }
-
-    @Override
-    public void onStop() {
-    	super.onStop();
-    	
-//    	m_oSensorGatherer.pauseThread();
-    	resetLayout();
-    	
-    	if (m_oRoboScooper.isConnected() && !m_bKeepAlive) {
-    		m_oRoboScooper.disconnect();
-    	}
-    }
-
-    @Override
-    public void onPause() {
-    	super.onPause();
-
-//    	m_bAccelerometer = false;
-    }
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {

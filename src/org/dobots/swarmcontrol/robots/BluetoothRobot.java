@@ -41,7 +41,9 @@ public abstract class BluetoothRobot extends RobotView implements IBluetoothConn
     public void onRestart() {
     	super.onRestart();
     	
-    	if (m_strAddress != "") {
+    	// when activity is restarted, connect to the robot again if it's not already connected, but only
+    	// if we have a valid address
+    	if (m_strAddress != "" && !getRobot().isConnected()) {
     		if (m_oBTHelper.initBluetooth()) {
     			connect(m_oBTHelper.getRemoteDevice(m_strAddress));
     		}

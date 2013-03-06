@@ -18,6 +18,7 @@
 
 package org.dobots.swarmcontrol.robots.spykee;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.spykee.Spykee;
 import org.dobots.robots.spykee.SpykeeController;
 import org.dobots.robots.spykee.SpykeeMessageTypes;
@@ -32,6 +33,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.robots.WifiRobot;
 import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
@@ -106,6 +108,14 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 	
 	public SpykeeRobot() {
 		super();
+	}
+
+	protected IRobotDevice getRobot() {
+		return m_oSpykee;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return m_oSensorGatherer;
 	}
 
     @Override
@@ -240,51 +250,19 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 	}
 
     @Override
-    public void onDestroy() {
-    	super.onDestroy();
-    	
-    	shutDown();
-    }
-    
-    protected void shutDown() {
-    	m_oSensorGatherer.stopThread();
-
-    	if (m_oSpykee.isConnected() && !m_bKeepAlive) {
-    		m_oSpykee.destroy();
-    	}
-    }
-    
-    @Override
     public void onStop() {
-    	super.onStop();
     	
+		// first disable video and audio ...
     	if (m_oSpykee.isVideoEnabled()) {
     		m_oSpykee.setVideoEnabled(false);
     	}
+    	
     	if (m_oSpykee.isAudioEnabled()) {
     		m_oSpykee.setAudioEnabled(false);
     	}
-    	
-    	if (m_oSpykee.isConnected() && !m_bKeepAlive) {
-    		m_oSpykee.disconnect();
-    	}
-    }
 
-    @Override
-    public void onPause() {
-    	super.onPause();
-
-    	m_bAccelerometer = false;
-    }
-
-    @Override
-    public void onRestart() {
-    	super.onRestart();
-    	
-    	if (m_strAddress != "" && !m_bKeepAlive) {
-    		connectToRobot();
-    	}
-
+		// ... then disconnect
+    	super.onStop();
     }
 
     @Override

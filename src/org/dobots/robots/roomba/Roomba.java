@@ -91,13 +91,13 @@ public class Roomba extends BaseRobot {
 
 	@Override
 	public void disconnect() {
-		// TODO Auto-generated method stub
-
-		// before closing the connection we set the roomba to passive mode
-		// which consumes less power
-		setPassiveMode();
-
-		oRoombaCtrl.disconnect();
+		if (isConnected()) {
+			// before closing the connection we set the roomba to passive mode
+			// which consumes less power
+			setPassiveMode();
+	
+			oRoombaCtrl.disconnect();
+		}
 	}
 
 	@Override

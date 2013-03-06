@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol.robots.nxt;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTMessageTypes;
@@ -16,7 +17,10 @@ import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.socialize.SocializeHelper;
+import org.dobots.utility.CalibrationDialogSelf.OnRunClick;
+import org.dobots.utility.CalibrationDialogUser;
 import org.dobots.utility.Utils;
 
 import android.bluetooth.BluetoothDevice;
@@ -52,8 +56,6 @@ public class NXTRobot extends BluetoothRobot {
 	
 	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 
-	private boolean connected;
-	
 	private NXT m_oNxt;
 
 	private NXTSensorGatherer m_oSensorGatherer;
@@ -82,13 +84,21 @@ public class NXTRobot extends BluetoothRobot {
 	private Button m_btnMotor3Reset;
 
 	private double m_dblSpeed;
-
+	
 	public NXTRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
 	}
 	
 	public NXTRobot() {
 		super();
+	}
+
+	protected IRobotDevice getRobot() {
+		return m_oNxt;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return m_oSensorGatherer;
 	}
 
     @Override
@@ -122,40 +132,6 @@ public class NXTRobot extends BluetoothRobot {
     public void setNXT(NXT i_oNxt) {
     	m_oNxt = i_oNxt;
     	m_oNxt.setHandler(m_oUiHandler);
-    }
-    
-    @Override
-    public void onDestroy() {
-    	super.onDestroy();
-
-    	shutDown();
-    }
-    
-    protected void shutDown() {
-    	m_oSensorGatherer.stopThread();
-    	
-    	if (m_oNxt.isConnected() && !m_bKeepAlive) {
-    		m_oNxt.disconnect();
-    		m_oNxt.destroy();
-    	}
-    }
-    
-    @Override
-    public void onStop() {
-    	super.onStop();
-    	
-//    	m_oSensorGatherer.pauseThread();
-    	
-    	if (m_oNxt.isConnected() && !m_bKeepAlive) {
-    		m_oNxt.disconnect();
-    	}
-    }
-
-    @Override
-    public void onPause() {
-    	super.onPause();
-
-    	m_bAccelerometer = false;
     }
 
     @Override
@@ -215,17 +191,15 @@ public class NXTRobot extends BluetoothRobot {
 
 	@Override
 	public void connect(BluetoothDevice i_oDevice) {
-//		if (m_oBTHelper.initBluetooth()) {
-			m_strAddress = i_oDevice.getAddress();
-			showConnectingDialog();
-			
-			if (m_oNxt.isConnected()) {
-				m_oNxt.disconnect();
-			}
+		m_strAddress = i_oDevice.getAddress();
+		showConnectingDialog();
+		
+		if (m_oNxt.isConnected()) {
+			m_oNxt.disconnect();
+		}
 
-			m_oNxt.setConnection(new NXTBluetooth(i_oDevice, getResources()));
-			m_oNxt.connect();
-//		}
+		m_oNxt.setConnection(new NXTBluetooth(i_oDevice, getResources()));
+		m_oNxt.connect();
 	}
 	
 	public static void connectToNXT(final BaseActivity m_oOwner, NXT i_oNxt, BluetoothDevice i_oDevice, final IConnectListener i_oConnectListener) {
@@ -320,17 +294,16 @@ public class NXTRobot extends BluetoothRobot {
 			} else {
 				showToast("Calibration discarded", Toast.LENGTH_SHORT);
 			}
+			break;
 		}
 	};
 	
 	public void onConnect() {
-		connected = true;
 		updateButtons(true);
 	}
 	
 	@Override
 	public void onDisconnect() {
-		connected = false;
 		updateButtons(false);
 		m_oRemoteCtrl.resetLayout();
 	}
@@ -536,7 +509,6 @@ public class NXTRobot extends BluetoothRobot {
 						return;
 					}
 				}
-				m_bKeepAlive = true;
 				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex, m_dblSpeed);
 			}
 		});

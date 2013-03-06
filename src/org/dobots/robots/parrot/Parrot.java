@@ -70,12 +70,8 @@ public class Parrot extends BaseRobot implements DroneStatusChangeListener, NavD
 
 	@Override
 	public void destroy() {
-		try {
-			if (m_oController != null) {
-				m_oController.disconnect();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (isConnected()) {
+			disconnect();
 		}
 	}
 

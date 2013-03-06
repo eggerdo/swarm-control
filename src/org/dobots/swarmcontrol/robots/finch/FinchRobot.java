@@ -3,10 +3,12 @@ package org.dobots.swarmcontrol.robots.finch;
 import java.util.Random;
 import java.util.Timer;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotView;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,7 +22,7 @@ public class FinchRobot extends RobotView {
 	
 	//	private Finch oFinch;
 	private FinchSensorData oData;
-	private SensorGatherer oSensorGatherer;
+	private FinchSensorGatherer oSensorGatherer;
 	private Timer oTimer;
 	private UpdateSensorDataTask oGUIUpdater;
 	private Handler oHandler;
@@ -88,7 +90,7 @@ public class FinchRobot extends RobotView {
 
 	}
 	
-	private class SensorGatherer extends Thread {
+	private class FinchSensorGatherer extends Thread {
 		
 		FinchSensorType eSensor;
 		
@@ -145,6 +147,14 @@ public class FinchRobot extends RobotView {
 		super(i_oOwner);
 	}
 
+	protected IRobotDevice getRobot() {
+		return null;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return null;
+	}
+
 //	@Override
 //	public void show(Activity myActivity, RobotType i_eRobot) {
 //		super.show(myActivity, i_eRobot);
@@ -155,7 +165,7 @@ public class FinchRobot extends RobotView {
 		
 //		oFinch = new Finch();
 		oData = new FinchSensorData();
-		oSensorGatherer = new SensorGatherer();
+		oSensorGatherer = new FinchSensorGatherer();
 		oHandler = new Handler();
 		oGUIUpdater = new UpdateSensorDataTask();
 		
@@ -208,12 +218,6 @@ public class FinchRobot extends RobotView {
 //			tblAcceleration.setVisibility(View.INVISIBLE);
 //			oHandler.removeCallbacks(oGUIUpdater);
 //		}
-	}
-
-	@Override
-	public void shutDown() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

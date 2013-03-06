@@ -9,7 +9,7 @@ import android.widget.TextView;
 public class SensorGatherer extends Thread {
 
 	private volatile boolean m_bStopped = false;
-	private volatile boolean m_bPaused = false;
+	private volatile boolean m_bPaused = true;
 	
 	protected Handler m_oUiHandler;
 	protected Runnable m_oGUIUpdater;
@@ -36,7 +36,7 @@ public class SensorGatherer extends Thread {
 		m_bPaused = true;
 	}
 	
-	public void resumeThread() {
+	public void startThread() {
 		m_bPaused = false;
 	}
 

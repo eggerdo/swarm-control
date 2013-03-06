@@ -191,13 +191,19 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 		m_oParrot.removeNavDataListener(this);
 	}
 
-	public void close() {
+	@Override
+	public void stopThread() {
+		super.stopThread();
+		disconnectVideo();
+	}
+
+	public void disconnectVideo() {
 		if (m_oVideoProcessor != null) {
 			m_oVideoProcessor.close();
 			m_oVideoProcessor = null;
 		}
 	}
-	
+
 	@Override
 	public void pauseThread() {
 		super.pauseThread();
@@ -207,8 +213,8 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	}
 
 	@Override
-	public void resumeThread() {
-		super.resumeThread();
+	public void startThread() {
+		super.startThread();
 		if (m_oVideoProcessor != null) {
 			m_oVideoProcessor.resumeThread();
 		}

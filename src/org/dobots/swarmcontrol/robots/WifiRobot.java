@@ -48,6 +48,16 @@ public abstract class WifiRobot extends RobotView {
     		connect();
     	}
     }
+    
+    @Override
+    protected void onRestart() {
+    	// TODO Auto-generated method stub
+    	super.onRestart();
+    	
+    	if (!getRobot().isConnected()) {
+    		connectToRobot();
+    	}
+    }
 
 	protected abstract void connect();
 }

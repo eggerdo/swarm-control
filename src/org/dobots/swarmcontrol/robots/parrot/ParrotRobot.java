@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol.robots.parrot;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.parrot.Parrot;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.IConnectListener;
@@ -9,6 +10,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.robots.WifiRobot;
 import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
@@ -79,7 +81,15 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
 	public ParrotRobot() {
 		super();
 	}
-	
+
+	protected IRobotDevice getRobot() {
+		return m_oParrot;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return m_oSensorGatherer;
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -113,59 +123,6 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
     }
 
     @Override
-    public void onDestroy() {
-    	super.onDestroy();
-
-    	shutDown();
-    }
-    
-    protected void shutDown() {
-    	m_oSensorGatherer.close();
-
-    	if (m_oParrot.isConnected() && !m_bKeepAlive) {
-    		m_oParrot.disconnect();
-    		m_oParrot.destroy();
-    	}
-    	
-    }
-    
-    @Override
-    public void onStop() {
-    	super.onStop();
-
-    	m_oSensorGatherer.close();
-    	
-    	if (m_oParrot.isConnected() && !m_bKeepAlive) {
-    		m_oParrot.disconnect();
-    	}
-    	
-    }
-
-    @Override
-    public void onPause() {
-    	super.onPause();
-
-    	m_oSensorGatherer.pauseThread();
-    }
-
-    @Override
-    public void onRestart() {
-    	super.onRestart();
-    	
-    	if (!m_bKeepAlive) {
-    		connectToRobot();
-    	}
-    }
-    
-    @Override
-    protected void onResume() {
-    	// TODO Auto-generated method stub
-    	super.onResume();
-
-    	m_oSensorGatherer.resumeThread();
-    }
-
-    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		
@@ -191,7 +148,7 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
 	
 	public void disconnect() {
 		m_oParrot.disconnect();
-		m_oSensorGatherer.close();
+		m_oSensorGatherer.disconnectVideo();
 	}
 
     @Override

@@ -46,8 +46,6 @@ public class RobotList extends BaseActivity {
 	
 	private ListView m_lvAddedRobots;
 
-	private boolean m_bKeepAlive = false;
-
 	private ArrayList<RobotEntry> m_oRobotList;
 
 	@Override
@@ -231,7 +229,6 @@ public class RobotList extends BaseActivity {
 					
 					@Override
 					public void onClick(View v) {
-						m_bKeepAlive = true;
 						RobotEntry oEntry = (RobotEntry) viewHolder.btnGoto.getTag();
 						((SwarmControlActivity)SwarmControlActivity.getContext()).showRobot(oEntry.eType, oEntry.nInventoryIdx);
 					}

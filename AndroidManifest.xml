@@ -84,7 +84,9 @@
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
 		<activity android:name=".robots.RobotCalibration"
-		    android:screenOrientation="portrait" ></activity>
+			android:screenOrientation="portrait" 
+			android:theme="@android:style/Theme.Dialog"
+			android:configChanges="keyboardHidden|orientation"></activity>
 		<activity android:name="org.dobots.utility.CalibrationDialogSelf"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"

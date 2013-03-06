@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol.robots.ac13;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.ac13.AC13Rover;
 import org.dobots.robots.ac13.AC13RoverTypes.VideoResolution;
 import org.dobots.swarmcontrol.BaseActivity;
@@ -8,6 +9,7 @@ import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.robots.WifiRobot;
 import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
@@ -60,6 +62,14 @@ public class AC13RoverRobot extends WifiRobot {
 	public AC13RoverRobot() {
 		super();
 	}
+	
+	protected IRobotDevice getRobot() {
+		return m_oRover;
+	}
+	
+	protected SensorGatherer getSensorGatherer() {
+		return m_oSensorGatherer;
+	}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,42 +119,14 @@ public class AC13RoverRobot extends WifiRobot {
 	}
 
     @Override
-    public void onDestroy() {
-    	super.onDestroy();
-    	
-    	shutDown();
-    }
-
-	@Override
-	protected void shutDown() {
-		m_oSensorGatherer.stopThread();
-
-    	if (m_oRover.isConnected() && !m_bKeepAlive) {
-    		m_oRover.destroy();
-    	}
-	}
-
-    @Override
     public void onStop() {
-    	super.onStop();
-    	
+    	// first stop streaming ...
     	if (m_oRover.isStreaming()) {
     		m_oRover.stopStreaming();
     	}
     	
-    	if (m_oRover.isConnected() && !m_bKeepAlive) {
-    		m_oRover.disconnect();
-    	}
-    }
-
-    @Override
-    public void onRestart() {
-    	super.onRestart();
-    	
-    	if (m_strAddress != "" && !m_bKeepAlive) {
-    		connectToRobot();
-    	}
-
+    	// ... then disconnect
+    	super.onStop();
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.dobots.swarmcontrol.robots.dotty;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
@@ -14,6 +15,7 @@ import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
 
@@ -77,6 +79,14 @@ public class DottyRobot extends BluetoothRobot {
 		super();
 	}
 	
+	protected IRobotDevice getRobot() {
+		return m_oDotty;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return m_oSensorGatherer;
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -238,40 +248,6 @@ public class DottyRobot extends BluetoothRobot {
 			}
 		});
 		
-    }
-
-    @Override
-    public void onDestroy() {
-    	super.onDestroy();
-
-    	shutDown();
-    }
-    
-    protected void shutDown() {
-    	m_oSensorGatherer.stopThread();
-    	
-    	if (m_oDotty.isConnected() && !m_bKeepAlive) {
-    		m_oDotty.disconnect();
-    		m_oDotty.destroy();
-    	}
-    }
-    
-    @Override
-    public void onStop() {
-    	super.onStop();
-    	
-//    	m_oSensorGatherer.pauseThread();
-    	
-    	if (m_oDotty.isConnected() && !m_bKeepAlive) {
-    		m_oDotty.disconnect();
-    	}
-    }
-
-    @Override
-    public void onPause() {
-    	super.onPause();
-
-    	m_bAccelerometer = false;
     }
 
     @Override

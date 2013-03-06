@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol.robots;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.swarmcontrol.R;
 
 import android.widget.TextView;
@@ -33,12 +34,6 @@ public class UnimplementedRobot extends RobotView {
 	}
 
 	@Override
-	protected void shutDown() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	protected void connectToRobot() {
 		// TODO Auto-generated method stub
 
@@ -60,6 +55,17 @@ public class UnimplementedRobot extends RobotView {
 	protected void updateButtons(boolean i_bEnabled) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	protected IRobotDevice getRobot() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

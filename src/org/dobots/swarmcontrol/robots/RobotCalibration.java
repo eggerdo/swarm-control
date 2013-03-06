@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
@@ -62,7 +63,9 @@ public class RobotCalibration extends BaseActivity {
 	
 	private void setProperties() {
 		setContentView(R.layout.robot_calibration);
-		
+
+        setTitle("Robot Calibration");
+        
 		m_btnCalibrateCircleSelf = (Button) findViewById(R.id.btnCalibrate_Circle_Self);
 		m_btnCalibrateCircleSelf.setOnClickListener(new OnClickListener() {
 			

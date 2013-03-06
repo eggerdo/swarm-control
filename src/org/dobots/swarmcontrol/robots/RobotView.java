@@ -1,6 +1,8 @@
 package org.dobots.swarmcontrol.robots;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
+import org.dobots.robots.RobotDeviceFactory;
 import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utility.AccelerometerManager;
@@ -115,21 +117,12 @@ public abstract class RobotView extends BaseActivity implements IAccelerometerLi
 	}
     
     @Override
-    public void onDestroy() {
-    	super.onDestroy();
-    	
-		if (AccelerometerManager.isListening()) {
-			AccelerometerManager.stopListening();
-		}
+    protected void onStart() {
+    	super.onStart();
+
+    	getSensorGatherer().startThread();
     }
-
-    @Override
-    public void onPause() {
-    	super.onPause();
-
-    	m_bAccelerometer = false;
-    }
-
+    
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -138,6 +131,37 @@ public abstract class RobotView extends BaseActivity implements IAccelerometerLi
 		}
 	}
 	
+    @Override
+    public void onPause() {
+    	super.onPause();
+
+    	m_bAccelerometer = false;
+    }
+
+    @Override
+    protected void onStop() {
+    	super.onStop();
+
+    	getSensorGatherer().pauseThread();
+    	
+    	if (!m_bKeepAlive) {
+    		disconnect();
+    	}
+    }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	
+    	getSensorGatherer().stopThread();
+
+    	shutDown();
+    	
+		if (AccelerometerManager.isListening()) {
+			AccelerometerManager.stopListening();
+		}
+    }
+
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -282,7 +306,12 @@ public abstract class RobotView extends BaseActivity implements IAccelerometerLi
 
 	protected abstract void setProperties(RobotType i_eRobot);
 	
-	protected abstract void shutDown();
+	protected void shutDown() {
+		
+		if (!m_bKeepAlive) {
+			getRobot().destroy();
+		}
+	}
 	
     protected void sendBundle(Handler i_oHandler, Bundle i_oBundle) {
         Message myMessage = new Message();
@@ -326,6 +355,9 @@ public abstract class RobotView extends BaseActivity implements IAccelerometerLi
 	
 	protected abstract void resetLayout();
 	protected abstract void updateButtons(boolean i_bEnabled);
+	
+	protected abstract IRobotDevice getRobot();
+	protected abstract SensorGatherer getSensorGatherer();
 	
 	public static String getMacFilter() {
 		// has to be implemented by child class

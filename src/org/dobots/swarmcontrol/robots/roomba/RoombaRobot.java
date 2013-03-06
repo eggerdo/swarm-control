@@ -1,5 +1,6 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
+import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
@@ -15,6 +16,7 @@ import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.RobotType;
+import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.swarmcontrol.socialize.SocializeHelper;
 import org.dobots.utility.Utils;
@@ -88,6 +90,14 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	
 	public RoombaRobot() {
 		super();
+	}
+
+	protected IRobotDevice getRobot() {
+		return m_oRoomba;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return m_oSensorGatherer;
 	}
 
     @Override
@@ -169,19 +179,6 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	public boolean onContextItemSelected(MenuItem item) {
 		return m_oSensorGatherer.onContextItemSelected(item);
 	}
-
-    public void onDestroy() {
-    	super.onDestroy();
-    	
-    	shutDown();
-    }
-    
-    @Override
-    public void onPause() {
-    	super.onPause();
-    	
-    	disconnect();
-    }
     
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -280,8 +277,6 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 
 	@Override
 	protected void disconnect() {
-		updatePowerButton(false);
-		updateControlButtons(false);
 		if (m_oRoomba.isConnected()) {
 			m_oRoomba.disconnect();
 		}
@@ -358,19 +353,6 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 		m_spSensors.setSelection(0);
 		m_oSensorGatherer.initialize();
 	}
-	
-	@Override
-	public void shutDown() {
-    	updateButtons(false);
-    	updateControlButtons(false);
-
-		m_oSensorGatherer.setSensorPackage(ERoombaSensorPackages.sensPkg_None);
-		m_oSensorGatherer.stopThread();
-		
-		if (m_oRoomba.isConnected() && !m_bKeepAlive) {
-			m_oRoomba.disconnect();
-		}
-	}
 
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
@@ -437,8 +419,11 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 				int nIndex = RobotInventory.getInstance().findRobot(m_oRoomba);
 				if (nIndex == -1) {
 					nIndex = RobotInventory.getInstance().addRobot(m_oRoomba);
+					if (nIndex == -1) {
+						Log.e(TAG, "add robot failed");
+						return;
+					}
 				}
-				m_bKeepAlive = true;
 				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_ROOMBA, nIndex, m_dblSpeed);
 			}
 		});

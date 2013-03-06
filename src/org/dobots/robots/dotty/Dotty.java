@@ -115,6 +115,9 @@ public class Dotty extends DifferentialRobot {
 
 	@Override
 	public void destroy() {
+		if (isConnected()) {
+			disconnect();
+		}
 		m_oController.destroyConnection();
 	}
 
@@ -134,7 +137,9 @@ public class Dotty extends DifferentialRobot {
 
 	@Override
 	public void disconnect() {
-		m_oController.disconnect();
+		if (m_oController.isConnected()) {
+			m_oController.disconnect();
+		}
 	}
 
 	@Override
