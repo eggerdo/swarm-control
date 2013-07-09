@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.dobots.robots.DifferentialRobot;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.msg.MsgTypes;
 import org.dobots.robots.msg.MsgTypes.MotorDataRequestMsg;
@@ -16,10 +15,11 @@ import org.dobots.robots.msg.MsgTypes.SensorTypeMsg;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.ctrl.DifferentialRobot;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -231,7 +231,7 @@ public class NXT extends DifferentialRobot {
 	};
 
 	public NXT() {
-		super(NXTTypes.AXLE_WIDTH, NXTTypes.MAX_VELOCITY, NXTTypes.MIN_RADIUS, NXTTypes.MAX_RADIUS);
+		super(NXTTypes.AXLE_WIDTH, NXTTypes.MIN_VELOCITY, NXTTypes.MAX_VELOCITY, NXTTypes.MIN_RADIUS, NXTTypes.MAX_RADIUS);
 		
 		m_oReceiver = new NXTReceiver();
 		m_oReceiver.start();
@@ -405,11 +405,10 @@ public class NXT extends DifferentialRobot {
 	@Override
 	public void moveForward(double i_dblSpeed, int i_nRadius) {
 		debug(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
-		
-		int velocity[] = {0, 0};
-		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
-		
-		drive(velocity[0], velocity[1]);
+
+		DriveVelocityLR oVelocity = calculateVelocity(i_dblSpeed, i_nRadius);
+
+		drive(oVelocity.left, oVelocity.right);
 	}
 	
 	public void moveForward() {
@@ -437,10 +436,9 @@ public class NXT extends DifferentialRobot {
 	public void moveBackward(double i_dblSpeed, int i_nRadius) {
 		debug(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
 		
-		int velocity[] = {0, 0};
-		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
-		
-		drive(-velocity[0], -velocity[1]);
+		DriveVelocityLR oVelocity = calculateVelocity(i_dblSpeed, i_nRadius);
+
+		drive(-oVelocity.left, -oVelocity.right);
 	}
 
 	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
@@ -607,6 +605,12 @@ public class NXT extends DifferentialRobot {
 	@Override
 	public void moveRight() {
 		// not available
+	}
+
+	@Override
+	public boolean toggleInvertDrive() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

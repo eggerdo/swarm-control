@@ -1,8 +1,11 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.swarmcontrol.R;
 
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.gui.RobotView;
+import robots.gui.SensorGatherer;
 import android.widget.TextView;
 
 public class UnimplementedRobot extends RobotView {

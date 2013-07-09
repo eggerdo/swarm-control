@@ -1,6 +1,5 @@
 package org.dobots.swarmcontrol.robots.nxt;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTMessageTypes;
@@ -9,20 +8,17 @@ import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
-import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.swarmcontrol.socialize.SocializeHelper;
-import org.dobots.utility.CalibrationDialogSelf.OnRunClick;
-import org.dobots.utility.CalibrationDialogUser;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.RobotInventory;
+import robots.RobotType;
+import robots.gui.IConnectListener;
+import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
@@ -93,10 +89,6 @@ public class NXTRobot extends BluetoothRobot {
 		super();
 	}
 
-	protected IRobotDevice getRobot() {
-		return m_oNxt;
-	}
-
 	protected SensorGatherer getSensorGatherer() {
 		return m_oSensorGatherer;
 	}
@@ -105,14 +97,7 @@ public class NXTRobot extends BluetoothRobot {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
-    	if (nIndex == -1) {
-			m_oNxt = new NXT();
-	        connectToRobot();
-    	} else {
-    		m_oNxt = (NXT) RobotInventory.getInstance().getRobot(nIndex);
-    		m_bKeepAlive = true;
-    	}
+    	m_oNxt = (NXT) getRobot();
 		m_oNxt.setHandler(m_oUiHandler);
 		
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
@@ -126,6 +111,8 @@ public class NXTRobot extends BluetoothRobot {
 
         if (m_oNxt.isConnected()) {
 			updateButtons(true);
+		} else {
+			connectToRobot();
 		}
     }
     
@@ -332,8 +319,8 @@ public class NXTRobot extends BluetoothRobot {
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.nxt_main);
 
-        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
         
         // adapter is the same, for each sensor we can choose the same types
 		final ArrayAdapter<ENXTSensorType> oSensorTypeAdapter = new ArrayAdapter<ENXTSensorType>(m_oActivity, 
@@ -501,15 +488,11 @@ public class NXTRobot extends BluetoothRobot {
 			@Override
 			public void onClick(View v) {
 
-				int nIndex = RobotInventory.getInstance().findRobot(m_oNxt);
-				if (nIndex == -1) {
-					nIndex = RobotInventory.getInstance().addRobot(m_oNxt);
-					if (nIndex == -1) {
-						Log.e(TAG, "add robot failed");
-						return;
-					}
+				String strID = m_oNxt.getID();
+				if (!RobotInventory.getInstance().containsRobot(strID)) {
+					strID = RobotInventory.getInstance().addRobot(m_oNxt);
 				}
-				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, nIndex, m_dblSpeed);
+				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_NXT, strID, m_dblSpeed);
 			}
 		});
 	}

@@ -1,8 +1,9 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.WifiConnectionHelper;
+import org.dobots.utilities.BaseActivity;
 
+import robots.gui.RobotView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;

@@ -13,11 +13,11 @@ import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.robots.nxt.NXTTypes.MotorData;
 import org.dobots.robots.nxt.NXTTypes.SensorData;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.gui.SensorGatherer;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.TableLayout;
@@ -39,7 +39,7 @@ public class NXTSensorGatherer extends SensorGatherer {
 	
 	
 	public NXTSensorGatherer(BaseActivity i_oActivity, NXT i_oNxt) {
-		super(i_oActivity);
+		super(i_oActivity, "NxtSensorGatherer");
 		m_oNxt = i_oNxt;
 		
 //		m_oGUIUpdater = new UpdateSensorDataTask();
@@ -390,6 +390,12 @@ public class NXTSensorGatherer extends SensorGatherer {
 
 	public void setDebug(boolean i_bDebug) {
 		m_bDebug = i_bDebug;
+	}
+
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

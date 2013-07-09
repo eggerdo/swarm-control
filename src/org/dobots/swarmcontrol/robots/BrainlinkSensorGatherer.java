@@ -1,15 +1,15 @@
-package org.dobots.swarmcontrol.robots.roboscooper;
+package org.dobots.swarmcontrol.robots;
 
 import java.util.EnumMap;
 
 import org.dobots.robots.BrainlinkDevice;
 import org.dobots.robots.BrainlinkDevice.AccelerometerData;
 import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.gui.SensorGatherer;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -31,7 +31,7 @@ public class BrainlinkSensorGatherer extends SensorGatherer {
 	private TableLayout m_tblLight;
 
 	public BrainlinkSensorGatherer(BaseActivity i_oActivity, BrainlinkDevice i_oDevice) {
-		super(i_oActivity);
+		super(i_oActivity, "BrainlinkSensorGatherer");
 		
 		m_oDevice = i_oDevice;
 		
@@ -149,6 +149,12 @@ public class BrainlinkSensorGatherer extends SensorGatherer {
 			Utils.showLayout(m_tblLight, i_bShow);
 			break;
 		}
+	}
+
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

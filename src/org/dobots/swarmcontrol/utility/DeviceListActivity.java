@@ -20,7 +20,7 @@
  * (original work is) Copyright (C) 2009 The Android Open Source Project
 **/
 
-package org.dobots.utility;
+package org.dobots.swarmcontrol.utility;
 
 import java.util.Set;
 

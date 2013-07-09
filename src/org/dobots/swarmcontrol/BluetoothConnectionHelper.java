@@ -1,8 +1,9 @@
 package org.dobots.swarmcontrol;
 
 import org.dobots.robots.MessageTypes;
-import org.dobots.swarmcontrol.behaviours.IActivityResultListener;
-import org.dobots.utility.DeviceListActivity;
+import org.dobots.swarmcontrol.utility.DeviceListActivity;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.IActivityResultListener;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;

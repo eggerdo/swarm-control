@@ -1,24 +1,21 @@
 package org.dobots.swarmcontrol.robots.roboscooper;
 
 import org.dobots.robots.BrainlinkDevice;
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roboscooper.RoboScooperMessageTypes;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.swarmcontrol.socialize.SocializeHelper;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.gui.IConnectListener;
+import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Message;
@@ -46,7 +43,7 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 	
 	private RoboScooper m_oRoboScooper;
 
-	private BrainlinkSensorGatherer m_oSensorGatherer;
+	private RoboScooperSensorGatherer m_oSensorGatherer;
 
 	private RemoteControlHelper m_oRemoteCtrl;
 
@@ -75,10 +72,6 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 		super();
 	}
 
-	protected IRobotDevice getRobot() {
-		return m_oRoboScooper;
-	}
-
 	protected SensorGatherer getSensorGatherer() {
 		return m_oSensorGatherer;
 	}
@@ -87,17 +80,10 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
-    	if (nIndex == -1) {
-    		m_oRoboScooper = new RoboScooper();
-	        connectToRobot();
-    	} else {
-    		m_oRoboScooper = (RoboScooper) RobotInventory.getInstance().getRobot(nIndex);
-    		m_bKeepAlive = true;
-    	}
+    	m_oRoboScooper = (RoboScooper) getRobot();
     	m_oRoboScooper.setHandler(m_oUiHandler);
 		
-		m_oSensorGatherer = new BrainlinkSensorGatherer(this, m_oRoboScooper);
+		m_oSensorGatherer = new RoboScooperSensorGatherer(this, m_oRoboScooper);
 
 		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRoboScooper, this);
         m_oRemoteCtrl.setProperties();
@@ -106,6 +92,8 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 
         if (m_oRoboScooper.isConnected()) {
 			updateButtons(true);
+		} else {
+			connectToRobot();
 		}
         
         if (!BrainlinkDevice.checkForConfigFile(getResources(), RoboScooperTypes.SIGNAL_FILE_NAME, RoboScooperTypes.SIGNAL_FILE_ENCODED)) {
@@ -117,8 +105,8 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.roboscooper_main);
 
-        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
 		
         m_layControls = (LinearLayout) findViewById(R.id.layControls);
         m_layPlayModes = (LinearLayout) findViewById(R.id.layPlayModes);

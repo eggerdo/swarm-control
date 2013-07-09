@@ -1,28 +1,24 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
-import org.dobots.swarmcontrol.socialize.SocializeHelper;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
-import com.socialize.entity.Entity;
-
+import robots.RobotInventory;
+import robots.RobotType;
+import robots.gui.IConnectListener;
+import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
@@ -82,18 +78,12 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 
 	private double m_dblSpeed;
 
-	private Entity m_oEntity;
-
 	public RoombaRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
 	}
 	
 	public RoombaRobot() {
 		super();
-	}
-
-	protected IRobotDevice getRobot() {
-		return m_oRoomba;
 	}
 
 	protected SensorGatherer getSensorGatherer() {
@@ -104,14 +94,7 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
-    	if (nIndex == -1) {
-    		m_oRoomba = new Roomba();
-    		connectToRobot();
-    	} else {
-    		m_oRoomba = (Roomba) RobotInventory.getInstance().getRobot(nIndex);
-    		m_bKeepAlive = true;
-    	}
+    	m_oRoomba = (Roomba) getRobot();
 		m_oRoomba.setHandler(m_oUiHandler);
 		
 		m_oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
@@ -129,6 +112,8 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 			if (m_oRoomba.isPowerOn()) {
 				updateButtons(true);
 			}
+		} else {
+			connectToRobot();
 		}
     }
 
@@ -358,8 +343,8 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.roomba_main);
         
-        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
 		
         m_spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		final ArrayAdapter<ERoombaSensorPackages> adapter = new ArrayAdapter<ERoombaSensorPackages>(m_oActivity, 
@@ -416,15 +401,11 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 			@Override
 			public void onClick(View v) {
 
-				int nIndex = RobotInventory.getInstance().findRobot(m_oRoomba);
-				if (nIndex == -1) {
-					nIndex = RobotInventory.getInstance().addRobot(m_oRoomba);
-					if (nIndex == -1) {
-						Log.e(TAG, "add robot failed");
-						return;
-					}
+				String strID = m_oRoomba.getID();
+				if (!RobotInventory.getInstance().containsRobot(strID)) {
+					strID = RobotInventory.getInstance().addRobot(m_oRoomba);
 				}
-				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_ROOMBA, nIndex, m_dblSpeed);
+				RobotCalibration.createAndShow(m_oActivity, RobotType.RBT_ROOMBA, strID, m_dblSpeed);
 			}
 		});
 	

@@ -1,6 +1,5 @@
 package org.dobots.robots.spykee;
 
-import org.dobots.robots.MessageTypes;
 
 public class SpykeeTypes {
 
@@ -24,6 +23,7 @@ public class SpykeeTypes {
 	public static final int EXTRA_SPACE_FREQ = 8;
 	public static final int EXTRA_SPACE_MASK = EXTRA_SPACE_FREQ - 1;
 
+	public static final int MIN_VELOCITY	= 0;
 	public static final int MAX_VELOCITY 	= 100;
 	public static final int MIN_RADIUS 		= 1;
 	public static final int MAX_RADIUS 		= 1000;

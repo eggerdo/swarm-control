@@ -33,7 +33,7 @@ import java.net.UnknownHostException;
 import javax.security.auth.login.LoginException;
 
 import org.dobots.robots.MessageTypes;
-import org.dobots.utility.log.Loggable;
+import org.dobots.utilities.log.Loggable;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

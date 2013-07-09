@@ -3,18 +3,18 @@ package org.dobots.swarmcontrol.behaviours.dancing;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.RobotDeviceFactory;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.ConnectionHelper;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.SwarmControlActivity;
-import org.dobots.swarmcontrol.behaviours.IActivityResultListener;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.IActivityResultListener;
+import org.dobots.utilities.Utils;
 
+import robots.RobotInventory;
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.gui.IConnectListener;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -135,9 +135,9 @@ public class RobotList extends BaseActivity {
 		IRobotDevice oRobot;
 		try {
 			oRobot = RobotDeviceFactory.getRobotDevice(i_eRobot);
-			int nIndex = RobotInventory.getInstance().addRobot(oRobot);
+			String strRobotID = RobotInventory.getInstance().addRobot(oRobot);
 			
-			RobotEntry entry = new RobotEntry(oRobot, i_eRobot, nIndex);
+			RobotEntry entry = new RobotEntry(oRobot, i_eRobot, strRobotID);
 			m_oRobotList.add(entry);
 			
 			m_lvAddedRobots.invalidateViews();
@@ -151,19 +151,19 @@ public class RobotList extends BaseActivity {
 		
 		IRobotDevice oRobot;
 		RobotType eType;
-		int nInventoryIdx;
+		String strRobotID;
 		boolean bRemove;
 		
-		public RobotEntry(IRobotDevice i_oRobot, RobotType eType, int index) {
+		public RobotEntry(IRobotDevice i_oRobot, RobotType eType, String id) {
 			this.oRobot = i_oRobot;
 			this.eType = eType;
-			this.nInventoryIdx = index;
+			this.strRobotID = id;
 			this.bRemove = false;
 		}
 
 		public void destroy() {
 			oRobot.destroy();
-			RobotInventory.getInstance().removeRobot(oRobot);
+			RobotInventory.getInstance().removeRobot(oRobot.getID());
 			oRobot = null;
 		}
 		
@@ -230,7 +230,7 @@ public class RobotList extends BaseActivity {
 					@Override
 					public void onClick(View v) {
 						RobotEntry oEntry = (RobotEntry) viewHolder.btnGoto.getTag();
-						((SwarmControlActivity)SwarmControlActivity.getContext()).showRobot(oEntry.eType, oEntry.nInventoryIdx);
+						((SwarmControlActivity)SwarmControlActivity.getContext()).showRobot(oEntry.eType, oEntry.strRobotID);
 					}
 				});
 				

@@ -2,13 +2,13 @@ package org.dobots.robots.roomba;
 
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.robots.BaseRobot;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaModes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.ctrl.BaseRobot;
 import android.os.Handler;
 
 public class Roomba extends BaseRobot {
@@ -552,6 +552,12 @@ public class Roomba extends BaseRobot {
 	@Override
 	public void moveRight() {
 		// not available
+	}
+
+	@Override
+	public boolean toggleInvertDrive() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

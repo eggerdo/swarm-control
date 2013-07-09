@@ -1,22 +1,19 @@
 package org.dobots.robots.roboscooper;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.dobots.robots.BrainlinkDevice;
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.helpers.MoveRepeater;
 import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
 import org.dobots.robots.roboscooper.RoboScooperMoveRunner.SubMoveCommand;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.ctrl.BaseRobot;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
-import edu.cmu.ri.createlab.brainlink.BluetoothConnection;
-import edu.cmu.ri.createlab.brainlink.BrainLink;
 
 /*
  * Note: The RoboScooper is a particular case. firstly it is not possible to
@@ -49,24 +46,27 @@ import edu.cmu.ri.createlab.brainlink.BrainLink;
  * moving forward or backward.
  */
 
-public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
-	
+public class RoboScooper extends BaseRobot {
+
 	public static final String TAG = "RoboScooper";
-	
+
 	private String m_strAddress;
 	private Handler m_oUiHandler;
-	
+
 	private MoveRepeater m_oRepeater;
-	
+
 	private ExecutorService executorSerive = Executors.newCachedThreadPool();
-	
+
 	private int m_nInterval = 200;
 
 	private double m_dblBaseSpeed = 100.0;
-	
+
 	private RoboScooperMoveRunner m_eCurrentMove = null;
-	
+
+	private BrainlinkDevice m_oBrainlink;
+
 	public RoboScooper() {
+		m_oBrainlink = new BrainlinkDevice();
 		// we supply our own move runnables so we don't have to
 		// provide a move listener
 		m_oRepeater = new MoveRepeater(null, m_nInterval);
@@ -81,6 +81,10 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 	public String getAddress() {
 		return m_strAddress;
 	}
+	
+	public BrainlinkDevice getBrainlink() {
+		return m_oBrainlink;
+	}
 
 	@Override
 	public void destroy() {
@@ -94,21 +98,17 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 	}
 
 	public void setConnection(BluetoothDevice i_oDevice) {
-		m_oConnection = new BluetoothConnection();
-		m_oConnection.initializeBluetoothAdapter();
-		m_oConnection.addDevice(i_oDevice);
+		m_oBrainlink.setConnection(i_oDevice);
 		m_strAddress = i_oDevice.getAddress();
 	}
 
 	@Override
 	public void connect() {
 		executorSerive.submit(new Runnable() {
-			
+
 			@Override
 			public void run() {
-				m_bConnected = m_oConnection.socketConnect();
-				
-				if (m_bConnected) {
+				if (m_oBrainlink.connect()) {
 					Utils.sendMessage(m_oUiHandler, MessageTypes.STATE_CONNECTED, null);
 					initializeRobot();
 				} else {
@@ -120,45 +120,28 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 
 	private void initializeRobot() {
 		// Initialize BrainLink
-		try {
-			if (m_oBrainLink != null) {
-				m_oBrainLink = null;
-			}
-			
-			m_oBrainLink = new BrainLink(m_oConnection.getInputStream(), m_oConnection.getOutputStream());
-//			m_oBrainLink.setFullColorLED(0, 255, 0);
-			
-			boolean success = m_oBrainLink.initializeDevice(RoboScooperTypes.SIGNAL_FILE_NAME, RoboScooperTypes.SIGNAL_FILE_ENCODED);
-			
-			if (!success) {
-				Utils.sendMessage(m_oUiHandler, RoboScooperMessageTypes.INITIALISATION_FAILED, null);
-			}
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		boolean success = m_oBrainlink.initialize(RoboScooperTypes.SIGNAL_FILE_NAME, RoboScooperTypes.SIGNAL_FILE_ENCODED);
+
+		if (!success) {
+			Utils.sendMessage(m_oUiHandler, RoboScooperMessageTypes.INITIALISATION_FAILED, null);
 		}
 	}
 
 	@Override
 	public void disconnect() {
-		m_oBrainLink.setFullColorLED(0, 0, 0);
-		close();
-		
-		m_oConnection.cancelSocket();
-		m_bConnected = false;
+		m_oBrainlink.disconnect();
 	}
 
 	@Override
 	public boolean isConnected() {
-		return m_bConnected;
+		return m_oBrainlink.isConnected();
 	}
 
 	@Override
 	public void enableControl(boolean i_bEnable) {
 		// NOTHING TO DO
 	}
-	
+
 	private SubMoveCommand radiusToSubMove(int i_nRadius) {
 		if (i_nRadius > 30) {
 			return SubMoveCommand.LEFT;
@@ -172,7 +155,7 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 	private void startMove(MoveCommand i_eMove, int i_nRadius) {
 		// convert the radius to the SubMoveCommands LEFT, RIGHT, STRAIGHT
 		SubMoveCommand eCmd = radiusToSubMove(i_nRadius);
-		
+
 		if (m_eCurrentMove == null || m_eCurrentMove.eMove != i_eMove) {
 			// only start a new move if we are not currently running this move
 			m_eCurrentMove = new RoboScooperMoveRunner(this, i_eMove, eCmd);
@@ -186,21 +169,21 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 			// no need to change anything, we are already executing this move
 		}
 	}
-	
+
 	private int angleToRadius(double i_dblAngle) {
 		// just use the integer part of the angle as radius for now
 		return (int) i_dblAngle;
 	}
 
 	// Move Forward ---------------------------------------------------
-	
+
 	@Override
 	public void moveForward(double i_dblSpeed) {
 		// SPEED PARAMETER NOT AVAILABLE
 		// the roboscooper sets the speed itself, depending on how
 		// long the signal is sent. it is not possible to set a speed
 		// thus the speed parameter will be ignored
-		
+
 		moveForward(i_dblSpeed, 0);
 	}
 
@@ -297,7 +280,7 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 	public void moveRight() {
 		// NOT AVAILABLE
 	}
-	
+
 	// Rotate Right / Clockwise --------------------------------------
 
 	@Override
@@ -349,11 +332,11 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 		// of the IR before the signal is completely sent
 		Utils.waitSomeTime(100);
 		m_oRepeater.stopMove();
-		m_oBrainLink.turnOffIR();
+		m_oBrainlink.turnOffIR();
 		m_eCurrentMove = null;
 	}
 
-	
+
 	@Override
 	public void executeCircle(double i_dblTime, double i_dblSpeed) {
 		// TODO Auto-generated method stub
@@ -373,42 +356,52 @@ public class RoboScooper extends BrainlinkDevice implements IRobotDevice {
 		// TODO Auto-generated method stub
 		return m_dblBaseSpeed;
 	}
-	
+
 	// RoboScooper specific commands --------------------------------
 
 	public void pickUp() {
 		sendCommand(RoboScooperTypes.PICKUP);
 	}
-	
+
 	public void dump() {
 		sendCommand(RoboScooperTypes.DUMP);
 	}
-	
+
 	public void setTalkMode() {
 		sendCommand(RoboScooperTypes.TALK);
 	}
-	
+
 	public void setVision() {
 		sendCommand(RoboScooperTypes.VISION);
 	}
-	
+
 	public void setWhackMode() {
 		sendCommand(RoboScooperTypes.WHACK);
 	}
-	
+
 	public void stop() {
 		sendCommand(RoboScooperTypes.STOP);
 	}
-	
+
 	public void setCleanSweepMode() {
 		sendCommand(RoboScooperTypes.AUTONOMOUS);
 	}
-	
+
 	public void setPickUpMode() {
 		// corresponds to a double click
 		sendCommand(RoboScooperTypes.AUTONOMOUS);
 		Utils.waitSomeTime(100);
 		sendCommand(RoboScooperTypes.AUTONOMOUS);
+	}
+	
+	public void sendCommand(String i_strCommand) {
+		m_oBrainlink.sendCommand(i_strCommand);
+	}
+
+	@Override
+	public boolean toggleInvertDrive() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

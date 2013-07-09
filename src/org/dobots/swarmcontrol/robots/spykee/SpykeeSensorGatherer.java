@@ -1,15 +1,14 @@
 package org.dobots.swarmcontrol.robots.spykee;
 
 import org.dobots.robots.spykee.Spykee;
-import org.dobots.robots.spykee.SpykeeController;
 import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeMessageTypes;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 import org.dobots.utility.ScalableImageView;
-import org.dobots.utility.Utils;
 
+import robots.gui.SensorGatherer;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -36,7 +35,7 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 	private FrameLayout m_layCamera;
 
 	public SpykeeSensorGatherer(BaseActivity i_oActivity, Spykee i_oSpykee) {
-		super(i_oActivity);
+		super(i_oActivity, "SpykeeSensorGatherer");
 		m_oSpykee = i_oSpykee;
 		
 		setProperties();
@@ -218,6 +217,12 @@ public class SpykeeSensorGatherer extends SensorGatherer {
 	}
 
 	public void setAudioEnabled(boolean i_bAudioEnabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void shutDown() {
 		// TODO Auto-generated method stub
 		
 	}

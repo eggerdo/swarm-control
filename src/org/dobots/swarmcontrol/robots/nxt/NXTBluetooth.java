@@ -25,9 +25,9 @@ import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.msg.MsgTypes;
 import org.dobots.robots.nxt.LCPMessage;
-import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.NXTMessageTypes;
-import org.dobots.utility.Utils;
+import org.dobots.robots.nxt.NXTTypes;
+import org.dobots.utilities.Utils;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.res.Resources;

@@ -56,7 +56,11 @@
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.spykee.SpykeeRobot"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name=".robots.ac13.AC13RoverRobot"
+		<activity android:name="robots.gui.rover.ac13.AC13RoverRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name="robots.gui.rover.rover2.Rover2Robot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.robo40.Robo40Robot"
 		    android:screenOrientation="portrait" ></activity>
 		
         <!-- Behaviour Activities -->
@@ -74,12 +78,12 @@
 			android:screenOrientation="portrait" ></activity>
 		
         <!-- Additional Activities, Dialogs, etc -->
-        <activity android:name="org.dobots.utility.DeviceListActivity"
+        <activity android:name="org.dobots.swarmcontrol.utility.DeviceListActivity"
 			android:label="@string/select_device"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name="org.dobots.utility.FeedbackDialog"
+		<activity android:name="org.dobots.swarmcontrol.utility.FeedbackDialog"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
@@ -87,11 +91,11 @@
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name="org.dobots.utility.CalibrationDialogSelf"
+		<activity android:name="org.dobots.swarmcontrol.utility.CalibrationDialogSelf"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name="org.dobots.utility.CalibrationDialogUser"
+		<activity android:name="org.dobots.swarmcontrol.utility.CalibrationDialogUser"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>

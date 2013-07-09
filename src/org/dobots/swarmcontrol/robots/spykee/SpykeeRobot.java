@@ -18,26 +18,22 @@
 
 package org.dobots.swarmcontrol.robots.spykee;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.spykee.Spykee;
-import org.dobots.robots.spykee.SpykeeController;
-import org.dobots.robots.spykee.SpykeeMessageTypes;
 import org.dobots.robots.spykee.SpykeeController.DockState;
+import org.dobots.robots.spykee.SpykeeMessageTypes;
 import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.robots.spykee.SpykeeTypes.SpykeeSound;
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.robots.WifiRobot;
-import org.dobots.swarmcontrol.socialize.SocializeHelper;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.gui.IConnectListener;
+import robots.gui.SensorGatherer;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -110,10 +106,6 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 		super();
 	}
 
-	protected IRobotDevice getRobot() {
-		return m_oSpykee;
-	}
-
 	protected SensorGatherer getSensorGatherer() {
 		return m_oSensorGatherer;
 	}
@@ -122,15 +114,7 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
-    	// TODO make generic
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
-    	if (nIndex == -1) {
-			m_oSpykee = new Spykee();
-	        connectToRobot();
-    	} else {
-    		m_oSpykee = (Spykee) RobotInventory.getInstance().getRobot(nIndex);
-    		m_bKeepAlive = true;
-    	}
+    	m_oSpykee = (Spykee) getRobot();
     	m_oSpykee.setHandler(m_oUiHandler);
 		
 		m_oSensorGatherer = new SpykeeSensorGatherer(this, m_oSpykee);
@@ -143,6 +127,8 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 
         if (m_oSpykee.isConnected()) {
 			updateButtons(true);
+		} else {
+			connectToRobot();
 		}
         
     }
@@ -151,8 +137,8 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 	protected void setProperties(RobotType i_eRobot) {
     	m_oActivity.setContentView(R.layout.spykee_main);
 
-        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
 		
     	m_layControls = (LinearLayout) m_oActivity.findViewById(R.id.layControls);
     	

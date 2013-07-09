@@ -1,19 +1,19 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.MessageTypes;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.utility.CalibrationDialogSelf;
-import org.dobots.utility.CalibrationDialogSelf.OnRunClick;
-import org.dobots.utility.CalibrationDialogUser;
+import org.dobots.swarmcontrol.utility.CalibrationDialogSelf;
+import org.dobots.swarmcontrol.utility.CalibrationDialogSelf.OnRunClick;
+import org.dobots.swarmcontrol.utility.CalibrationDialogUser;
+import org.dobots.utilities.BaseActivity;
 
+import robots.RobotInventory;
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
@@ -39,10 +39,10 @@ public class RobotCalibration extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		m_oActivity = this;
 		
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
     	m_dblSpeed = (Double) getIntent().getExtras().get("Speed");
-
-    	m_oRobot = RobotInventory.getInstance().getRobot(nIndex);
+        String strRobotID = (String) getIntent().getExtras().get("RobotID");
+        
+        m_oRobot = RobotInventory.getInstance().getRobot(strRobotID);
 
     	setProperties();
 	}
@@ -123,10 +123,10 @@ public class RobotCalibration extends BaseActivity {
 		
 	}
 
-	public static void createAndShow(Activity i_oActivity, RobotType i_eType, int i_nIndex, double i_dblSpeed) {
+	public static void createAndShow(Activity i_oActivity, RobotType i_eType, String strID, double i_dblSpeed) {
 		Intent intent = new Intent(i_oActivity, RobotCalibration.class);
 		intent.putExtra("RobotType", i_eType);
-		intent.putExtra("InventoryIndex", i_nIndex);
+		intent.putExtra("RobotID", strID);
 		intent.putExtra("Speed", i_dblSpeed);
 		i_oActivity.startActivityForResult(intent, MessageTypes.ROBOT_CALIBRATION_RESULT);
 	}

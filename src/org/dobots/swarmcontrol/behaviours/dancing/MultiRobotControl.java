@@ -1,11 +1,11 @@
 package org.dobots.swarmcontrol.behaviours.dancing;
 
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
+import org.dobots.utilities.BaseActivity;
 
 import android.os.Bundle;
 import android.util.Log;

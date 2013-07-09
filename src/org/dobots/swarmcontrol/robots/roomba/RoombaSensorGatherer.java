@@ -12,11 +12,11 @@ import org.dobots.robots.roomba.RoombaTypes.SensorPackage2;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackage3;
 import org.dobots.robots.roomba.RoombaTypes.SensorPackageAll;
 import org.dobots.robots.roomba.RoombaTypes.SensorType;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.gui.SensorGatherer;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -60,7 +60,7 @@ public class RoombaSensorGatherer extends SensorGatherer {
 	private boolean m_bShowRemoveElement = false;
 	
 	public RoombaSensorGatherer(BaseActivity i_oActivity, Roomba i_oRoomba) {
-		super(i_oActivity);
+		super(i_oActivity, "RoombaSensorGatherer");
 		m_oRoomba = i_oRoomba;
 		
 		m_oGUIUpdater = new UpdateSensorDataTask();
@@ -809,6 +809,12 @@ public class RoombaSensorGatherer extends SensorGatherer {
 
 	public void updateButtons(boolean enabled) {
 		m_btnSensorItem.setEnabled(enabled);
+	}
+
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

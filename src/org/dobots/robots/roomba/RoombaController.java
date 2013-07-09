@@ -3,8 +3,8 @@ package org.dobots.robots.roomba;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.utility.Utils;
-import org.dobots.utility.log.Loggable;
+import org.dobots.utilities.Utils;
+import org.dobots.utilities.log.Loggable;
 
 public class RoombaController extends Loggable {
 	

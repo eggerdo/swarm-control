@@ -21,7 +21,7 @@
 	            android:id="@+id/lblRobot"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:text="@string/dotty_title"
+	            android:text="@string/robo40_title"
 	            android:textAppearance="?android:attr/textAppearanceLarge" />
 
 			<View
@@ -29,19 +29,13 @@
 			    android:layout_weight="1"
 			    android:layout_height="wrap_content" />
 
-			<CheckBox
-			    android:id="@+id/btnComments"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:button="@drawable/comment" />
-
 		</LinearLayout>
 	
         <TextView
             android:id="@+id/lblCommands"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dotty_commands" />
+            android:text="@string/robo40_commands" />
 
         <LinearLayout
             android:id="@+id/layControls"
@@ -59,39 +53,13 @@
 	            android:text="@string/control"
 	            android:textOff="@string/control"
 	            android:textOn="@string/control" />
+
+	        <Button
+	            android:id="@+id/btnStop"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="Stop" />
 	        
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/LinearLayout01"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="bottom|fill" >
-
-            <Button
-                android:id="@+id/btnStreaming"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dotty_streaming" />
-
-            <TextView
-                android:id="@+id/lblInterval"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="10dp"
-                android:gravity="center_vertical"
-                android:text="@string/dotty_interval" />
-
-            <EditText
-                android:id="@+id/edtInterval"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="number" >
-            </EditText>
-
         </LinearLayout>
 
         <View
@@ -100,11 +68,24 @@
 
         <include
             android:id="@+id/laySensors"
-            layout="@layout/dotty_sensors" />
+            layout="@layout/robo40_sensors" />
 
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+        
+        <include
+            android:id="@+id/layMotors"
+            layout="@layout/robo40_motors" />
+        
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+        
         <include
             android:id="@+id/layRemoteControl"
             layout="@layout/remote_control" />
+        
     </LinearLayout>
 
 </org.dobots.utilities.LockableScrollView>

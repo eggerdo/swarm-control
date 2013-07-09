@@ -1,6 +1,5 @@
 package org.dobots.robots.roboscooper;
 
-import org.dobots.robots.MessageTypes;
 
 public class RoboScooperTypes {
 	

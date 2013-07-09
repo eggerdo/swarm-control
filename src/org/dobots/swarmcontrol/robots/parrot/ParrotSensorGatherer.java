@@ -3,13 +3,13 @@ package org.dobots.swarmcontrol.robots.parrot;
 import org.dobots.robots.parrot.Parrot;
 import org.dobots.robots.parrot.ParrotTypes;
 import org.dobots.robots.parrot.ParrotVideoProcessor;
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 import org.dobots.utility.ScalableImageView;
-import org.dobots.utility.Utils;
 
+import robots.gui.IConnectListener;
+import robots.gui.SensorGatherer;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
@@ -55,7 +55,7 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	LinearLayout laySensors;
 	
 	public ParrotSensorGatherer(BaseActivity i_oActivity, Parrot i_oARDrone) {
-		super(i_oActivity);
+		super(i_oActivity, "ParrotSensorGatherer");
 		m_oParrot = i_oARDrone;
 		
 		setProperties();
@@ -318,6 +318,12 @@ public class ParrotSensorGatherer extends SensorGatherer implements NavDataListe
 	public void setVideoScaled(boolean i_bScaled) {
 		m_bVideoScaled = i_bScaled;
 		m_ivVideo.setScale(i_bScaled);
+	}
+
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

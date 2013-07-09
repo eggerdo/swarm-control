@@ -6,11 +6,11 @@ import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
 import org.dobots.robots.dotty.DottyTypes.SensorData;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.gui.SensorGatherer;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -50,7 +50,7 @@ public class DottySensorGatherer extends SensorGatherer {
 	LinearLayout layLed3Value;
 	
 	public DottySensorGatherer(BaseActivity i_oActivity, Dotty i_oDotty) {
-		super(i_oActivity);
+		super(i_oActivity, "DottySensorGatherer");
 		m_oDotty = i_oDotty;
 		
 		m_oSensorEnabled = new EnumMap<EDottySensors, Boolean>(EDottySensors.class);
@@ -226,6 +226,12 @@ public class DottySensorGatherer extends SensorGatherer {
 		} else {
 			v.setVisibility(View.GONE);
 		}
+	}
+
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

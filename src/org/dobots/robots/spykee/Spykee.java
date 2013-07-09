@@ -7,16 +7,16 @@ import java.util.concurrent.Executors;
 
 import javax.security.auth.login.LoginException;
 
-import org.dobots.robots.DifferentialRobot;
 import org.dobots.robots.MessageTypes;
 import org.dobots.robots.helpers.IMoveRepeaterListener;
 import org.dobots.robots.helpers.MoveRepeater;
 import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
 import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeTypes.SpykeeSound;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.ctrl.DifferentialRobot;
 import android.os.Handler;
 import android.os.Message;
 
@@ -50,7 +50,7 @@ public class Spykee extends DifferentialRobot implements IMoveRepeaterListener {
 	
 	
 	public Spykee() {
-		super(SpykeeTypes.AXLE_WIDTH, SpykeeTypes.MAX_VELOCITY, SpykeeTypes.MIN_RADIUS, SpykeeTypes.MAX_RADIUS);
+		super(SpykeeTypes.AXLE_WIDTH, SpykeeTypes.MIN_VELOCITY, SpykeeTypes.MAX_VELOCITY, SpykeeTypes.MIN_RADIUS, SpykeeTypes.MAX_RADIUS);
 		
 		m_oController = new SpykeeController();
 		m_oController.setHandler(m_oReceiveHandler);
@@ -283,19 +283,17 @@ public class Spykee extends DifferentialRobot implements IMoveRepeaterListener {
 	private void executeMoveForward(double i_dblSpeed, int i_nRadius) {
 		debug(TAG, String.format("fwd (s=%f, r=%d)", i_dblSpeed, i_nRadius));
 		
-		int velocity[] = {0, 0};
-		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
-		
-		m_oController.moveForward(velocity[0] * m_nInvertFactor, velocity[1] * m_nInvertFactor);
+		DriveVelocityLR oVelocity = calculateVelocity(i_dblSpeed, i_nRadius);
+
+		m_oController.moveForward(oVelocity.left * m_nInvertFactor, oVelocity.right * m_nInvertFactor);
 	}
 
 	private void executeMoveBackward(double i_dblSpeed, int i_nRadius) {
 		debug(TAG, String.format("fwd (s=%f, r=%d)", i_dblSpeed, i_nRadius));
 		
-		int velocity[] = {0, 0};
-		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
+		DriveVelocityLR oVelocity = calculateVelocity(i_dblSpeed, i_nRadius);
 
-		m_oController.moveBackward(velocity[0] * m_nInvertFactor, velocity[1] * m_nInvertFactor);
+		m_oController.moveBackward(oVelocity.left * m_nInvertFactor, oVelocity.right * m_nInvertFactor);
 	}
 
 	@Override
@@ -438,6 +436,12 @@ public class Spykee extends DifferentialRobot implements IMoveRepeaterListener {
 
 	public boolean isCharging() {
 		return getBatteryLevel() > 100;
+	}
+
+	@Override
+	public boolean toggleInvertDrive() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

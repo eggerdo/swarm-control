@@ -1,22 +1,25 @@
-package org.dobots.swarmcontrol.robots.dotty;
+package org.dobots.swarmcontrol.robots.robo40;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.msg.MsgTypes;
+import org.dobots.robots.robo40.Robo40Types;
 import org.dobots.utilities.Utils;
 
 import android.bluetooth.BluetoothDevice;
 
-public class DottyBluetooth extends BaseBluetooth {
+public class Robo40Bluetooth extends BaseBluetooth {
 
     private byte[] returnMessage;
     
-	public DottyBluetooth(BluetoothDevice i_oDevice) {
+    private DataInputStream dis;
+    
+	public Robo40Bluetooth(BluetoothDevice i_oDevice) {
 		super(i_oDevice);
-		m_oUUID = DottyTypes.DOTTY_UUID;
+		m_oUUID = Robo40Types.DOTTY_UUID;
         m_strRobotName = "Dotty";
 	}
 	
@@ -42,41 +45,21 @@ public class DottyBluetooth extends BaseBluetooth {
 		}
 
     }
+    
+    @Override
+    public void connect() throws IOException {
+    	// TODO Auto-generated method stub
+    	super.connect();
+    	
+    	dis = new DataInputStream(m_oInStream);
+    }
 
 	private byte[] receiveMessage() throws IOException {
-		int nHeader = m_oInStream.read();
-		byte[] receiveMessage;
-		int nBytesExpected;
-		int nReceivedBytes;
-		
-		if (nHeader == 0xa5) {
-			receiveMessage = new byte[DottyTypes.DATA_PKG_SIZE];
-
-			nBytesExpected = receiveMessage.length;
-			nReceivedBytes = 1;
-			
-		} else if (nHeader == 0xa6) {
-			nBytesExpected = m_oInStream.read() + 2; // + 1 for header + 1 for length byte
-			nReceivedBytes = 2;
-			receiveMessage = new byte[nBytesExpected];
-			
-			receiveMessage[1] = (byte)(nBytesExpected - 2);
-			
-		} else {
-			return null;
+		if (dis.available() > 0) {
+			String jsonString = dis.readLine();
+			return jsonString.getBytes();
 		}
-
-		receiveMessage[0] = (byte)nHeader;
-		while (nReceivedBytes != nBytesExpected) { 
-			int nReadBytes = m_oInStream.read(receiveMessage, nReceivedBytes, nBytesExpected - nReceivedBytes);
-			if (nReadBytes == -1) {
-				return null;
-			} else {
-				nReceivedBytes += nReadBytes;
-			}
-		}
-		return receiveMessage;
-		
+		return null;
 	}
 	
 	public void sendMessage(byte[] buffer) {
@@ -111,18 +94,18 @@ public class DottyBluetooth extends BaseBluetooth {
 	}
 	
     private void dispatchMessage(byte[] message) {
-    	switch (message[0]) {
-    	case DottyTypes.HEADER:
-    		switch (message[3]) {
-            case DottyTypes.SENSOR_DATA:
-            	sendStateAndData(DottyTypes.SENSOR_DATA, message);
-            	break;
-            }
-    		break;
-    	case DottyTypes.LOGGING:
-    		sendStateAndData(DottyTypes.LOGGING, message);
-        	break;
-    	}
+//    	switch (message[0]) {
+//    	case Robo40Types.HEADER:
+//    		switch (message[3]) {
+//            case Robo40Types.SENSOR_DATA:
+            	sendStateAndData(Robo40Types.SENSOR_DATA, message);
+//            	break;
+//            }
+//    		break;
+//    	case Robo40Types.LOGGING:
+//    		sendStateAndData(Robo40Types.LOGGING, message);
+//        	break;
+//    	}
         
     }
 

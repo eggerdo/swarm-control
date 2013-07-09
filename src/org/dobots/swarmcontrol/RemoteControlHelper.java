@@ -1,11 +1,11 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.robots.IRobotDevice;
-import org.dobots.utility.LockableScrollView;
-import org.dobots.utility.Utils;
-import org.dobots.utility.joystick.IJoystickListener;
-import org.dobots.utility.joystick.Joystick;
+import org.dobots.utilities.LockableScrollView;
+import org.dobots.utilities.Utils;
+import org.dobots.utilities.joystick.IJoystickListener;
+import org.dobots.utilities.joystick.Joystick;
 
+import robots.ctrl.IRobotDevice;
 import android.app.Activity;
 import android.os.SystemClock;
 import android.util.Log;
@@ -80,7 +80,7 @@ public class RemoteControlHelper implements IJoystickListener, IRemoteControlLis
 			m_oRemoteControlListener = this;
 		}
 	}
-	
+
 	public void setProperties() {
 		
 		m_oScrollView = (LockableScrollView) m_oActivity.findViewById(R.id.scrollview);

@@ -5,7 +5,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
 public class NXTTypes {
 	public static final int MOTOR_A = 0;
@@ -24,6 +24,7 @@ public class NXTTypes {
     // this is the only OUI registered by LEGO, see http://standards.ieee.org/regauth/oui/index.shtml
     public static final String OUI_LEGO = "00:16:53";
     
+    public static final int MIN_VELOCITY = 0;
     public static final int MAX_VELOCITY = 100;
 //    public static final int MAX_RADIUS = 2000;
     public static final int MAX_RADIUS = 1000;
@@ -228,10 +229,10 @@ public class NXTTypes {
 				nRegulationMode		= data_in.readUnsignedByte();
 				nTurnRatio			= data_in.readByte();
 				nRunState			= data_in.readUnsignedByte();
-				lTachoLimit			= Utils.LittleEndianToBigEndian(data_in.readInt());
-				nTachoCount			= Utils.LittleEndianToBigEndian(data_in.readInt());
-				nBlockTachoCount	= Utils.LittleEndianToBigEndian(data_in.readInt());
-				nRotationCount		= Utils.LittleEndianToBigEndian(data_in.readInt());
+				lTachoLimit			= Utils.convertEndian(data_in.readInt());
+				nTachoCount			= Utils.convertEndian(data_in.readInt());
+				nBlockTachoCount	= Utils.convertEndian(data_in.readInt());
+				nRotationCount		= Utils.convertEndian(data_in.readInt());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -1,20 +1,17 @@
 package org.dobots.swarmcontrol.robots.parrot;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.parrot.Parrot;
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
 import org.dobots.swarmcontrol.robots.WifiRobot;
-import org.dobots.swarmcontrol.socialize.SocializeHelper;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.gui.IConnectListener;
+import robots.gui.SensorGatherer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
@@ -82,10 +79,6 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
 		super();
 	}
 
-	protected IRobotDevice getRobot() {
-		return m_oParrot;
-	}
-
 	protected SensorGatherer getSensorGatherer() {
 		return m_oSensorGatherer;
 	}
@@ -94,16 +87,8 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
-    	if (nIndex == -1) {
-			m_oParrot = new Parrot();
-	    	m_oParrot.setHandler(m_oUiHandler);
-	        connectToRobot();
-    	} else {
-    		m_oParrot = (Parrot) RobotInventory.getInstance().getRobot(nIndex);
-        	m_oParrot.setHandler(m_oUiHandler);
-    		m_bKeepAlive = true;
-    	}
+    	m_oParrot = (Parrot) getRobot();
+    	m_oParrot.setHandler(m_oUiHandler);
 
 		m_oSensorGatherer = new ParrotSensorGatherer(this, m_oParrot);
 		m_dblSpeed = m_oParrot.getBaseSped();
@@ -119,6 +104,8 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
 			// inform the sensor gatherer that we are connected so that
 			// the video can be started
 			m_oSensorGatherer.onConnect();
+		} else {
+	        connectToRobot();
 		}
     }
 
@@ -224,8 +211,8 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.parrot_main);
 
-        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
 		
         m_edtAltitude = (EditText) findViewById(R.id.edtAltitude);
         

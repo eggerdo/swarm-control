@@ -193,6 +193,18 @@
     <string name="dancing_dancelist">Dance List:</string>
     <string name="dancing_stopdance">Stop</string>
 
+    <!--  Robo40 -->
+    <string name="robo40_title">Robo40</string>
+    <string name="robo40_commands">Robo40 Commands</string>
+    <string name="robo40_motoraccess">Set value for motor</string>
+    <string name="Robo40_Sensor1Value">Sensor 1</string>
+    <string name="Robo40_Sensor2Value">Sensor 2</string>
+    <string name="Robo40_Sensor3Value">Sensor 3</string>
+    <string name="Robo40_Sensor4Value">Sensor 4</string>
+    <string name="robo40_motor1">Motor 1</string>
+    <string name="robo40_motor2">Motor 2</string>
+    <string name="robo40_motor3">Motor 3</string>
+    
     
     <!--  Dotty -->
     <string name="dotty_title">Dotty</string>

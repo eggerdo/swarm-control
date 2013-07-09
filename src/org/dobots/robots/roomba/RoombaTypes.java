@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
 public class RoombaTypes {
 

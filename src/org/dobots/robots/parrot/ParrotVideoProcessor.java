@@ -1,9 +1,9 @@
 package org.dobots.robots.parrot;
 
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.gui.IConnectListener;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;

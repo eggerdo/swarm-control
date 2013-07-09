@@ -19,7 +19,8 @@
 
 package org.dobots.robots.nxt;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
+
 
 
 /**

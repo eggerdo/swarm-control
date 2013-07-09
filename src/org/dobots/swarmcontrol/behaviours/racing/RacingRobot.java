@@ -2,15 +2,15 @@ package org.dobots.swarmcontrol.behaviours.racing;
 
 import java.io.IOException;
 
-import org.dobots.robots.IRobotDevice;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.SwarmControlActivity;
-import org.dobots.utility.joystick.IJoystickListener;
-import org.dobots.utility.joystick.Joystick;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.joystick.IJoystickListener;
+import org.dobots.utilities.joystick.Joystick;
 
+import robots.RobotInventory;
+import robots.ctrl.IRobotDevice;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -36,7 +36,7 @@ public class RacingRobot extends BaseActivity implements IJoystickListener {
 
 	private Joystick m_oJoystick;
 	
-	private int m_nInventoryIndex;
+	private String m_strRobotID;
 
 	private boolean m_bKeepAlive = false;
 	
@@ -47,8 +47,8 @@ public class RacingRobot extends BaseActivity implements IJoystickListener {
 		
 		m_oActivity = this;
 
-		m_nInventoryIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
-    	m_oRobot = RobotInventory.getInstance().getRobot(m_nInventoryIndex);
+        m_strRobotID = (String) getIntent().getExtras().get("RobotID");
+        m_oRobot = RobotInventory.getInstance().getRobot(m_strRobotID);
 		
 		setProperties();
 		
@@ -228,7 +228,7 @@ public class RacingRobot extends BaseActivity implements IJoystickListener {
 	
 	private void showRobot() {
 		m_bKeepAlive = true;
-		((SwarmControlActivity)SwarmControlActivity.getContext()).showRobot(m_oRobot.getType(), m_nInventoryIndex);
+		((SwarmControlActivity)SwarmControlActivity.getContext()).showRobot(m_oRobot.getType(), m_strRobotID);
 	}
 	
 	@Override

@@ -3,22 +3,19 @@ package org.dobots.swarmcontrol.robots.dotty;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
 import org.dobots.robots.msg.MsgTypes.RawDataMsg;
-import org.dobots.swarmcontrol.BaseActivity;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
-import org.dobots.swarmcontrol.RobotInventory;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.swarmcontrol.socialize.SocializeHelper;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.RobotType;
+import robots.gui.IConnectListener;
+import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Message;
@@ -79,10 +76,6 @@ public class DottyRobot extends BluetoothRobot {
 		super();
 	}
 	
-	protected IRobotDevice getRobot() {
-		return m_oDotty;
-	}
-
 	protected SensorGatherer getSensorGatherer() {
 		return m_oSensorGatherer;
 	}
@@ -91,18 +84,10 @@ public class DottyRobot extends BluetoothRobot {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
         
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
-    	if (nIndex == -1) {
-    		m_oDotty = new Dotty();
-	        connectToRobot();
-    	} else {
-    		m_oDotty = (Dotty) RobotInventory.getInstance().getRobot(nIndex);
-    		
-    		m_bKeepAlive = true;
-    	}
+    	m_oDotty = (Dotty) getRobot();
     	m_oDotty.setHandler(m_oUiHandler);
-		
-		m_oSensorGatherer = new DottySensorGatherer(m_oActivity, m_oDotty);
+
+    	m_oSensorGatherer = new DottySensorGatherer(m_oActivity, m_oDotty);
 		m_dblSpeed = m_oDotty.getBaseSped();
 
 		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oDotty, null);
@@ -112,6 +97,8 @@ public class DottyRobot extends BluetoothRobot {
         
         if (m_oDotty.isConnected()) {
 			updateButtons(true);
+		} else {
+			connectToRobot();
 		}
     }
     
@@ -139,8 +126,8 @@ public class DottyRobot extends BluetoothRobot {
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.dotty_main);
 
-        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
+//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
+//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
 		
         m_cbDistance = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Distance);
         m_cbLight = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Light);

@@ -3,13 +3,13 @@ package org.dobots.swarmcontrol.robots.finch;
 import java.util.Random;
 import java.util.Timer;
 
-import org.dobots.robots.IRobotDevice;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.RobotView;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
+import org.dobots.utilities.BaseActivity;
 
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.gui.RobotView;
+import robots.gui.SensorGatherer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;

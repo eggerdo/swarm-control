@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
 import android.os.Handler;
 

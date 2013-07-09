@@ -1,10 +1,11 @@
-package org.dobots.robots.dotty;
+package org.dobots.robots.robo40;
 
 import org.dobots.robots.MessageTypes;
-import org.dobots.robots.dotty.DottyTypes.DataPackage;
 import org.dobots.robots.msg.MsgTypes.RawDataMsg;
-import org.dobots.swarmcontrol.robots.dotty.DottyBluetooth;
+import org.dobots.swarmcontrol.robots.robo40.Robo40Bluetooth;
 import org.dobots.utilities.Utils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import robots.RobotType;
 import robots.ctrl.DifferentialRobot;
@@ -12,9 +13,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-public class Dotty extends DifferentialRobot {
+public class Robo40 extends DifferentialRobot {
 
-	private DottyController m_oController;
+	private Robo40Controller m_oController;
 
 	private Handler m_oUiHandler;
 
@@ -68,10 +69,18 @@ public class Dotty extends DifferentialRobot {
 						connected = false;
 						break;
 					
-					case DottyTypes.SENSOR_DATA:
+					case Robo40Types.SENSOR_DATA:
 						byte[] sensorMessage = ((RawDataMsg)msg.obj).rgbyRawData;
-						DataPackage oData = DottyTypes.assembleDataPackage(sensorMessage);
-						msg.obj = DottyTypes.assembleSensorData(oData.rgnSensor);
+						JSONObject json;
+						try {
+							json = new JSONObject(new String(sensorMessage));
+							msg.obj = json;
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							return;
+						}
+						break;
 					}
 
 					// forwards new message with same data to the ui handler
@@ -85,13 +94,13 @@ public class Dotty extends DifferentialRobot {
 		
 	}
 	
-	public Dotty() {
-		super(DottyTypes.AXLE_WIDTH, DottyTypes.MIN_VELOCITY, DottyTypes.MAX_VELOCITY, DottyTypes.MIN_RADIUS, DottyTypes.MAX_RADIUS);
+	public Robo40() {
+		super(Robo40Types.AXLE_WIDTH, Robo40Types.MIN_VELOCITY, Robo40Types.MAX_VELOCITY, Robo40Types.MIN_RADIUS, Robo40Types.MAX_RADIUS);
 		
 		m_oReceiver = new DottyReceiver();
 		m_oReceiver.start();
 		
-		m_oController = new DottyController();
+		m_oController = new Robo40Controller();
 	}
 
 	public void setHandler(Handler i_oHandler) {
@@ -101,7 +110,7 @@ public class Dotty extends DifferentialRobot {
 	@Override
 	public RobotType getType() {
 		// TODO Auto-generated method stub
-		return RobotType.RBT_DOTTY;
+		return RobotType.RBT_ROBO40;
 	}
 
 	@Override
@@ -121,12 +130,12 @@ public class Dotty extends DifferentialRobot {
 		m_oController.destroyConnection();
 	}
 
-	public void setConnection(DottyBluetooth i_oConnection) {
+	public void setConnection(Robo40Bluetooth i_oConnection) {
 		i_oConnection.setReceiveHandler(m_oReceiver.getHandler());
 		m_oController.setConnection(i_oConnection);
 	}
 	
-	public DottyBluetooth getConnection() {
+	public Robo40Bluetooth getConnection() {
 		return m_oController.getConnection();
 	}
 
@@ -267,17 +276,17 @@ public class Dotty extends DifferentialRobot {
 		m_oController.driveStop();
 	}
 	
-	public void requestSensorData() {
-		m_oController.requestSensorData();
-	}
-	
-	public void startStreaming(int i_nInterval) {
-		m_oController.startStreaming(i_nInterval);
-	}
-	
-	public void stopStreaming() {
-		m_oController.stopStreaming();
-	}
+//	public void requestSensorData() {
+//		m_oController.requestSensorData();
+//	}
+//	
+//	public void startStreaming(int i_nInterval) {
+//		m_oController.startStreaming(i_nInterval);
+//	}
+//	
+//	public void stopStreaming() {
+//		m_oController.stopStreaming();
+//	}
 
 	@Override
 	public void executeCircle(double i_nTime, double i_nSpeed) {
@@ -324,6 +333,10 @@ public class Dotty extends DifferentialRobot {
 	@Override
 	public void moveRight() {
 		// not available
+	}
+
+	public void setMotor(int id, int direction, int value) {
+		m_oController.setMotor(id, direction, value);
 	}
 
 	@Override

@@ -6,12 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.parrot.Parrot;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 import org.dobots.utility.external.NumberPicker;
 
 import android.app.Activity;

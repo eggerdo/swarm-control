@@ -3,8 +3,8 @@ package org.dobots.robots.helpers;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.dobots.utility.Utils;
-import org.dobots.utility.joystick.JoystickSurfaceThread;
+import org.dobots.utilities.Utils;
+import org.dobots.utilities.joystick.JoystickSurfaceThread;
 
 import android.util.Log;
 

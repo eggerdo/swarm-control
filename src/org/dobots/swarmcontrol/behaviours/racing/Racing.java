@@ -5,19 +5,19 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.dobots.robots.IRobotDevice;
 import org.dobots.robots.RobotDeviceFactory;
-import org.dobots.swarmcontrol.BaseActivity;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.ConnectionHelper;
 import org.dobots.swarmcontrol.IBluetoothConnectionListener;
-import org.dobots.swarmcontrol.IConnectListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
+import robots.RobotInventory;
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.gui.IConnectListener;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -62,7 +62,7 @@ public class Racing extends BaseActivity {
 	private BaseActivity m_oActivity;
 	private Spinner m_spRobotChoice;
 	private IRobotDevice m_oRobot;
-	private int m_nInventoryIndex;
+	private String m_strRobotID;
 	
 	private EnumMap<RaceRobot, BluetoothDevice> m_oAddress = null;
 
@@ -116,7 +116,7 @@ public class Racing extends BaseActivity {
 				
 				try {
 					m_oRobot = RobotDeviceFactory.getRobotDevice(eRobot.getType());
-					m_nInventoryIndex = RobotInventory.getInstance().addRobot(m_oRobot);
+					m_strRobotID = RobotInventory.getInstance().addRobot(m_oRobot);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -126,7 +126,7 @@ public class Racing extends BaseActivity {
 					@Override
 					public void onConnect(boolean i_bConnected) {
 						if (i_bConnected) {
-							showRobotRaceView(m_nInventoryIndex);
+							showRobotRaceView(m_strRobotID);
 						} else {
 							reset();
 						}
@@ -209,9 +209,9 @@ public class Racing extends BaseActivity {
 		}
 	}
 
-	private void showRobotRaceView(int i_nIndex) {
+	private void showRobotRaceView(String i_strRobotID) {
 		Intent intent = new Intent(this, RacingRobot.class);
-		intent.putExtra("InventoryIndex", i_nIndex);
+		intent.putExtra("RobotID", i_strRobotID);
 		startActivity(intent);
 	}
 	

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;

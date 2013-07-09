@@ -1,7 +1,7 @@
-package org.dobots.utility;
+package org.dobots.swarmcontrol.utility;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.R;
+import org.dobots.swarmcontrol.utility.CalibrationDialogSelf.OnRunClick;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,28 +13,25 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class CalibrationDialogSelf extends Activity {
-	
-	public interface OnRunClick {
-		public void onClick(double i_nTime, double i_nSpeed);
-	}
+public class CalibrationDialogUser extends Activity {
 
 	public static final String TITLE = "Title";
 	public static final String MESSAGE = "Message";
 	public static final String SPEED = "Speed";
 	public static final String CALIBRATED_VALUE = "CALIBRATED_VALUE";
 	
+	public static final int CALIBRATION_RESULT = 1050;
+	
 	public static final int RESULT_UP = RESULT_FIRST_USER;
 	public static final int RESULT_DOWN = RESULT_UP + 1;
 	
-	public static final double START = 50;
-	public static final double DEFAULT_TIME = 3;
-	public static final double INITIAL_STEP = 20;
+	public static final double BIG = 5.0;
+	public static final double SMALL = 1.0;
+	public static final double START = 50.0;
+	public static final double DEFAULT_TIME = 3.0;
 	
 	private double m_dblSpeed = START;
 	private double m_dblTime = DEFAULT_TIME;
-	
-	private double m_dblStep = 0.0;
 	
 	private static OnRunClick onRunClicked;
 	
@@ -47,28 +44,31 @@ public class CalibrationDialogSelf extends Activity {
 
         // Setup the window
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.calibration_dialog);
+        setContentView(R.layout.calib_dialog);
  
         // Set result CANCELED incase the user backs out
         setResult(RESULT_CANCELED);
 
-        Button btnUp = (Button) findViewById(R.id.btnCalibration_toohigh);
-        btnUp.setOnClickListener(new OnClickListener() {
+        // Initialize the button to perform device discovery
+        Button btnBigInc = (Button) findViewById(R.id.btnCalibration_BigInc);
+        btnBigInc.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				// if the last step too low we half the step and invert the step direction
-				// if the last step was already too high we make the step bigger and try again
-				if (m_dblStep > 0) {
-					m_dblStep = - m_dblStep / 2;
-				} else if (m_dblStep < 0) {
-					m_dblStep = m_dblStep * 1.8;
-				} else {
-					m_dblStep = -INITIAL_STEP;
+				m_dblSpeed += BIG;
+				if (m_dblSpeed > 100) {
+					m_dblSpeed = 100;
 				}
-					
-				
-				m_dblSpeed += m_dblStep;
+				updateSpeedDisplay();
+			}
+		});
+        
+        Button btnSmallInc = (Button) findViewById(R.id.btnCalibration_SmallInc);
+        btnSmallInc.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				m_dblSpeed += SMALL;
 				if (m_dblSpeed > 100) {
 					m_dblSpeed = 100;
 				}
@@ -77,24 +77,27 @@ public class CalibrationDialogSelf extends Activity {
 		});
 
         // Initialize the button to perform device discovery
-        Button btnDown = (Button) findViewById(R.id.btnCalibration_toolow);
-        btnDown.setOnClickListener(new OnClickListener() {
+        Button btnBigDec = (Button) findViewById(R.id.btnCalibration_BigDec);
+        btnBigDec.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				// if the last step too high we half the step and invert the step direction
-				// if the last step was already too low we make the step bigger and try again
-				if (m_dblStep < 0) {
-					m_dblStep = - m_dblStep / 2;
-				} else if (m_dblStep > 0) {
-					m_dblStep = m_dblStep * 1.8;
-				} else {
-					m_dblStep = INITIAL_STEP;
+				m_dblSpeed -= BIG;
+				if (m_dblSpeed < 1) {
+					m_dblSpeed = 1;
 				}
-				
-				m_dblSpeed += m_dblStep;
-				if (m_dblSpeed > 100) {
-					m_dblSpeed = 100;
+				updateSpeedDisplay();
+			}
+		});
+        
+        Button btnSmallDec = (Button) findViewById(R.id.btnCalibration_SmallDec);
+        btnSmallDec.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				m_dblSpeed -= SMALL;
+				if (m_dblSpeed < 1) {
+					m_dblSpeed = 1;
 				}
 				updateSpeedDisplay();
 			}
@@ -135,7 +138,7 @@ public class CalibrationDialogSelf extends Activity {
         String strMessage = oParameter.getString(MESSAGE);
         m_dblSpeed = oParameter.getDouble(SPEED);
         updateSpeedDisplay();
-
+        
         setTitle(strTitle);
         
         TextView lblMessage = (TextView) findViewById(R.id.lblFeedback_Message);
@@ -148,16 +151,16 @@ public class CalibrationDialogSelf extends Activity {
     
     public static void createAndShow(Activity i_oActivity, String i_strTitle, String i_strMessage, double i_dblSpeed, OnRunClick i_onRunClicked) {
 
-		Intent oIntent = new Intent(i_oActivity, CalibrationDialogSelf.class);
+		Intent oIntent = new Intent(i_oActivity, CalibrationDialogUser.class);
 		Bundle oParam = new Bundle();
 		oParam.putString(TITLE, i_strTitle);
 		oParam.putString(MESSAGE, i_strMessage);
 		oParam.putDouble(SPEED, i_dblSpeed);
 		oIntent.putExtras(oParam);
 		
-		CalibrationDialogSelf.onRunClicked = i_onRunClicked;
+		CalibrationDialogUser.onRunClicked = i_onRunClicked;
 		
-		i_oActivity.startActivityForResult(oIntent, MessageTypes.CALIBRATION_RESULT);
+		i_oActivity.startActivityForResult(oIntent, CALIBRATION_RESULT);
     }
 
 }

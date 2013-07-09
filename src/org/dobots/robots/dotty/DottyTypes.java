@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
 public class DottyTypes {
 	
@@ -17,6 +17,7 @@ public class DottyTypes {
 
 	public static final String MAC_FILTER = "00:06:66";
 	
+	public static final int MIN_VELOCITY = 0;
 	public static final int MAX_VELOCITY = 255;
 	public static final int MAX_RADIUS = 1000;
 	public static final int MIN_RADIUS = 1;

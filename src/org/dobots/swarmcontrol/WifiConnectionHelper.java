@@ -1,6 +1,6 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
