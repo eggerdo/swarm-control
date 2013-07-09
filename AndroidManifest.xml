@@ -56,9 +56,9 @@
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.spykee.SpykeeRobot"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="robots.gui.rover.ac13.AC13RoverRobot"
+		<activity android:name="robots.rover.ac13.gui.AC13RoverRobot"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="robots.gui.rover.rover2.Rover2Robot"
+		<activity android:name="robots.rover.rover2.gui.Rover2Robot"
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.robo40.Robo40Robot"
 		    android:screenOrientation="portrait" ></activity>
