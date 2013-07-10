@@ -113,13 +113,14 @@ public class SwarmControlActivity extends BaseActivity {
 		});
         
         m_oRobotAdapter = new ImprovedArrayAdapter<RobotType>(this, android.R.layout.select_dialog_item,
-				RobotType.values()) {
+				RobotType.getRobots()) {
 
         	@Override
         	public boolean isEnabled(int position) {
         		RobotType eType = m_oRobotAdapter.getItem(position);
         		return eType.isEnabled();
         	}
+        	
         };
         
         
