@@ -1,6 +1,6 @@
 package org.dobots.robots.nxt;
 
-import org.dobots.robots.MessageTypes;
+import robots.gui.MessageTypes;
 
 public class NXTMessageTypes {
 

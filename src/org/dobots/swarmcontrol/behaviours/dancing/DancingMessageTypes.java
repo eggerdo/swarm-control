@@ -1,6 +1,6 @@
 package org.dobots.swarmcontrol.behaviours.dancing;
 
-import org.dobots.robots.MessageTypes;
+import robots.gui.MessageTypes;
 
 public class DancingMessageTypes {
 

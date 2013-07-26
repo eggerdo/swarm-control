@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 
 import org.dobots.utilities.Utils;
 
+import robots.gui.MessageTypes;
 import android.os.Handler;
 
 public abstract class BaseWifi extends Thread {

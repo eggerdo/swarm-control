@@ -13,7 +13,7 @@ import android.os.Handler;
 
 public class Roomba extends BaseRobot {
 	
-	RoombaController oRoombaCtrl; 
+	RoombaController m_oRoombaCtrl; 
 	
 	byte m_byMotorState;
 	byte m_byLEDState;
@@ -34,8 +34,8 @@ public class Roomba extends BaseRobot {
 	};
 
 	public Roomba() {
-		oRoombaCtrl = new RoombaController();
-		oRoombaCtrl.setLogListener(m_oLogListener);
+		m_oRoombaCtrl = new RoombaController();
+		m_oRoombaCtrl.setLogListener(m_oLogListener);
 		
 		m_eMode = ERoombaModes.mod_Unknown;
 		
@@ -48,7 +48,7 @@ public class Roomba extends BaseRobot {
 			disconnect();
 		}
 		destroyConnection();
-		oRoombaCtrl = null;
+		m_oRoombaCtrl = null;
 	}
 	
 	public RobotType getType() {
@@ -56,8 +56,8 @@ public class Roomba extends BaseRobot {
 	}
 	
 	public String getAddress() {
-		if (oRoombaCtrl.getConnection() != null) {
-			return oRoombaCtrl.getConnection().getAddress();
+		if (m_oRoombaCtrl.getConnection() != null) {
+			return m_oRoombaCtrl.getConnection().getAddress();
 		} else {
 			return "";
 		}
@@ -69,24 +69,28 @@ public class Roomba extends BaseRobot {
 	
 	public void setConnection(RoombaBluetooth i_oConnection) {
 		i_oConnection.setReceiveHandler(m_oReceiveHandler);
-		oRoombaCtrl.setConnection(i_oConnection);
+		m_oRoombaCtrl.setConnection(i_oConnection);
 	}
 	
 	public RoombaBluetooth getConnection() {
-		return oRoombaCtrl.getConnection();
+		return m_oRoombaCtrl.getConnection();
 	}
 	
 	public void destroyConnection() {
-		oRoombaCtrl.destroyConnection();
+		m_oRoombaCtrl.destroyConnection();
 	}
 
 	public boolean isConnected() {
-		return oRoombaCtrl.isConnected();
+		if (m_oRoombaCtrl != null) {
+			return m_oRoombaCtrl.isConnected();
+		} else {
+			return false;
+		}
 	}
 
 	@Override
 	public void connect() {
-		oRoombaCtrl.connect();
+		m_oRoombaCtrl.connect();
 	}
 
 	@Override
@@ -96,7 +100,7 @@ public class Roomba extends BaseRobot {
 			// which consumes less power
 			setPassiveMode();
 	
-			oRoombaCtrl.disconnect();
+			m_oRoombaCtrl.disconnect();
 		}
 	}
 
@@ -117,7 +121,7 @@ public class Roomba extends BaseRobot {
 	 */
 	public boolean init() {
 		try {
-			oRoombaCtrl.start();
+			m_oRoombaCtrl.start();
 			Thread.sleep(200);
 //			oRoombaCtrl.control();
 			
@@ -139,7 +143,7 @@ public class Roomba extends BaseRobot {
 	 * Set the Baudrate of the Roomba (default is 57600)
 	 */
 	public void setBaud(RoombaTypes.ERoombaBaudRates i_eBaudRate) {
-		oRoombaCtrl.baud((byte)i_eBaudRate.getID());
+		m_oRoombaCtrl.baud((byte)i_eBaudRate.getID());
 
 		m_eMode = ERoombaModes.mod_Passive;
 	}
@@ -149,7 +153,7 @@ public class Roomba extends BaseRobot {
 	 */
 	public void setPassiveMode() {
 		try {
-			oRoombaCtrl.start();
+			m_oRoombaCtrl.start();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
@@ -167,12 +171,12 @@ public class Roomba extends BaseRobot {
 	 */
 	public void setSafeMode() {
 		try {
-			oRoombaCtrl.control();
+			m_oRoombaCtrl.control();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
 
-			oRoombaCtrl.safe();
+			m_oRoombaCtrl.safe();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
@@ -190,12 +194,12 @@ public class Roomba extends BaseRobot {
 	 */
 	public void setFullMode() {
 		try {
-			oRoombaCtrl.control();
+			m_oRoombaCtrl.control();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
 
-			oRoombaCtrl.full();
+			m_oRoombaCtrl.full();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
@@ -213,7 +217,7 @@ public class Roomba extends BaseRobot {
 	 */
 	public void powerOff() {
 		try {
-			oRoombaCtrl.power();
+			m_oRoombaCtrl.power();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
@@ -229,7 +233,7 @@ public class Roomba extends BaseRobot {
 	public void powerOn() {
 		try {
 			// wake up roomba
-			if (!oRoombaCtrl.powerOn()) {
+			if (!m_oRoombaCtrl.powerOn()) {
 				return;
 			}
 
@@ -237,7 +241,7 @@ public class Roomba extends BaseRobot {
 			Thread.sleep(20);
 			
 			// set up roomba for control
-			oRoombaCtrl.start();
+			m_oRoombaCtrl.start();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
@@ -255,7 +259,7 @@ public class Roomba extends BaseRobot {
 	
 	public void startSpotMode() {
 		try {
-			oRoombaCtrl.spot();
+			m_oRoombaCtrl.spot();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
@@ -269,7 +273,7 @@ public class Roomba extends BaseRobot {
 	
 	public void startCleanMode() {
 		try {
-			oRoombaCtrl.clean();
+			m_oRoombaCtrl.clean();
 			
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);
@@ -314,14 +318,14 @@ public class Roomba extends BaseRobot {
 	public void moveForward(double i_dblSpeed) {
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		oRoombaCtrl.drive(nVelocity, RoombaTypes.STRAIGHT);
+		m_oRoombaCtrl.drive(nVelocity, RoombaTypes.STRAIGHT);
 	}
 	
 	public void moveForward(double i_dblSpeed, int i_nRadius) {
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		oRoombaCtrl.drive(nVelocity, i_nRadius);
+		m_oRoombaCtrl.drive(nVelocity, i_nRadius);
 	}
 	
 	static final int STRAIGHT_THRESHOLD = 10;
@@ -340,14 +344,14 @@ public class Roomba extends BaseRobot {
 	public void moveBackward(double i_dblSpeed) {
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		oRoombaCtrl.drive(-nVelocity, RoombaTypes.STRAIGHT);
+		m_oRoombaCtrl.drive(-nVelocity, RoombaTypes.STRAIGHT);
 	}
 
 	public void moveBackward(double i_dblSpeed, int i_nRadius) {
 		capRadius(i_nRadius);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		oRoombaCtrl.drive(-nVelocity, i_nRadius);
+		m_oRoombaCtrl.drive(-nVelocity, i_nRadius);
 	}
 
 	@Override
@@ -364,17 +368,17 @@ public class Roomba extends BaseRobot {
 	public void rotateClockwise(double i_dblSpeed) {
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		oRoombaCtrl.drive(nVelocity, RoombaTypes.CLOCKWISE);
+		m_oRoombaCtrl.drive(nVelocity, RoombaTypes.CLOCKWISE);
 	}
 	
 	public void rotateCounterClockwise(double i_dblSpeed) {
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
-		oRoombaCtrl.drive(nVelocity, RoombaTypes.COUNTER_CLOCKWISE);
+		m_oRoombaCtrl.drive(nVelocity, RoombaTypes.COUNTER_CLOCKWISE);
 	}
 	
 	public void moveStop() {
-		oRoombaCtrl.drive(0, 0);
+		m_oRoombaCtrl.drive(0, 0);
 	}
 	
 	public void setVacuum(boolean i_bOn) {
@@ -400,7 +404,7 @@ public class Roomba extends BaseRobot {
 			}
 		}
 		
-		oRoombaCtrl.motors(m_byMotorState);
+		m_oRoombaCtrl.motors(m_byMotorState);
 	}
 	
 	private byte SetBit(byte io_byValue, int i_nBit) {
@@ -422,7 +426,7 @@ public class Roomba extends BaseRobot {
 			}
 		}
 		
-		oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
+		m_oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
 	}
 	
 	public void setStatusLED(boolean i_bOn, RoombaTypes.ERoombaStatusLEDColours i_eLEDColour) {
@@ -446,14 +450,14 @@ public class Roomba extends BaseRobot {
 			ClearBit(m_byLEDState, RoombaTypes.STATUS_LED_HIGH_BIT);
 		}
 		
-		oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
+		m_oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
 	}
 	
 	public void setPowerLED(int i_nColor, int i_nIntensity) {
 		m_byPowerColor = (byte)i_nColor;
 		m_byPowerIntensity = (byte)i_nIntensity;
 		
-		oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
+		m_oRoombaCtrl.leds(m_byLEDState, m_byPowerColor, m_byPowerIntensity);
 	}
 
 	public SensorPackage getSensors(RoombaTypes.ERoombaSensorPackages i_ePackage) {
@@ -462,7 +466,7 @@ public class Roomba extends BaseRobot {
 		
 		byte[] byResult;
 		try {
-			byResult = oRoombaCtrl.sensors(nPackage, nResultLength);
+			byResult = m_oRoombaCtrl.sensors(nPackage, nResultLength);
 			if (byResult != null) {
 				return RoombaTypes.assembleSensorPackage(i_ePackage, byResult);
 			} else
@@ -476,7 +480,7 @@ public class Roomba extends BaseRobot {
 	
 	public void seekDocking() {
 		try {
-			oRoombaCtrl.dock();
+			m_oRoombaCtrl.dock();
 
 			// Allow 20 milliseconds between sending commands that change the SCI mode. 
 			Thread.sleep(20);

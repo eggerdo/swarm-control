@@ -1,6 +1,5 @@
 package org.dobots.robots.dotty;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.DottyTypes.DataPackage;
 import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.swarmcontrol.robots.dotty.DottyBluetooth;
@@ -8,6 +7,7 @@ import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.DifferentialRobot;
+import robots.gui.MessageTypes;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;

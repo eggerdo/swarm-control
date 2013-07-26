@@ -5,13 +5,13 @@ import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.robots.WifiRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.gui.IConnectListener;
 import robots.gui.SensorGatherer;
+import robots.gui.WifiRobot;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
@@ -211,9 +211,6 @@ public class ParrotRobot extends WifiRobot implements IRemoteControlListener {
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.parrot_main);
 
-//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
-		
         m_edtAltitude = (EditText) findViewById(R.id.edtAltitude);
         
         edtKp = (EditText) findViewById(R.id.edtKp);

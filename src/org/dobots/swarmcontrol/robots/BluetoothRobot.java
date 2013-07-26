@@ -1,11 +1,11 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.BluetoothConnectionHelper;
 import org.dobots.swarmcontrol.IBluetoothConnectionListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utilities.BaseActivity;
 
+import robots.gui.MessageTypes;
 import robots.gui.RobotView;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothSocket;

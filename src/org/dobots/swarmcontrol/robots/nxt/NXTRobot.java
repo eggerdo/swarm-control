@@ -1,6 +1,5 @@
 package org.dobots.swarmcontrol.robots.nxt;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.nxt.NXT;
 import org.dobots.robots.nxt.NXTMessageTypes;
 import org.dobots.robots.nxt.NXTTypes;
@@ -18,6 +17,7 @@ import org.dobots.utilities.Utils;
 import robots.RobotInventory;
 import robots.RobotType;
 import robots.gui.IConnectListener;
+import robots.gui.MessageTypes;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -319,9 +319,6 @@ public class NXTRobot extends BluetoothRobot {
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.nxt_main);
 
-//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
-        
         // adapter is the same, for each sensor we can choose the same types
 		final ArrayAdapter<ENXTSensorType> oSensorTypeAdapter = new ArrayAdapter<ENXTSensorType>(m_oActivity, 
 				android.R.layout.simple_spinner_item, ENXTSensorType.values());

@@ -4,7 +4,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.dobots.robots.BrainlinkDevice;
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.helpers.MoveRepeater;
 import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
 import org.dobots.robots.roboscooper.RoboScooperMoveRunner.SubMoveCommand;
@@ -12,6 +11,7 @@ import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.BaseRobot;
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 

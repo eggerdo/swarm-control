@@ -67,7 +67,8 @@
         <TableLayout
             android:id="@+id/tblMotor1_data"
             android:layout_width="match_parent"
-            android:layout_height="0dp" >
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
 
             <TableRow
                 android:id="@+id/tblrwMotor1_powersetpoint"
@@ -184,7 +185,8 @@
         <TableLayout
             android:id="@+id/tblMotor2_data"
             android:layout_width="match_parent"
-            android:layout_height="0dp" >
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
 
             <TableRow
                 android:id="@+id/tblrwMotor2_powersetpoint"
@@ -301,7 +303,8 @@
         <TableLayout
             android:id="@+id/tblMotor3_data"
             android:layout_width="match_parent"
-            android:layout_height="0dp" >
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
 
             <TableRow
                 android:id="@+id/tblrwMotor3_powersetpoint"

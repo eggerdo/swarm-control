@@ -32,9 +32,9 @@ import java.net.UnknownHostException;
 
 import javax.security.auth.login.LoginException;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.utilities.log.Loggable;
 
+import robots.gui.MessageTypes;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;

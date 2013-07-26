@@ -16,6 +16,7 @@ import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 import org.dobots.swarmcontrol.robots.spykee.SpykeeRobot;
 
 import robots.RobotType;
+import robots.ispytank.gui.SpyTankRobot;
 import robots.rover.ac13.ctrl.AC13RoverTypes;
 import robots.rover.ac13.gui.AC13RoverRobot;
 import robots.rover.rover2.ctrl.Rover2Types;
@@ -43,6 +44,8 @@ public class RobotViewFactory {
 			return Rover2Robot.class;
 		case RBT_ROBO40:
 			return Robo40Robot.class;
+		case RBT_SPYTANK:
+			return SpyTankRobot.class;
 		default:
 			return UnimplementedRobot.class;
 		}
@@ -69,7 +72,7 @@ public class RobotViewFactory {
 		case RBT_ROBO40:
 			return Robo40Types.MAC_FILTER;
 		default:
-			return null;
+			return "";
 		}
 	}
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.msg.MsgTypes;
 import org.dobots.robots.msg.MsgTypes.MotorDataRequestMsg;
 import org.dobots.robots.msg.MsgTypes.MotorSpeedMsg;
@@ -20,6 +19,7 @@ import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.DifferentialRobot;
+import robots.gui.MessageTypes;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;

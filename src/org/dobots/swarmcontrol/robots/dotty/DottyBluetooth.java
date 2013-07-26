@@ -3,11 +3,11 @@ package org.dobots.swarmcontrol.robots.dotty;
 import java.io.IOException;
 
 import org.dobots.robots.BaseBluetooth;
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.msg.MsgTypes;
 import org.dobots.utilities.Utils;
 
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
 
 public class DottyBluetooth extends BaseBluetooth {

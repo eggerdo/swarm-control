@@ -12,6 +12,7 @@
 	    android:orientation="vertical" >
 
 		<LinearLayout
+		    android:id="@+id/layTitle"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content" >
 
@@ -22,16 +23,6 @@
 			    android:text="@string/nxt_title"
 			    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-		    <View
-		        android:layout_width="0dp"
-		        android:layout_height="wrap_content"
-		        android:layout_weight="1" />
-
-		    <CheckBox
-		        android:id="@+id/btnComments"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:button="@drawable/comment" />
 		</LinearLayout>
 	
 	    <TextView

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.dobots.utilities.Utils;
 
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;

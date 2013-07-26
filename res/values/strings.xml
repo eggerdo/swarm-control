@@ -6,17 +6,15 @@
     <string name="about">About</string>
     
     <string-array name="changelog">
-        <item>- Brookstone AC13 Rover added (Remote Control and Video Playback)</item>
-        <item></item>
-        <item>- Swarm Control made social (Like, Share and Comment as much as you want)</item>
-        <item>Update (0.3.1): Authentication not required for Like and Share</item>
+        <item>- Brookstone Rover 2.0 added (Remote Control and Video Playback)</item>
+        <item>- I-Spy Tank added (Remote Control and Video Playback)</item>
 	</string-array>
     
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
     <string name="quit">Quit</string>    
     
-    <string name="intro">Swarm Control is developed at Distributed Organisms, DO bots. It
+    <string name="intro">Swarm Control is developed at Distributed Organisms, DoBots. It
         is meant to showcase remote control of many different robots, and in due time,
         group functionality.</string>
         
@@ -28,7 +26,7 @@
     
     <!-- About Dialog -->
     <string name="about_general">  
-        Swarm Control is developed at Distributed Organisms or DO bots. DO researches,
+        Swarm Control is developed at Distributed Organisms or DoBots. DO researches,
         develops, and maintains robotic swarms. DO is a daughter company of the Dutch 
         research company Almende B.V. 
         

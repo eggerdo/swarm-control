@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.helpers.IMoveRepeaterListener;
 import org.dobots.robots.helpers.MoveRepeater;
 import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
@@ -13,6 +12,7 @@ import org.dobots.utilities.Utils;
 import robots.RobotType;
 import robots.ctrl.BaseRobot;
 import robots.gui.IConnectListener;
+import robots.gui.MessageTypes;
 import android.os.Handler;
 import android.os.SystemClock;
 

@@ -39,6 +39,7 @@ public class ConnectionHelper {
 		case RBT_SPYKEE:
 		case RBT_AC13ROVER:
 		case RBT_ROVER2:
+		case RBT_SPYTANK:
 			return establishWifiConnection(i_oActivity, i_oRobot, i_oListener);
 		}
 

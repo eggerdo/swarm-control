@@ -97,7 +97,7 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 		}
         
         if (!BrainlinkDevice.checkForConfigFile(getResources(), RoboScooperTypes.SIGNAL_FILE_NAME, RoboScooperTypes.SIGNAL_FILE_ENCODED)) {
-        	Utils.showToast("Failed to install device config file", Toast.LENGTH_LONG);
+        	showToast("Failed to install device config file", Toast.LENGTH_LONG);
         }
     }
 
@@ -105,9 +105,6 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.roboscooper_main);
 
-//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
-		
         m_layControls = (LinearLayout) findViewById(R.id.layControls);
         m_layPlayModes = (LinearLayout) findViewById(R.id.layPlayModes);
      

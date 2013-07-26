@@ -126,9 +126,6 @@ public class DottyRobot extends BluetoothRobot {
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.dotty_main);
 
-//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
-		
         m_cbDistance = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Distance);
         m_cbLight = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Light);
         m_cbSound = (CheckBox) m_oActivity.findViewById(R.id.cbDotty_Sound);

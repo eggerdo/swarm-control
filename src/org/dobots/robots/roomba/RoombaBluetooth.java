@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
 import org.dobots.robots.BaseBluetooth;
-import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.robots.IBluetoothConnection;
 
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
 
 public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnection {

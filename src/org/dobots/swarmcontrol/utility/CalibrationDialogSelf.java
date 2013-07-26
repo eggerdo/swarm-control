@@ -1,8 +1,8 @@
 package org.dobots.swarmcontrol.utility;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.R;
 
+import robots.gui.MessageTypes;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

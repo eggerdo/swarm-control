@@ -356,14 +356,8 @@ public class NXTSensorGatherer extends SensorGatherer {
 		default:
 			return;
     	}
-    	
-    	TableLayout oSensorData = (TableLayout) m_oActivity.findViewById(nResID);
-    	
-    	if (i_bShow) {
-    		oSensorData.setLayoutParams(new TableLayout.LayoutParams());
-    	} else {
-    		oSensorData.setLayoutParams(new TableLayout.LayoutParams(0,0));
-    	}
+
+    	Utils.showLayout((TableLayout)m_oActivity.findViewById(nResID), i_bShow);
 	}
 
 	public void showMotor(ENXTMotorID i_eMotor, boolean i_bShow) {

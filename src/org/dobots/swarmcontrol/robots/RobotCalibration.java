@@ -1,6 +1,5 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.utility.CalibrationDialogSelf;
 import org.dobots.swarmcontrol.utility.CalibrationDialogSelf.OnRunClick;
@@ -10,6 +9,7 @@ import org.dobots.utilities.BaseActivity;
 import robots.RobotInventory;
 import robots.RobotType;
 import robots.ctrl.IRobotDevice;
+import robots.gui.MessageTypes;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

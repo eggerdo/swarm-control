@@ -27,13 +27,13 @@ import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.RemoteControlHelper.Move;
-import org.dobots.swarmcontrol.robots.WifiRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.gui.IConnectListener;
 import robots.gui.SensorGatherer;
+import robots.gui.WifiRobot;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -130,16 +130,12 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 		} else {
 			connectToRobot();
 		}
-        
     }
 
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
     	m_oActivity.setContentView(R.layout.spykee_main);
 
-//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
-		
     	m_layControls = (LinearLayout) m_oActivity.findViewById(R.id.layControls);
     	
     	m_btnDock = (Button) m_oActivity.findViewById(R.id.btnDock);
@@ -201,7 +197,6 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 				m_oSpykee.playSound(eSound);
 			}
 		});
-    	
     }
 
 	@Override
@@ -346,7 +341,7 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 			m_oSpykee.connect();
 		} else {
 			connectingProgressDialog.dismiss();
-			Utils.showToast("Connection Settings not valid, please check your settings and try connecting again!", Toast.LENGTH_LONG);
+			showToast("Connection Settings not valid, please check your settings and try connecting again!", Toast.LENGTH_LONG);
 		}
 	}
 
@@ -480,7 +475,7 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 		editor.commit();
 		
 		if (!checkSettings()) {
-			Utils.showToast("Connection Settings not valid, please check again!", Toast.LENGTH_LONG);
+			showToast("Connection Settings not valid, please check again!", Toast.LENGTH_LONG);
 		}
     }
 

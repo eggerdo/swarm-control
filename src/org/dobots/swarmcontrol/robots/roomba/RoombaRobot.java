@@ -1,6 +1,5 @@
 package org.dobots.swarmcontrol.robots.roomba;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
@@ -18,6 +17,7 @@ import org.dobots.utilities.Utils;
 import robots.RobotInventory;
 import robots.RobotType;
 import robots.gui.IConnectListener;
+import robots.gui.MessageTypes;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -343,9 +343,6 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	protected void setProperties(RobotType i_eRobot) {
         m_oActivity.setContentView(R.layout.roomba_main);
         
-//        SocializeHelper.setupComments(m_oActivity, i_eRobot);
-//        SocializeHelper.registerRobotView(m_oActivity, i_eRobot);
-		
         m_spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		final ArrayAdapter<ERoombaSensorPackages> adapter = new ArrayAdapter<ERoombaSensorPackages>(m_oActivity, 
 				android.R.layout.simple_spinner_item, ERoombaSensorPackages.values());

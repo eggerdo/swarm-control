@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 
 import javax.security.auth.login.LoginException;
 
-import org.dobots.robots.MessageTypes;
 import org.dobots.robots.helpers.IMoveRepeaterListener;
 import org.dobots.robots.helpers.MoveRepeater;
 import org.dobots.robots.helpers.MoveRepeater.MoveCommand;
@@ -17,6 +16,7 @@ import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.DifferentialRobot;
+import robots.gui.MessageTypes;
 import android.os.Handler;
 import android.os.Message;
 
