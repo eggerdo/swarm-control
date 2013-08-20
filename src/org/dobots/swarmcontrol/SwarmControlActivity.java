@@ -15,9 +15,9 @@ import org.dobots.utilities.BaseApplication;
 import org.dobots.utilities.Utils;
 import org.dobots.utility.ImprovedArrayAdapter;
 
-import robots.RobotInventory;
 import robots.RobotType;
 import robots.ctrl.IRobotDevice;
+import robots.gui.RobotInventory;
 import robots.gui.RobotView;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -243,6 +243,7 @@ public class SwarmControlActivity extends BaseActivity {
 		}
 	}
 	
+	// TODO; replace by RobotLaunchHelper once all robots are moved to the Robot-Lib
 	public void showRobot(RobotType i_eType, String i_strRobotID) {
 		createRobotView(i_eType, i_strRobotID, false);
 	}

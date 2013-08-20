@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.dobots.swarmcontrol"
-    android:versionCode="5"
+    android:versionCode="6"
     android:versionName="0.4" >
 
     <uses-sdk android:minSdkVersion="10" />
@@ -51,7 +51,7 @@
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.dotty.DottyRobot"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name=".robots.parrot.ParrotRobot"
+		<activity android:name="robots.parrot.gui.ParrotRobot"
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.roboscooper.RoboScooperRobot"
 		    android:screenOrientation="portrait" ></activity>
@@ -63,7 +63,7 @@
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.robo40.Robo40Robot"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="robots.ispytank.gui.SpyTankRobot"
+		<activity android:name="robots.spytank.gui.SpyTankRobot"
 		    android:screenOrientation="portrait" ></activity>
 		
         <!-- Behaviour Activities -->

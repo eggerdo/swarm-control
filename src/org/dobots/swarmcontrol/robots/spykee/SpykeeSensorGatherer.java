@@ -5,8 +5,8 @@ import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeMessageTypes;
 import org.dobots.swarmcontrol.R;
 import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.ScalableImageView;
 import org.dobots.utilities.Utils;
-import org.dobots.utility.ScalableImageView;
 
 import robots.gui.SensorGatherer;
 import android.graphics.Bitmap;

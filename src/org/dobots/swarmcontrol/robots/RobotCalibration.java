@@ -6,10 +6,10 @@ import org.dobots.swarmcontrol.utility.CalibrationDialogSelf.OnRunClick;
 import org.dobots.swarmcontrol.utility.CalibrationDialogUser;
 import org.dobots.utilities.BaseActivity;
 
-import robots.RobotInventory;
 import robots.RobotType;
 import robots.ctrl.IRobotDevice;
 import robots.gui.MessageTypes;
+import robots.gui.RobotInventory;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

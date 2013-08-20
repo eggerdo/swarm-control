@@ -2,7 +2,6 @@ package org.dobots.swarmcontrol;
 
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.nxt.NXT;
-import org.dobots.robots.parrot.Parrot;
 import org.dobots.robots.robo40.Robo40;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roomba.Roomba;
@@ -10,7 +9,6 @@ import org.dobots.robots.spykee.Spykee;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
-import org.dobots.swarmcontrol.robots.parrot.ParrotRobot;
 import org.dobots.swarmcontrol.robots.robo40.Robo40Robot;
 import org.dobots.swarmcontrol.robots.roboscooper.RoboScooperRobot;
 import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
@@ -19,6 +17,8 @@ import org.dobots.utilities.BaseActivity;
 
 import robots.ctrl.IRobotDevice;
 import robots.gui.IConnectListener;
+import robots.parrot.ctrl.Parrot;
+import robots.parrot.gui.ParrotRobot;
 import robots.rover.ac13.ctrl.AC13Rover;
 import robots.rover.ac13.gui.AC13RoverRobot;
 import android.bluetooth.BluetoothDevice;

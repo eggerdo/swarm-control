@@ -2,7 +2,6 @@ package org.dobots.robots;
 
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.nxt.NXT;
-import org.dobots.robots.parrot.Parrot;
 import org.dobots.robots.robo40.Robo40;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roomba.Roomba;
@@ -10,9 +9,10 @@ import org.dobots.robots.spykee.Spykee;
 
 import robots.RobotType;
 import robots.ctrl.IRobotDevice;
-import robots.ispytank.ctrl.SpyTank;
+import robots.parrot.ctrl.Parrot;
 import robots.rover.ac13.ctrl.AC13Rover;
 import robots.rover.rover2.ctrl.Rover2;
+import robots.spytank.ctrl.SpyTank;
 
 public class RobotDeviceFactory {
 		

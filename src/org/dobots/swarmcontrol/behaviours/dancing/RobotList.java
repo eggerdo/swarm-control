@@ -11,10 +11,10 @@ import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.IActivityResultListener;
 import org.dobots.utilities.Utils;
 
-import robots.RobotInventory;
 import robots.RobotType;
 import robots.ctrl.IRobotDevice;
 import robots.gui.IConnectListener;
+import robots.gui.RobotInventory;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;

@@ -14,10 +14,10 @@ import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
-import robots.RobotInventory;
 import robots.RobotType;
 import robots.gui.IConnectListener;
 import robots.gui.MessageTypes;
+import robots.gui.RobotInventory;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;

@@ -2,25 +2,25 @@ package org.dobots.swarmcontrol.robots;
 
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.parrot.ParrotTypes;
 import org.dobots.robots.robo40.Robo40Types;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
-import org.dobots.swarmcontrol.robots.parrot.ParrotRobot;
 import org.dobots.swarmcontrol.robots.robo40.Robo40Robot;
 import org.dobots.swarmcontrol.robots.roboscooper.RoboScooperRobot;
 import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 import org.dobots.swarmcontrol.robots.spykee.SpykeeRobot;
 
 import robots.RobotType;
-import robots.ispytank.gui.SpyTankRobot;
+import robots.parrot.ctrl.ParrotTypes;
+import robots.parrot.gui.ParrotRobot;
 import robots.rover.ac13.ctrl.AC13RoverTypes;
 import robots.rover.ac13.gui.AC13RoverRobot;
 import robots.rover.rover2.ctrl.Rover2Types;
 import robots.rover.rover2.gui.Rover2Robot;
+import robots.spytank.gui.SpyTankRobot;
 
 public class RobotViewFactory {
 	
