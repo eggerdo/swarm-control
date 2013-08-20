@@ -4,6 +4,7 @@ import java.util.EnumMap;
 
 import org.dobots.robots.nxt.LCPMessage;
 import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.nxt.NXTMessageTypes;
 import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.nxt.NXTTypes.DistanceData;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
@@ -12,19 +13,13 @@ import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.robots.nxt.NXTTypes.MotorData;
 import org.dobots.robots.nxt.NXTTypes.SensorData;
-import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.SensorGatherer;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 
-import android.app.Activity;
-import android.os.Bundle;
+import robots.gui.SensorGatherer;
 import android.os.Handler;
 import android.os.Message;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -43,8 +38,8 @@ public class NXTSensorGatherer extends SensorGatherer {
 	private EnumMap<ENXTMotorID, Boolean> m_oMotorRequestActive; // TODO should be solved with timeouts
 	
 	
-	public NXTSensorGatherer(Activity i_oActivity, NXT i_oNxt) {
-		super(i_oActivity);
+	public NXTSensorGatherer(BaseActivity i_oActivity, NXT i_oNxt) {
+		super(i_oActivity, "NxtSensorGatherer");
 		m_oNxt = i_oNxt;
 		
 //		m_oGUIUpdater = new UpdateSensorDataTask();
@@ -134,17 +129,17 @@ public class NXTSensorGatherer extends SensorGatherer {
 		@Override
 		public void handleMessage(Message myMessage) {
 			switch(myMessage.what) {
-			case NXTTypes.SENSOR_DATA_RECEIVED:
+			case NXTMessageTypes.SENSOR_DATA_RECEIVED:
 //				SensorData oSensorData = m_oNxt.getReceivedSensorData();
 				SensorData oSensorData = (SensorData) myMessage.obj;
 				updateGUI(oSensorData);
 				break;
-			case NXTTypes.DISTANCE_DATA_RECEIVED:
+			case NXTMessageTypes.DISTANCE_DATA_RECEIVED:
 //				DistanceData oDistanceData = m_oNxt.getReceivedDistanceData();
 				DistanceData oDistanceData = (DistanceData) myMessage.obj;
 				updateGUI(oDistanceData);
 				break;
-			case NXTTypes.MOTOR_DATA_RECEIVED:
+			case NXTMessageTypes.MOTOR_DATA_RECEIVED:
 //				MotorData oMotorData = m_oNxt.getReceivedMotorData();
 				MotorData oMotorData = (MotorData) myMessage.obj;
 				updateGUI(oMotorData);
@@ -158,6 +153,8 @@ public class NXTSensorGatherer extends SensorGatherer {
 		
 		ENXTMotorID eMotor;
 		int nResPowerSetpointID, nResTachoCountID, nResRotationCountID;
+		
+		int nInvertedFactor = m_oNxt.isInverted() ? -1 : 1;
 		
 		switch (nOutputPort) {
 		case 0:
@@ -190,14 +187,14 @@ public class NXTSensorGatherer extends SensorGatherer {
 
     	TextView txtRotationCount = (TextView) m_oActivity.findViewById(nResRotationCountID);
     	if (m_oMotorSensorTypes.get(eMotor) == ENXTMotorSensorType.motor_degreee) {
-	    	txtRotationCount.setText(String.valueOf(i_oMotorData.nRotationCount));
+	    	txtRotationCount.setText(String.valueOf(nInvertedFactor * i_oMotorData.nRotationCount));
     	} else {
-	    	txtRotationCount.setText(String.format("%.2f", i_oMotorData.nRotationCount / 360.0));
+	    	txtRotationCount.setText(String.format("%.2f", nInvertedFactor * i_oMotorData.nRotationCount / 360.0));
     	}
 
     	if (m_bDebug) {
 	    	TextView txtTachoCount = (TextView) m_oActivity.findViewById(nResTachoCountID);
-	    	txtTachoCount.setText(String.valueOf(i_oMotorData.nTachoCount));
+	    	txtTachoCount.setText(String.valueOf(nInvertedFactor * i_oMotorData.nTachoCount));
     	}
 
 		m_oMotorRequestActive.put(eMotor, false);
@@ -359,14 +356,8 @@ public class NXTSensorGatherer extends SensorGatherer {
 		default:
 			return;
     	}
-    	
-    	TableLayout oSensorData = (TableLayout) m_oActivity.findViewById(nResID);
-    	
-    	if (i_bShow) {
-    		oSensorData.setLayoutParams(new TableLayout.LayoutParams());
-    	} else {
-    		oSensorData.setLayoutParams(new TableLayout.LayoutParams(0,0));
-    	}
+
+    	Utils.showLayout((TableLayout)m_oActivity.findViewById(nResID), i_bShow);
 	}
 
 	public void showMotor(ENXTMotorID i_eMotor, boolean i_bShow) {
@@ -393,6 +384,12 @@ public class NXTSensorGatherer extends SensorGatherer {
 
 	public void setDebug(boolean i_bDebug) {
 		m_bDebug = i_bDebug;
+	}
+
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

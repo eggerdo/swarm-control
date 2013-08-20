@@ -2,8 +2,7 @@ package org.dobots.utility;
 
 import java.util.List;
 
-import org.dobots.swarmcontrol.SwarmControlActivity;
-
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -22,7 +21,7 @@ public class AccelerometerManager {
 //	private static long interval = 1000000000L; //one second
 	private static Sensor sensor;
 	private static SensorManager sensorManager;
-	private static AccelerometerListener listener;
+	private static IAccelerometerListener listener;
 
 	private static Boolean supported;
 	private static boolean running = false;
@@ -51,11 +50,11 @@ public class AccelerometerManager {
 	/**
 	 * Returns true if at least one Accelerometer sensor is available
 	 */
-	public static boolean isSupported()
+	public static boolean isSupported(Activity i_oActivity)
 	{
 		if (supported == null) {
-			if (SwarmControlActivity.getContext() != null) {
-				sensorManager = (SensorManager) SwarmControlActivity.getContext().
+			if (i_oActivity != null) {
+				sensorManager = (SensorManager) i_oActivity.
 						getSystemService(Context.SENSOR_SERVICE);
 				List<Sensor> sensors = sensorManager.getSensorList(
 						Sensor.TYPE_ACCELEROMETER);
@@ -78,9 +77,9 @@ public class AccelerometerManager {
 	/**
 	 * Registers a listener and starts listening
 	 */
-	public static void startListening( AccelerometerListener accelerometerListener )
+	public static void startListening(Activity i_oActivity, IAccelerometerListener accelerometerListener )
 	{
-		sensorManager = (SensorManager) SwarmControlActivity.getContext().
+		sensorManager = (SensorManager) i_oActivity.
 				getSystemService( Context.SENSOR_SERVICE );
 		List<Sensor> sensors = sensorManager.getSensorList( Sensor.TYPE_ACCELEROMETER );
 		if ( sensors.size() > 0 ) {
@@ -96,10 +95,10 @@ public class AccelerometerManager {
 	 * Configures threshold and interval
 	 * And registers a listener and starts listening
 	 */
-	public static void startListening( AccelerometerListener accelerometerListener, long interval )
+	public static void startListening(Activity i_oActivity, IAccelerometerListener accelerometerListener, long interval )
 	{
 		configure( interval );
-		startListening( accelerometerListener );
+		startListening(i_oActivity, accelerometerListener );
 	}
 
 	/**

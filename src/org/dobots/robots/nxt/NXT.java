@@ -1,37 +1,30 @@
 package org.dobots.robots.nxt;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.dobots.robots.BaseBluetooth;
-import org.dobots.robots.RobotDevice;
+import org.dobots.robots.msg.MsgTypes;
+import org.dobots.robots.msg.MsgTypes.MotorDataRequestMsg;
+import org.dobots.robots.msg.MsgTypes.MotorSpeedMsg;
+import org.dobots.robots.msg.MsgTypes.RawDataMsg;
+import org.dobots.robots.msg.MsgTypes.ResetMotorPositionMsg;
+import org.dobots.robots.msg.MsgTypes.SensorDataRequestMsg;
+import org.dobots.robots.msg.MsgTypes.SensorTypeMsg;
 import org.dobots.robots.nxt.NXTTypes.ENXTMotorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.robots.nxt.msg.MsgTypes.MotorDataRequestMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.MotorSpeedMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.RawDataMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.ResetMotorPositionMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.SensorDataRequestMsg;
-import org.dobots.robots.nxt.msg.MsgTypes.SensorTypeMsg;
-import org.dobots.swarmcontrol.robots.RobotType;
 import org.dobots.swarmcontrol.robots.nxt.NXTBluetooth;
-import org.dobots.swarmcontrol.robots.nxt.BTConnectable;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.res.Resources;
+import robots.RobotType;
+import robots.ctrl.DifferentialRobot;
+import robots.gui.MessageTypes;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
 
-public class NXT implements RobotDevice, BTConnectable {
+public class NXT extends DifferentialRobot {
 
 	private static String TAG = "NXT";
 
@@ -39,17 +32,8 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	private double m_dblBaseSpeed = 50.0;
 	
-	private boolean m_bPairing;
-
 	int motorLeft;
-//	private int directionLeft; // +/- 1
 	int motorRight;
-//	private boolean stopAlreadySent = false;
-//	private int directionRight; // +/- 1
-//	private int motorAction;
-//	private int directionAction; // +/- 1
-	
-//	private String programToStart;
 
 	private Handler m_oUiHandler;
 
@@ -66,7 +50,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	
 	private int m_nInvertFactor = -1;	// normal = 1, inverted = -1
 	
-	private double m_dblAxleWidth = 160.0;
+	private double m_dblAxleWidth = NXTTypes.AXLE_WIDTH;
 	
 	private class NXTReceiver extends Thread {
 		
@@ -95,23 +79,23 @@ public class NXT implements RobotDevice, BTConnectable {
 					}
 					
 					switch (messageID) {
-					case NXTTypes.DESTROY:
-						m_oConnection = null;
-					case BaseBluetooth.STATE_CONNECTED:
+					case MessageTypes.STATE_CONNECTED:
 						connected = true;
 						getFirmwareVersion();
 						break;
 
-					case BaseBluetooth.STATE_CONNECTERROR_PAIRING:
+					case MessageTypes.STATE_CONNECTERROR_PAIRING:
 						m_oConnection = null;
 						break;
 
-					case BaseBluetooth.STATE_RECEIVEERROR:
-					case BaseBluetooth.STATE_SENDERROR:
+					case MessageTypes.STATE_RECEIVEERROR:
+					case MessageTypes.STATE_SENDERROR:
 						connected = false;
 						break;
 
-					case NXTTypes.FIRMWARE_VERSION:
+					case NXTMessageTypes.DESTROY:
+						m_oConnection = null;
+					case NXTMessageTypes.FIRMWARE_VERSION:
 
 						if (m_oConnection != null) {
 							byte[] firmwareMessage = ((RawDataMsg)msg.obj).rgbyRawData;
@@ -132,7 +116,7 @@ public class NXT implements RobotDevice, BTConnectable {
 
 						break;
 	
-					case NXTTypes.GET_INPUT_VALUES:
+					case NXTMessageTypes.GET_INPUT_VALUES:
 						
 						if (m_oConnection != null) {
 							byte[] sensorMessage = ((RawDataMsg)msg.obj).rgbyRawData;
@@ -143,7 +127,7 @@ public class NXT implements RobotDevice, BTConnectable {
 						break;
 //						return;
 
-					case NXTTypes.MOTOR_STATE:
+					case NXTMessageTypes.MOTOR_STATE:
 						
 						if (m_oConnection != null) {
 							byte[] sensorMessage = ((RawDataMsg)msg.obj).rgbyRawData;
@@ -190,40 +174,40 @@ public class NXT implements RobotDevice, BTConnectable {
 
 					if (connected) {
 			            switch (msg.what) {
-			                case NXTTypes.GET_FIRMWARE_VERSION:
+			                case NXTMessageTypes.GET_FIRMWARE_VERSION:
 			                	m_oConnection.requestFirmwareVersion();
 			                    break;
-			                case NXTTypes.SET_INPUT_MODE:
+			                case NXTMessageTypes.SET_INPUT_MODE:
 			                	SensorTypeMsg cmdSensorTypeMsg = (SensorTypeMsg)msg.obj;
 			                	m_oConnection.setInputMode(cmdSensorTypeMsg.nPort, cmdSensorTypeMsg.byType, cmdSensorTypeMsg.byMode);
 			                	break;
-			                case NXTTypes.GET_INPUT_VALUES:
+			                case NXTMessageTypes.GET_INPUT_VALUES:
 			                	SensorDataRequestMsg cmdSensorDataRequestMsg = (SensorDataRequestMsg)msg.obj;
 			                	m_oConnection.requestInputValues(cmdSensorDataRequestMsg.nPort);
 			                	break;
-			                case NXTTypes.SET_OUTPUT_STATE:
+			                case NXTMessageTypes.SET_OUTPUT_STATE:
 			                	MotorSpeedMsg cmdMotorSpeedMsg = (MotorSpeedMsg)msg.obj;
 			                	m_oConnection.setMotorSpeed(cmdMotorSpeedMsg.nPort, cmdMotorSpeedMsg.nSpeed);
 			                	break;
-			                case NXTTypes.MOTOR_STATE:
+			                case NXTMessageTypes.MOTOR_STATE:
 			                	MotorDataRequestMsg cmdMotorDataRequestMsg = (MotorDataRequestMsg)msg.obj;
 			                	m_oConnection.requestMotorState(cmdMotorDataRequestMsg.nPort);
 			                	break;
-			                case NXTTypes.RESET_MOTOR_POSITION:
+			                case NXTMessageTypes.RESET_MOTOR_POSITION:
 			                	ResetMotorPositionMsg cmdResetMotorPosition = (ResetMotorPositionMsg)msg.obj;
 			                	m_oConnection.resetMotorPosition(cmdResetMotorPosition.nPort, cmdResetMotorPosition.bRelative);
 			                	break;
-			                case NXTTypes.GET_BATTERY_LEVEL:
+			                case NXTMessageTypes.GET_BATTERY_LEVEL:
 			                	m_oConnection.requestBatteryLevel();
 			                	break;
-			                case NXTTypes.GET_DISTANCE:
+			                case NXTMessageTypes.GET_DISTANCE:
 			                	SensorDataRequestMsg cmdDistanceRequestMsg = (SensorDataRequestMsg)msg.obj;
 			                	getDistanceSensorData(cmdDistanceRequestMsg.nPort);
 			                	break;
-			                case NXTTypes.DISCONNECT:
+			                case NXTMessageTypes.DISCONNECT:
 			                	shutDown();
 			                    break;
-			                case NXTTypes.KEEP_ALIVE:
+			                case NXTMessageTypes.KEEP_ALIVE:
 			                	m_oConnection.keepAlive();
 			                	break;
 			            }
@@ -247,6 +231,8 @@ public class NXT implements RobotDevice, BTConnectable {
 	};
 
 	public NXT() {
+		super(NXTTypes.AXLE_WIDTH, NXTTypes.MIN_VELOCITY, NXTTypes.MAX_VELOCITY, NXTTypes.MIN_RADIUS, NXTTypes.MAX_RADIUS);
+		
 		m_oReceiver = new NXTReceiver();
 		m_oReceiver.start();
 		
@@ -280,24 +266,9 @@ public class NXT implements RobotDevice, BTConnectable {
 		}
 	}
 
-	/**
-	 * @return true, when currently pairing 
-	 */
-	@Override
-	public boolean isPairing() {
-		return m_bPairing;
-	}
-
 	@Override
 	public boolean isConnected() {
 		return connected;
-	}
-
-
-	@Override
-	public void setConnection() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -310,7 +281,10 @@ public class NXT implements RobotDevice, BTConnectable {
 	
 	@Override
 	public void disconnect() {
-		sendCmdMessage(NXTTypes.DISCONNECT);
+		sendCmdMessage(NXTMessageTypes.DISCONNECT);
+		while (isConnected()) {
+			Utils.waitSomeTime(10);
+		}
 	}
 	
 	public void setConnection(NXTBluetooth i_oConnection) {
@@ -340,174 +314,141 @@ public class NXT implements RobotDevice, BTConnectable {
 	}
 
 	public void getFirmwareVersion() {
-		sendCmdMessage(NXTTypes.GET_FIRMWARE_VERSION);
+		sendCmdMessage(NXTMessageTypes.GET_FIRMWARE_VERSION);
 	}
 	
 	public void requestSensorData(ENXTSensorID i_eSensorID, ENXTSensorType i_eSensorType) {
 		if (i_eSensorType == ENXTSensorType.sensType_Distance) {
-			sendCmdMessage(NXTTypes.GET_DISTANCE, MsgTypes.assembleSensorDataRequestMsg(i_eSensorID));
+			sendCmdMessage(NXTMessageTypes.GET_DISTANCE, MsgTypes.assembleSensorDataRequestMsg(i_eSensorID));
 		} else {
-			sendCmdMessage(NXTTypes.GET_INPUT_VALUES, MsgTypes.assembleSensorDataRequestMsg(i_eSensorID));
+			sendCmdMessage(NXTMessageTypes.GET_INPUT_VALUES, MsgTypes.assembleSensorDataRequestMsg(i_eSensorID));
 		}
 	}
 	
 	public void setSensorType(ENXTSensorID i_eSensorID, ENXTSensorType i_eSensorType) {
-		sendCmdMessage(NXTTypes.SET_INPUT_MODE, MsgTypes.assembleSensorTypeMsg(i_eSensorID, i_eSensorType));
+		sendCmdMessage(NXTMessageTypes.SET_INPUT_MODE, MsgTypes.assembleSensorTypeMsg(i_eSensorID, i_eSensorType));
 	}
 	
 	public void keepAlive() {
-		sendCmdMessage(NXTTypes.KEEP_ALIVE);
+		sendCmdMessage(NXTMessageTypes.KEEP_ALIVE);
 	}
 	
 	public void requestMotorData(ENXTMotorID i_eMotorID) {
-		sendCmdMessage(NXTTypes.MOTOR_STATE, MsgTypes.assembleMotorDataRequestMsg(i_eMotorID));
+		sendCmdMessage(NXTMessageTypes.MOTOR_STATE, MsgTypes.assembleMotorDataRequestMsg(i_eMotorID));
 	}
 	
 	public void resetMotorPosition(ENXTMotorID i_eMotorID, boolean i_bRelative) {
-		sendCmdMessage(NXTTypes.RESET_MOTOR_POSITION, MsgTypes.assembleResetMotorPositionMsg(i_eMotorID, i_bRelative));
+		sendCmdMessage(NXTMessageTypes.RESET_MOTOR_POSITION, MsgTypes.assembleResetMotorPositionMsg(i_eMotorID, i_bRelative));
 	}
 
-	private double capSpeed(double io_dblSpeed) {
-		// if a negative value was provided as speed
-		// use the absolute value of it.
-		io_dblSpeed = Math.abs(io_dblSpeed);
-		io_dblSpeed = Math.min(io_dblSpeed, 100);
-		io_dblSpeed = Math.max(io_dblSpeed, 0);
-		
-		return io_dblSpeed;
-	}
-	
-	private int capRadius(int io_nRadius) {
-		io_nRadius = Math.min(io_nRadius, NXTTypes.MAX_RADIUS);
-		io_nRadius = Math.max(io_nRadius, -NXTTypes.MAX_RADIUS);
-
-		return io_nRadius;
-	}
-	
-	private int calculateVelocity(double i_dblSpeed) {
-		return (int) Math.round(i_dblSpeed);
-	}
-
-	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
-		int nBaseVelocity = calculateVelocity(i_dblSpeed);
-		int nVelocity1, nVelocity2;
-		
-		// a high radius value received means that the robot should make a small/short turn
-		// a low radius value received means that the robot should make a big/long turn
-		// that means that the actual radius from which we calculate the velocities has to be
-		// the opposite of the radius we receive
-		int nCorrectedRadius = NXTTypes.MAX_RADIUS - Math.abs(i_nRadius);
-		
-		if (i_nRadius == 0) {
-			io_rgnVelocity[0] = nBaseVelocity;
-			io_rgnVelocity[1] = nBaseVelocity;
-		} else {
-			nVelocity1 = (int) Math.round(nBaseVelocity * (nCorrectedRadius + m_dblAxleWidth) / (nCorrectedRadius + m_dblAxleWidth / 2.0));
-			nVelocity2 = (int) Math.round(nBaseVelocity * nCorrectedRadius / (nCorrectedRadius + m_dblAxleWidth / 2.0));
-			
-			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
-			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
-			// velocity would fall below 0 we set it to 0
-			int nOffset = nVelocity1 - NXTTypes.MAX_VELOCITY;
-			if (nOffset > 0) {
-				nVelocity1 = 100;
-				nVelocity2 = Math.max(nVelocity2 - nOffset, 0);
-			}
-			// for the same reason we have to make sure that the lower velocity of the two wheels cannot be less than 0. if the
-			// higher velocity would go above 100 we set it to 100
-			nOffset = -nVelocity2;
-			if (nOffset > 0) {
-				nVelocity1 = Math.min(nVelocity1 + nOffset, 100);
-				nVelocity2 = 0;
-			}
-			
-			if (i_nRadius > 0) {
-				io_rgnVelocity[0] = nVelocity2;
-				io_rgnVelocity[1] = nVelocity1;
-			} else if (i_nRadius < 0) {
-				io_rgnVelocity[0] = nVelocity1;
-				io_rgnVelocity[1] = nVelocity2;
-			}
-		}
-	}
-
-//	private int calculateLeftVelocity(double i_dblSpeed, int i_nRadius) {
-//		int nBaseVelocity = calculateVelocity(i_dblSpeed);
-//		int nLeftVelocity;
-//		if (i_nRadius > 0) { // we turn right
-//			nLeftVelocity = (int) Math.round(nBaseVelocity * (i_nRadius + m_dblAxleWidth) / (i_nRadius + m_dblAxleWidth / 2.0));
-//		} else { // we turn left
-//			nLeftVelocity = (int) Math.round(nBaseVelocity * i_nRadius / (i_nRadius + m_dblAxleWidth / 2.0));
-//		}
-//		return nLeftVelocity;
+//	private int calculateVelocity(double i_dblSpeed) {
+//		return (int) Math.round(i_dblSpeed);
 //	}
-//	
-//	private int calculateRightVelocity(double i_dblSpeed, int i_nRadius) {
-//		// calculateRightVelocity is the inverse of calculateLeftVelocity, i.e. 
-//		// calculateRightVelocity(i_nRadius) = calculateLeftVelocity(-i_nRadius) and vice versa
-//		return calculateLeftVelocity(i_dblSpeed, -i_nRadius);
+//
+//	private void calculateVelocity(double i_dblSpeed, int i_nRadius, int[] io_rgnVelocity) {
+//		int nBaseVelocity = calculateVelocity(i_dblSpeed);
+//		int nVelocity1, nVelocity2;
+//		
+//		int nAbsRadius = Math.abs(i_nRadius);
+//		
+//		if (i_nRadius == 0) {
+//			io_rgnVelocity[0] = nBaseVelocity;
+//			io_rgnVelocity[1] = nBaseVelocity;
+//		} else {
+//			nVelocity1 = (int) Math.round(nBaseVelocity * (nAbsRadius + m_dblAxleWidth) / (nAbsRadius + m_dblAxleWidth / 2.0));
+//			nVelocity2 = (int) Math.round(nBaseVelocity * nAbsRadius / (nAbsRadius + m_dblAxleWidth / 2.0));
+//			
+//			// we have to make sure that the higher velocity of the two wheels (velocity1) cannot be more than the MAX_VELOCITY
+//			// if it is more, we need to scale both values down so that the higher velocity equals MAX_VELOCITY. if the lower
+//			// velocity would fall below 0 we set it to 0
+//			int nOffset = nVelocity1 - NXTTypes.MAX_VELOCITY;
+//			if (nOffset > 0) {
+//				nVelocity1 = 100;
+//				nVelocity2 = Math.max(nVelocity2 - nOffset, 0);
+//			}
+//			// for the same reason we have to make sure that the lower velocity of the two wheels cannot be less than 0. if the
+//			// higher velocity would go above 100 we set it to 100
+//			nOffset = -nVelocity2;
+//			if (nOffset > 0) {
+//				nVelocity1 = Math.min(nVelocity1 + nOffset, 100);
+//				nVelocity2 = 0;
+//			}
+//			
+//			if (i_nRadius > 0) {
+//				io_rgnVelocity[0] = nVelocity2;
+//				io_rgnVelocity[1] = nVelocity1;
+//			} else if (i_nRadius < 0) {
+//				io_rgnVelocity[0] = nVelocity1;
+//				io_rgnVelocity[1] = nVelocity2;
+//			}
+//		}
 //	}
 
 	private void setMotorSpeed(ENXTMotorID i_eMotor, int i_nVelocity) {
-		sendCmdMessage(NXTTypes.SET_OUTPUT_STATE, MsgTypes.assembleMotorSpeedMsg(i_eMotor, i_nVelocity * m_nInvertFactor));
+		sendCmdMessage(NXTMessageTypes.SET_OUTPUT_STATE, MsgTypes.assembleMotorSpeedMsg(i_eMotor, i_nVelocity * m_nInvertFactor));
 	}
 	
 	private void drive(int i_nLeftVelocity, int i_nRightVelocity) {
-		Log.d(TAG, "left=" + i_nLeftVelocity + ", right=" + i_nRightVelocity);
+		debug(TAG, "left=" + i_nLeftVelocity + ", right=" + i_nRightVelocity);
 		
 		setMotorSpeed(ENXTMotorID.motor_1, i_nLeftVelocity);
 		setMotorSpeed(ENXTMotorID.motor_2, i_nRightVelocity);
 	}
 	
 	@Override
-	public void driveForward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
+	public void moveForward(double i_dblSpeed) {
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		drive(nVelocity, nVelocity);
 	}
 
 	@Override
-	public void driveForward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
-		
-		int velocity[] = {0, 0};
-		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
-		
-		drive(velocity[0], velocity[1]);
+	public void moveForward(double i_dblSpeed, int i_nRadius) {
+		debug(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
+
+		DriveVelocityLR oVelocity = calculateVelocity(i_dblSpeed, i_nRadius);
+
+		drive(oVelocity.left, oVelocity.right);
 	}
 	
-	public void driveForward() {
-		driveForward(m_dblBaseSpeed);
+	public void moveForward() {
+		moveForward(m_dblBaseSpeed);
+	}
+
+	public void moveForward(double i_dblSpeed, double i_dblAngle) {
+		int nRadius = angleToRadius(i_dblAngle);
+		
+		moveForward(i_dblSpeed, nRadius);
 	}
 
 	@Override
-	public void driveBackward(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
+	public void moveBackward(double i_dblSpeed) {
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		drive(-nVelocity, -nVelocity);
 	}
 	
-	public void driveBackward() {
-		driveBackward(m_dblBaseSpeed);
+	public void moveBackward() {
+		moveBackward(m_dblBaseSpeed);
 	}
 
 	@Override
-	public void driveBackward(double i_dblSpeed, int i_nRadius) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
-		i_nRadius = capRadius(i_nRadius);
-
-		int velocity[] = {0, 0};
-		calculateVelocity(i_dblSpeed, i_nRadius, velocity);
+	public void moveBackward(double i_dblSpeed, int i_nRadius) {
+		debug(TAG, String.format("speed=%3f, radius=%d", i_dblSpeed, i_nRadius));
 		
-		drive(-velocity[0], -velocity[1]);
+		DriveVelocityLR oVelocity = calculateVelocity(i_dblSpeed, i_nRadius);
+
+		drive(-oVelocity.left, -oVelocity.right);
+	}
+
+	public void moveBackward(double i_dblSpeed, double i_dblAngle) {
+		int nRadius = angleToRadius(i_dblAngle);
+		
+		moveBackward(i_dblSpeed, nRadius);
 	}
 
 	@Override
 	public void rotateClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 		
 		drive(nVelocity, -nVelocity);
@@ -519,7 +460,6 @@ public class NXT implements RobotDevice, BTConnectable {
 
 	@Override
 	public void rotateCounterClockwise(double i_dblSpeed) {
-		i_dblSpeed = capSpeed(i_dblSpeed);
 		int nVelocity = calculateVelocity(i_dblSpeed);
 
 		drive(-nVelocity, nVelocity);
@@ -550,7 +490,7 @@ public class NXT implements RobotDevice, BTConnectable {
 			
 			@Override
 			public void run() {
-				driveStop();
+				moveStop();
 			}
 		});
 	}
@@ -558,7 +498,7 @@ public class NXT implements RobotDevice, BTConnectable {
 	int m_lCircleTime = 4000;
 
 	@Override
-	public void driveStop() {
+	public void moveStop() {
 		drive(0, 0);
 	}
 	
@@ -585,7 +525,7 @@ public class NXT implements RobotDevice, BTConnectable {
 			
 			for (int i = 0; i < 3; i++) {
 				m_oConnection.LSGetStatus(port);
-				waitAnswer(NXTTypes.LS_GET_STATUS, 200);
+				waitAnswer(NXTMessageTypes.LS_GET_STATUS, 200);
 				
 				byte[] reply = m_oConnection.getReturnMessage();
 				if (reply == null || reply[2] != LCPMessage.SUCCESS) {
@@ -596,9 +536,9 @@ public class NXT implements RobotDevice, BTConnectable {
 			};
 			
 			m_oConnection.LSRead(port);
-			waitAnswer(NXTTypes.LS_READ, 200);
+			waitAnswer(NXTMessageTypes.LS_READ, 200);
 			
-			sendResultMessage(NXTTypes.GET_DISTANCE, NXTTypes.assembleDistanceData(port, m_oConnection.getReturnMessage()));
+			sendResultMessage(NXTMessageTypes.GET_DISTANCE, NXTTypes.assembleDistanceData(port, m_oConnection.getReturnMessage()));
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -655,6 +595,22 @@ public class NXT implements RobotDevice, BTConnectable {
 	public double getBaseSped() {
 		// TODO Auto-generated method stub
 		return m_dblBaseSpeed;
+	}
+
+	@Override
+	public void moveLeft() {
+		// not available
+	}
+
+	@Override
+	public void moveRight() {
+		// not available
+	}
+
+	@Override
+	public boolean toggleInvertDrive() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

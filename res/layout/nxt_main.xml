@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/nxt"
+<org.dobots.utilities.LockableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollview"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-	android:gravity="fill" >
+    android:layout_height="wrap_content"
+    android:gravity="fill" >
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:gravity="fill"
 	    android:orientation="vertical" >
-	
-	    <TextView
-	        android:id="@+id/lblRobot"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/nxt_title"
-	        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+		<LinearLayout
+		    android:id="@+id/layTitle"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content" >
+
+			<TextView
+			    android:id="@+id/lblRobot"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:text="@string/nxt_title"
+			    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+		</LinearLayout>
 	
 	    <TextView
 	        android:id="@+id/lblCommands"
@@ -30,12 +37,17 @@
 	        android:layout_height="wrap_content"
 	        android:gravity="bottom|fill" >
 	
-	        <Button
-	            android:id="@+id/btnCtrl"
+	        <ToggleButton
+	            android:id="@+id/btnRemoteControl"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/roomba_lbl_control" />
-
+	            android:layout_height="match_parent"
+	            android:layout_gravity="center"
+	            android:paddingLeft="10dp"
+	            android:paddingRight="10dp"
+	            android:text="@string/control"
+	            android:textOff="@string/control"
+	            android:textOn="@string/control" />
+	        
 	        <Button
 	            android:id="@+id/btnCalibrate"
 	            android:layout_width="wrap_content"
@@ -69,4 +81,4 @@
 		   
 	</LinearLayout>
 	
-</ScrollView>
+</org.dobots.utilities.LockableScrollView>

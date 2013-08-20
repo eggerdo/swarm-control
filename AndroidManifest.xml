@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.dobots.swarmcontrol"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="5"
+    android:versionName="0.4" >
 
     <uses-sdk android:minSdkVersion="10" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
+    <!-- Permissions required for Push Notifications -->
+    <!-- Replace your_package_name with your app package name -->
+    <permission android:name="org.dobots.swarmcontrol.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    
+    <uses-permission android:name="org.dobots.swarmcontrol.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />       
+    
+    <!-- Google Cloud Messaging Requires these additional permissions -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    
     <application
+        android:name="org.dobots.utilities.BaseApplication"
         android:icon="@drawable/swarmcontrol_icon"
         android:label="@string/app_name" >
         <activity
@@ -22,13 +39,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.dobots.utility.DeviceListActivity"
-			android:label="@string/select_device"
-			android:screenOrientation="portrait" 
-			android:theme="@android:style/Theme.Dialog"
-			android:configChanges="keyboardHidden|orientation">
-		</activity>
-		<activity android:name="org.dobots.swarmcontrol.robots.RobotDevice"
+        
+        <!-- Robot Activities -->
+		<activity android:name="org.dobots.swarmcontrol.robots.UnimplementedRobot"
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.roomba.RoombaRobot"
 			android:screenOrientation="portrait" ></activity>
@@ -36,8 +49,24 @@
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.nxt.NXTRobot"
 			android:screenOrientation="portrait" ></activity>
-		<activity android:name=".behaviours.Dancing"
-			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.dotty.DottyRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.parrot.ParrotRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.roboscooper.RoboScooperRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.spykee.SpykeeRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name="robots.rover.ac13.gui.AC13RoverRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name="robots.rover.rover2.gui.Rover2Robot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.robo40.Robo40Robot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name="robots.ispytank.gui.SpyTankRobot"
+		    android:screenOrientation="portrait" ></activity>
+		
+        <!-- Behaviour Activities -->
 		<activity android:name=".behaviours.dancing.DancingMain"
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".behaviours.dancing.RobotList"
@@ -46,23 +75,59 @@
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".behaviours.dancing.MultiRobotControl"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="org.dobots.chat.ChatClient"></activity>
-		<activity android:name=".robots.dotty.DottyRobot"
-		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="org.dobots.utility.FeedbackDialog"
+		<activity android:name=".behaviours.racing.Racing"
+			android:screenOrientation="portrait" ></activity>
+		<activity android:name=".behaviours.racing.RacingRobot"
+			android:screenOrientation="portrait" ></activity>
+		
+        <!-- Additional Activities, Dialogs, etc -->
+        <activity android:name="org.dobots.swarmcontrol.utility.DeviceListActivity"
+			android:label="@string/select_device"
+			android:screenOrientation="portrait" 
+			android:theme="@android:style/Theme.Dialog"
+			android:configChanges="keyboardHidden|orientation"></activity>
+		<activity android:name="org.dobots.swarmcontrol.utility.FeedbackDialog"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
 		<activity android:name=".robots.RobotCalibration"
-		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="org.dobots.utility.CalibrationDialogSelf"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name="org.dobots.utility.CalibrationDialogUser"
+		<activity android:name="org.dobots.swarmcontrol.utility.CalibrationDialogSelf"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
+		<activity android:name="org.dobots.swarmcontrol.utility.CalibrationDialogUser"
+			android:screenOrientation="portrait" 
+			android:theme="@android:style/Theme.Dialog"
+			android:configChanges="keyboardHidden|orientation"></activity>
+		
+		<!-- Base Activities Required by Socialize -->
+        <activity android:name="com.socialize.ui.comment.CommentActivity" 
+            android:configChanges="orientation|keyboardHidden|screenLayout"/>
+        <activity android:name="com.socialize.ui.action.ActionDetailActivity"/>
+        <activity android:name="com.socialize.ui.profile.ProfileActivity"/>
+        <activity android:name="com.socialize.auth.facebook.FacebookActivity"/>
+        <activity android:name="com.socialize.ui.SocializeLaunchActivity" 
+            android:noHistory="true"/>
+        
+        <!-- Socialize Notification Receiver -->
+        <service android:name="com.socialize.notifications.SocializeC2DMReceiver"/>
+        
+        <!-- Replace your_package_name with your app package name -->
+        <receiver android:name="com.socialize.notifications.SocializeBroadcastReceiver" 
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="org.dobots.swarmcontrol" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="org.dobots.swarmcontrol" />
+            </intent-filter>
+        </receiver>
+        
     </application>
 
 </manifest>

@@ -4,9 +4,10 @@ import java.io.IOException;
 
 import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.dotty.DottyTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.utility.Utils;
+import org.dobots.robots.msg.MsgTypes;
+import org.dobots.utilities.Utils;
 
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
 
 public class DottyBluetooth extends BaseBluetooth {
@@ -83,7 +84,7 @@ public class DottyBluetooth extends BaseBluetooth {
 			m_oOutStream.write(buffer);
 		} catch (IOException e) {
 			connected = false;
-            sendState(STATE_SENDERROR);
+            sendState(MessageTypes.STATE_SENDERROR);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

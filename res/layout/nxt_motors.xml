@@ -52,7 +52,7 @@
                 android:id="@+id/btnMotor1Reset"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_nxt_rest" />
+                android:text="@string/nxt_reset" />
 
             <View
                 android:layout_width="wrap_content"
@@ -67,7 +67,8 @@
         <TableLayout
             android:id="@+id/tblMotor1_data"
             android:layout_width="match_parent"
-            android:layout_height="0dp" >
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
 
             <TableRow
                 android:id="@+id/tblrwMotor1_powersetpoint"
@@ -169,7 +170,7 @@
                 android:id="@+id/btnMotor2Reset"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_nxt_rest" />
+                android:text="@string/nxt_reset" />
 
             <View
                 android:layout_width="wrap_content"
@@ -184,7 +185,8 @@
         <TableLayout
             android:id="@+id/tblMotor2_data"
             android:layout_width="match_parent"
-            android:layout_height="0dp" >
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
 
             <TableRow
                 android:id="@+id/tblrwMotor2_powersetpoint"
@@ -286,7 +288,7 @@
                 android:id="@+id/btnMotor3Reset"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_nxt_rest" />
+                android:text="@string/nxt_reset" />
 
             <View
                 android:layout_width="wrap_content"
@@ -301,7 +303,8 @@
         <TableLayout
             android:id="@+id/tblMotor3_data"
             android:layout_width="match_parent"
-            android:layout_height="0dp" >
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
 
             <TableRow
                 android:id="@+id/tblrwMotor3_powersetpoint"

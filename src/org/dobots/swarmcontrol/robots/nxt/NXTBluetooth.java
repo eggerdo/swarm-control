@@ -20,22 +20,17 @@
 package org.dobots.swarmcontrol.robots.nxt;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 
 import org.dobots.robots.BaseBluetooth;
+import org.dobots.robots.msg.MsgTypes;
 import org.dobots.robots.nxt.LCPMessage;
+import org.dobots.robots.nxt.NXTMessageTypes;
 import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.swarmcontrol.R;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
-import android.bluetooth.BluetoothAdapter;
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.res.Resources;
-import android.os.Handler;
 
 /**
  * This class is for talking to a LEGO NXT robot via bluetooth.
@@ -88,7 +83,7 @@ public class NXTBluetooth extends BaseBluetooth {
                 // don't inform the user when connection is already closed
                 if (connected) {
                 	connected = false;
-                    sendState(STATE_RECEIVEERROR);
+                    sendState(MessageTypes.STATE_RECEIVEERROR);
                 }
                 return;
             }
@@ -119,6 +114,10 @@ public class NXTBluetooth extends BaseBluetooth {
             throw new IOException();
 
         int length = m_oInStream.read();
+        if (length < 0) {
+            throw new IOException();
+        }
+        
         length = (m_oInStream.read() << 8) + length;
         byte[] returnMessage = new byte[length];
         m_oInStream.read(returnMessage);
@@ -139,7 +138,7 @@ public class NXTBluetooth extends BaseBluetooth {
         }
         catch (IOException e) {
         	connected = false;
-            sendState(STATE_SENDERROR);
+            sendState(MessageTypes.STATE_SENDERROR);
         }
     }
 
@@ -149,14 +148,14 @@ public class NXTBluetooth extends BaseBluetooth {
             case LCPMessage.GET_OUTPUT_STATE:
 
                 if (message.length >= 25)
-                    sendStateAndData(NXTTypes.MOTOR_STATE, message);
+                    sendStateAndData(NXTMessageTypes.MOTOR_STATE, message);
 
                 break;
 
             case LCPMessage.GET_FIRMWARE_VERSION:
 
                 if (message.length >= 7)
-                    sendStateAndData(NXTTypes.FIRMWARE_VERSION, message);
+                    sendStateAndData(NXTMessageTypes.FIRMWARE_VERSION, message);
 
                 break;
 
@@ -166,7 +165,7 @@ public class NXTBluetooth extends BaseBluetooth {
                 if (message.length >= 28) {
                     // Success
                     if (message[2] == 0)
-                        sendStateAndData(NXTTypes.FIND_FILES, message);
+                        sendStateAndData(NXTMessageTypes.FIND_FILES, message);
                 }
 
                 break;
@@ -174,7 +173,7 @@ public class NXTBluetooth extends BaseBluetooth {
             case LCPMessage.GET_CURRENT_PROGRAM_NAME:
 
                 if (message.length >= 23) {
-                    sendStateAndData(NXTTypes.PROGRAM_NAME, message);
+                    sendStateAndData(NXTMessageTypes.PROGRAM_NAME, message);
                 }
                 
                 break;
@@ -182,27 +181,27 @@ public class NXTBluetooth extends BaseBluetooth {
             case LCPMessage.SAY_TEXT:
                 
                 if (message.length == 22) {
-                    sendStateAndData(NXTTypes.SAY_TEXT, message);
+                    sendStateAndData(NXTMessageTypes.SAY_TEXT, message);
                 }
                 
             case LCPMessage.VIBRATE_PHONE:
                 if (message.length == 3) {
-                    sendStateAndData(NXTTypes.VIBRATE_PHONE, message);
+                    sendStateAndData(NXTMessageTypes.VIBRATE_PHONE, message);
                 }               
                 
             case LCPMessage.GET_INPUT_VALUES:
             	if (message.length == 16) {
-            		sendStateAndData(NXTTypes.GET_INPUT_VALUES, message);
+            		sendStateAndData(NXTMessageTypes.GET_INPUT_VALUES, message);
             	}
             	
             case LCPMessage.LS_GET_STATUS:
             	if (message.length == 4) {
-            		sendStateAndData(NXTTypes.LS_GET_STATUS, message);
+            		sendStateAndData(NXTMessageTypes.LS_GET_STATUS, message);
             	}
             	
             case LCPMessage.LS_READ:
             	if (message.length == 20) {
-            		sendStateAndData(NXTTypes.LS_READ, message);
+            		sendStateAndData(NXTMessageTypes.LS_READ, message);
             	}
             
         }

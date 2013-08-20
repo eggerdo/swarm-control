@@ -1,26 +1,16 @@
 package org.dobots.robots.roomba;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
 import org.dobots.robots.BaseBluetooth;
-import org.dobots.robots.nxt.LCPMessage;
-import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.BluetoothConnection;
-import org.dobots.utility.Utils;
+import org.dobots.swarmcontrol.robots.IBluetoothConnection;
 
-
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.os.Handler;
 
-public class RoombaBluetooth extends BaseBluetooth implements BluetoothConnection {
+public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnection {
 	
 //	private Object m_oListener;
 	
@@ -60,7 +50,7 @@ public class RoombaBluetooth extends BaseBluetooth implements BluetoothConnectio
 			} catch (IOException e) {
 				if (connected) {
                 	connected = false;
-                    sendState(STATE_RECEIVEERROR);
+                    sendState(MessageTypes.STATE_RECEIVEERROR);
                 }
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -100,7 +90,9 @@ public class RoombaBluetooth extends BaseBluetooth implements BluetoothConnectio
 	}
 	
 	public void send(byte[] buffer) {
-		write(buffer);
+		if (connected) {
+			write(buffer);
+		}
 	}
 	
 	public synchronized byte[] read() throws TimeoutException {
@@ -155,9 +147,6 @@ public class RoombaBluetooth extends BaseBluetooth implements BluetoothConnectio
 			}
 		}
 		
-//		for (int i = 0; i < nReceivedBytes; i++) {
-//			results[i] = buffer[i];
-//		}
 		return buffer;
 	}
 	

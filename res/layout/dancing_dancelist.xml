@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:text="@string/lbldancing_dancelist" />
+        android:text="@string/dancing_dancelist" />
 
     <ListView
         android:id="@+id/lvDancing_DanceList"
@@ -51,13 +51,13 @@
             android:id="@+id/btnClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btnDancing_ClearSteps" />
+            android:text="@string/dancing_ClearSteps" />
 
         <Button
             android:id="@+id/btnDancing_RemoveSteps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btnDancing_RemoveSteps" />
+            android:text="@string/dancing_RemoveSteps" />
 
     </LinearLayout>
 
@@ -69,19 +69,20 @@
             android:id="@+id/btnDance1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dance1" />
+            android:text="Dance1"
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/btnDancing_StartDance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btnDancing_StartDance" />
+            android:text="@string/dancing_StartDance" />
 
         <Button
             android:id="@+id/btnDancing_StopDance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btnDancing_stopdance" />
+            android:text="@string/dancing_stopdance" />
 
     </LinearLayout>
 

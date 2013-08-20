@@ -1,0 +1,12 @@
+<!-- 
+Create a state list drawable to represent the button states then
+add to res/drawable/like_button_state.xml 
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/like"
+        android:state_checked="true"/>
+    <item
+        android:drawable="@drawable/unlike"
+        android:state_checked="false"/>    
+</selector>

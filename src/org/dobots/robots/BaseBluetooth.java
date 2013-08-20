@@ -6,24 +6,14 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.dobots.robots.nxt.NXTTypes;
-import org.dobots.robots.nxt.msg.MsgTypes;
-import org.dobots.swarmcontrol.R;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
+import robots.gui.MessageTypes;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 
 public abstract class BaseBluetooth extends Thread {
-
-    public static final int DISPLAY_TOAST = 1000;
-    public static final int STATE_CONNECTED = 1001;
-    public static final int STATE_CONNECTERROR = 1002;
-    public static final int STATE_RECEIVEERROR = 1003;
-    public static final int STATE_SENDERROR = 1004;
-    public static final int STATE_CONNECTERROR_PAIRING = 1005;
-	
     
 	protected BluetoothDevice m_oDevice = null;
 	protected BluetoothSocket m_oSocket = null;
@@ -75,7 +65,7 @@ public abstract class BaseBluetooth extends Thread {
         }
         catch (IOException e) { 
         	e.printStackTrace();
-            sendState(STATE_CONNECTERROR);
+            sendState(MessageTypes.STATE_CONNECTERROR);
         }
 
 	}
@@ -86,7 +76,7 @@ public abstract class BaseBluetooth extends Thread {
                 throw new IOException();
             else {
                 sendToast("No paired " + m_strRobotName + " robot found!");
-                sendState(STATE_CONNECTERROR);
+                sendState(MessageTypes.STATE_CONNECTERROR);
                 return;
             }
         }
@@ -101,6 +91,7 @@ public abstract class BaseBluetooth extends Thread {
         try {
             if (m_oSocket != null) {
                 connected = false;
+                stopThread();
                 m_oSocket.close();
                 m_oSocket = null;
             }
@@ -146,7 +137,7 @@ public abstract class BaseBluetooth extends Thread {
 	                if (m_oReceiveHandler == null)
 	                    throw new IOException();
 	                else
-	                    sendState(STATE_CONNECTERROR);
+	                    sendState(MessageTypes.STATE_CONNECTERROR);
 	                return;
 	            }
 	        }
@@ -159,18 +150,18 @@ public abstract class BaseBluetooth extends Thread {
 	        else {
 //	            if (myOwner.isPairing())
 //	                sendToast(mResources.getString(R.string.pairing_message));
-	            sendState(STATE_CONNECTERROR);
+	            sendState(MessageTypes.STATE_CONNECTERROR);
 	            return;
 	        }
 	    }
 	    // everything was OK
 	    if (m_oReceiveHandler != null) {
-	        sendState(STATE_CONNECTED);
+	        sendState(MessageTypes.STATE_CONNECTED);
 	    }
     }
 
     protected void sendToast(String toastText) {
-    	Utils.sendMessage(m_oReceiveHandler, DISPLAY_TOAST, toastText);
+    	Utils.sendMessage(m_oReceiveHandler, MessageTypes.DISPLAY_TOAST, toastText);
     }
 
     protected void sendState(int i_nCmd) {

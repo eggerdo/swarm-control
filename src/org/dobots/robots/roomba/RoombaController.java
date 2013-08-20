@@ -1,15 +1,14 @@
 package org.dobots.robots.roomba;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
+import org.dobots.utilities.log.Loggable;
 
-import android.bluetooth.BluetoothSocket;
-
-public class RoombaController {
+public class RoombaController extends Loggable {
+	
+	private static final String TAG = "RoombaCtrl";
 	
 	RoombaBluetooth m_oConnection;
 	
@@ -49,8 +48,7 @@ public class RoombaController {
 	}
 	
 	public void disconnect() {
-		m_oConnection.close();
-		m_oConnection = null;
+		destroyConnection();
 	}
 		
 	/*
@@ -218,6 +216,8 @@ public class RoombaController {
 	 *  				Turn in place counter-clockwise = 1
 	 */
 	public void drive(int i_nVelocity, int i_nRadius) {
+		debug(TAG, String.format("drive(%d, %d)", i_nVelocity, i_nRadius));
+		
 		byte nVelocityH, nVelocityL;
 		byte nRadiusH, nRadiusL;
 		
@@ -372,14 +372,21 @@ public class RoombaController {
 	public byte[] sensors(byte i_byPackage, int i_nResultLength) throws TimeoutException {
 		int nLength;
 		switch (i_byPackage) {
-			case 1: nLength = 10;
-					break;
-			case 2: nLength = 6;
-					break;
-			case 3: nLength = 10;
-					break;
-			default: nLength = 26;
-					break;
+			case 1: 
+				nLength = 10;
+				break;
+			case 2: 
+				nLength = 6;
+				break;
+			case 3: 
+				nLength = 10;
+				break;
+			case 100:
+				nLength = 80;
+				break;
+			default: 
+				nLength = 26;
+				break;
 		}
 //		byte[] result = new byte[nLength];
 		

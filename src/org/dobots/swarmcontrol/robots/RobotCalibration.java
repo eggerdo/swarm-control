@@ -1,18 +1,15 @@
 package org.dobots.swarmcontrol.robots;
 
-import org.dobots.robots.RobotDevice;
-import org.dobots.robots.RobotDevice.OnFinishListener;
-import org.dobots.robots.nxt.NXT;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RobotInventory;
-import org.dobots.swarmcontrol.SwarmControlActivity;
-import org.dobots.utility.CalibrationDialogSelf;
-import org.dobots.utility.CalibrationDialogSelf.OnRunClick;
-import org.dobots.utility.CalibrationDialogUser;
-import org.dobots.utility.DeviceListActivity;
-import org.dobots.utility.FeedbackDialog;
-import org.dobots.utility.OnButtonPress;
+import org.dobots.swarmcontrol.utility.CalibrationDialogSelf;
+import org.dobots.swarmcontrol.utility.CalibrationDialogSelf.OnRunClick;
+import org.dobots.swarmcontrol.utility.CalibrationDialogUser;
+import org.dobots.utilities.BaseActivity;
 
+import robots.RobotInventory;
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.gui.MessageTypes;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,9 +17,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class RobotCalibration extends Activity {
+public class RobotCalibration extends BaseActivity {
 	
-	private RobotDevice m_oRobot;
+	private IRobotDevice m_oRobot;
 	
 	private Button m_btnCalibrateCircleSelf;
 	private Button m_btnCalibrateCircleUser;
@@ -30,13 +27,11 @@ public class RobotCalibration extends Activity {
 	private Button m_btnCalibrateSave;
 	private Button m_btnCalibrateDiscard;
 	
-	private Activity m_oActivity;
+	private BaseActivity m_oActivity;
 	
 	private double m_dblSpeed;
 
 	public static final String CALIBRATED_SPEED = "CALIBRATED_SPEED";
-	
-	public static final int ROBOT_CALIBRATION_RESULT = 1060;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +39,10 @@ public class RobotCalibration extends Activity {
 		super.onCreate(savedInstanceState);
 		m_oActivity = this;
 		
-    	int nIndex = (Integer) getIntent().getExtras().get("InventoryIndex");
     	m_dblSpeed = (Double) getIntent().getExtras().get("Speed");
-
-    	m_oRobot = RobotInventory.getInstance().getRobot(nIndex);
+        String strRobotID = (String) getIntent().getExtras().get("RobotID");
+        
+        m_oRobot = RobotInventory.getInstance().getRobot(strRobotID);
 
     	setProperties();
 	}
@@ -58,7 +53,7 @@ public class RobotCalibration extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		switch (requestCode) {
-		case CalibrationDialogSelf.CALIBRATION_RESULT:
+		case MessageTypes.CALIBRATION_RESULT:
 			if (resultCode == RESULT_OK) {
 				m_dblSpeed = data.getExtras().getDouble(CalibrationDialogSelf.CALIBRATED_VALUE);
 			}
@@ -68,7 +63,9 @@ public class RobotCalibration extends Activity {
 	
 	private void setProperties() {
 		setContentView(R.layout.robot_calibration);
-		
+
+        setTitle("Robot Calibration");
+        
 		m_btnCalibrateCircleSelf = (Button) findViewById(R.id.btnCalibrate_Circle_Self);
 		m_btnCalibrateCircleSelf.setOnClickListener(new OnClickListener() {
 			
@@ -126,12 +123,12 @@ public class RobotCalibration extends Activity {
 		
 	}
 
-	public static void createAndShow(Activity i_oActivity, RobotType i_eType, int i_nIndex, double i_dblSpeed) {
+	public static void createAndShow(Activity i_oActivity, RobotType i_eType, String strID, double i_dblSpeed) {
 		Intent intent = new Intent(i_oActivity, RobotCalibration.class);
 		intent.putExtra("RobotType", i_eType);
-		intent.putExtra("InventoryIndex", i_nIndex);
+		intent.putExtra("RobotID", strID);
 		intent.putExtra("Speed", i_dblSpeed);
-		i_oActivity.startActivityForResult(intent, ROBOT_CALIBRATION_RESULT);
+		i_oActivity.startActivityForResult(intent, MessageTypes.ROBOT_CALIBRATION_RESULT);
 	}
 	
 }

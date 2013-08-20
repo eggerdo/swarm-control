@@ -1,11 +1,16 @@
 package org.dobots.swarmcontrol.behaviours.dancing;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import org.dobots.robots.parrot.Parrot;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
-import org.dobots.utility.Utils;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.Utils;
 import org.dobots.utility.external.NumberPicker;
 
 import android.app.Activity;
@@ -14,27 +19,30 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class DanceList extends Activity {
+import com.codeminders.ardrone.NavData.FlyingState;
 
-	private Activity m_oActivity;
+public class DanceList extends BaseActivity {
+	
+	private static final String TAG = "DanceList";
+
+	private BaseActivity m_oActivity;
 
 	private ArrayList<DanceEntry> m_oDanceList;
 	private ArrayList<RobotEntry> m_oRobotList;
@@ -49,9 +57,6 @@ public class DanceList extends Activity {
 	private Button m_btnDance1;
 	private NumberPicker m_npDuration;
 	
-	private static final int SHOW_STEP = 1000;
-	private static final int CLEAR = 1001;
-
 	private boolean m_bShowRemoveSteps = false;
 	
 	private boolean m_bStopped = false;
@@ -78,12 +83,12 @@ public class DanceList extends Activity {
 		public void handleMessage(Message msg) {
 
             switch (msg.what) {
-            case SHOW_STEP:
+            case DancingMessageTypes.SHOW_STEP:
             	int nStepNr = msg.arg1;
     			m_oDanceListAdapter.setSelection(nStepNr);
     			m_lvDanceList.invalidateViews();
     			break;
-            case CLEAR:
+            case DancingMessageTypes.CLEAR:
             	m_oDanceListAdapter.clearSelection();
             	m_lvDanceList.invalidateViews();
             	break;
@@ -214,6 +219,71 @@ public class DanceList extends Activity {
 		}
 		m_lvDanceList.invalidateViews();
 	}
+	
+	private class PreStep implements Runnable {
+		
+		@Override
+		public void run () {
+			// in this step we need to prepare the robots for the dance
+			// i.e. the parrot needs to take off
+			Collection<Callable<Object>> tasks = new LinkedList<Callable<Object>>();
+
+			for (final RobotEntry entry : m_oRobotList) {
+				if (entry.oRobot instanceof Parrot) {
+				
+					Callable<Object> preStep = new Callable<Object>() {
+
+						@Override
+						public Object call() throws Exception {
+							Log.d(TAG, "Take Off");
+							Parrot oParrot = (Parrot) entry.oRobot;
+							oParrot.takeOff();
+							oParrot.waitForState(FlyingState.FLYING, 10000);
+							return null;
+						}
+					};
+					tasks.add(preStep);
+				}
+			}
+			
+			if (!Utils.waitForTaskCompletionWithResult(tasks)) {
+				Log.d(TAG, "preStep failed, abort dance");
+				stopDance();
+			}
+		}
+	}
+
+	private class PostStep implements Runnable {
+		
+		@Override
+		public void run () {
+
+			// in this step we need to prepare the robots for the dance
+			// i.e. the parrot needs to take off
+			Collection<Callable<Object>> tasks = new LinkedList<Callable<Object>>();
+	
+			for (final RobotEntry entry : m_oRobotList) {
+				if (entry.oRobot instanceof Parrot) {
+				
+					Callable<Object> preStep = new Callable<Object>() {
+	
+						@Override
+						public Object call() throws Exception {
+							Log.d(TAG, "Land");
+							Parrot oParrot = (Parrot) entry.oRobot;
+							oParrot.land();
+							oParrot.waitForState(FlyingState.LANDED, 10000);
+							return null;
+						}
+					};
+					tasks.add(preStep);
+				}
+			}
+			
+			Utils.waitForTaskCompletionWithResult(tasks);
+			
+		}
+	}
 
 	private void startDance() {
 		if (m_oRobotList.isEmpty()) {
@@ -222,39 +292,26 @@ public class DanceList extends Activity {
 		
 		m_bDanceRunning = true;
 		
-		MultiRobotControl.getInstance().enableControl(true);
+		m_oDanceHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				MultiRobotControl.getInstance().enableControl(true);
+			}
+		});
 		
-//		for (DanceEntry entry : m_oDanceList) {
-//			
-//			switch(entry.eMove) {
-//			case dm_backward:
-//				moveBwd(entry.nDuration);
-//				break;
-//			case dm_delay:
-//				break;
-//			case dm_forward:
-//				moveFwd(entry.nDuration);
-//				break;
-//			case dm_rotateLeft:
-//				turnLeft(entry.nDuration);
-//				break;
-//			case dm_rotateRight:
-//				turnRight(entry.nDuration);
-//				break;
-//			}
-//		}
+		m_oDanceHandler.post(new PreStep());
+
 		for (int i = 0; i < m_oDanceList.size(); i++) {
 			DanceEntry entry = m_oDanceList.get(i);
 			DanceMove oMove = new DanceMove(entry.eMove, entry.nDuration, i);
 			m_oDanceHandler.post(oMove);
 		}
-		
-		danceEnd();
-		
-	}
-	
-	private void danceEnd() {
+
 		m_oDanceHandler.post(done);
+		
+		m_oDanceHandler.post(new PostStep());
+		
 	}
 	
 	private void stopDance() {
@@ -265,17 +322,40 @@ public class DanceList extends Activity {
 	private void dance1() {
 		
 		addMove(DanceMoves.dm_forward, 1);
-		addMove(DanceMoves.dm_backward, 1);
-		addMove(DanceMoves.dm_rotateLeft, 2);
-		addMove(DanceMoves.dm_rotateRight, 4);
-		addMove(DanceMoves.dm_rotateLeft, 2);
-		addMove(DanceMoves.dm_forward, 2);
-		addMove(DanceMoves.dm_rotateLeft, 1);
-		addMove(DanceMoves.dm_rotateRight, 1);
 		addMove(DanceMoves.dm_backward, 2);
+		addMove(DanceMoves.dm_forward, 2);
+		addMove(DanceMoves.dm_rotateLeft, 3);
+		addMove(DanceMoves.dm_rotateRight, 6);
 		
 	}
 
+	private void dance2() {
+
+		addMove(DanceMoves.dm_rotateLeft, 1);
+		addMove(DanceMoves.dm_rotateRight, 2);
+		addMove(DanceMoves.dm_rotateLeft, 1);
+		addMove(DanceMoves.dm_delay, 3);
+		addMove(DanceMoves.dm_forward, 1);
+		addMove(DanceMoves.dm_backward, 2);
+		addMove(DanceMoves.dm_forward, 1);
+		addMove(DanceMoves.dm_delay, 3);
+		addMove(DanceMoves.dm_left, 1);
+		addMove(DanceMoves.dm_right, 2);
+		addMove(DanceMoves.dm_left, 1);
+		addMove(DanceMoves.dm_delay, 3);
+		
+	}
+
+	private void dance3() {
+		
+		addMove(DanceMoves.dm_rotateLeft, 1);
+		addMove(DanceMoves.dm_rotateRight, 1);
+		addMove(DanceMoves.dm_rotateLeft, 2);
+		addMove(DanceMoves.dm_rotateRight, 3);
+		addMove(DanceMoves.dm_rotateLeft, 1);
+		
+	}
+	
 	private void addMove(DanceMoves i_eMove, int i_nDuration) {
 		
 		if (i_eMove != DanceMoves.dm_nothing) {
@@ -304,7 +384,7 @@ public class DanceList extends Activity {
 		
 		protected void showStep() {
 			Message msg = Message.obtain();
-			msg.what = SHOW_STEP;
+			msg.what = DancingMessageTypes.SHOW_STEP;
 			msg.arg1 = nStepNr;
 			uiHandler.sendMessage(msg);
 		}
@@ -312,19 +392,26 @@ public class DanceList extends Activity {
 		private void startMove() {
 			switch(eMove) {
 			case dm_backward:
-				MultiRobotControl.driveBackward();
+				MultiRobotControl.moveBackward();
 				break;
 			case dm_delay:
+				MultiRobotControl.moveStop();
 			case dm_nothing:
 				break;
 			case dm_forward:
-				MultiRobotControl.driveForward();
+				MultiRobotControl.moveForward();
 				break;
 			case dm_rotateLeft:
 				MultiRobotControl.rotateCounterClockwise();
 				break;
 			case dm_rotateRight:
 				MultiRobotControl.rotateClockwise();
+				break;
+			case dm_left:
+				MultiRobotControl.moveLeft();
+				break;
+			case dm_right:
+				MultiRobotControl.moveRight();
 				break;
 			}
 		}
@@ -333,6 +420,7 @@ public class DanceList extends Activity {
 			showStep();
 			startMove();
 			Utils.waitSomeTime(nDuration * 1000);
+			MultiRobotControl.moveStop();
 		}
 		
 	}
@@ -342,7 +430,7 @@ public class DanceList extends Activity {
 		@Override
 		public void run() {
 			showStep();
-			MultiRobotControl.driveStop();
+			MultiRobotControl.moveStop();
 			m_bDanceRunning = false;
 		}
 		
@@ -351,14 +439,17 @@ public class DanceList extends Activity {
 	private void stopAndCancelAll() {
 		m_oDanceHandler.removeCallbacksAndMessages(null);
 		done.run();
+		m_oDanceHandler.post(new PostStep());
 	}
 	
 	private enum DanceMoves {
 		dm_forward("Forward"),
 		dm_backward("Backward"),
+		dm_left("Left"),
+		dm_right("Right"),
 		dm_rotateLeft("Rotate Left"),
 		dm_rotateRight("Rotate Right"),
-		dm_delay("Dealy"),
+		dm_delay("Delay"),
 		dm_nothing("");
 		String strName;
 		

@@ -2,19 +2,21 @@ package org.dobots.robots;
 
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.nxt.NXT;
+import org.dobots.robots.parrot.Parrot;
+import org.dobots.robots.robo40.Robo40;
+import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roomba.Roomba;
-import org.dobots.swarmcontrol.ConnectListener;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
-import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
-import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
+import org.dobots.robots.spykee.Spykee;
 
-import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.ispytank.ctrl.SpyTank;
+import robots.rover.ac13.ctrl.AC13Rover;
+import robots.rover.rover2.ctrl.Rover2;
 
 public class RobotDeviceFactory {
 		
-	public static RobotDevice getRobotDevice(RobotType robot) throws Exception
+	public static IRobotDevice getRobotDevice(RobotType robot) throws Exception
 	{
 		switch (robot) {
 			case RBT_ROOMBA:
@@ -23,39 +25,22 @@ public class RobotDeviceFactory {
 				return new NXT();
 			case RBT_DOTTY:
 				return new Dotty();
+			case RBT_PARROT:
+				return new Parrot();
+			case RBT_ROBOSCOOPER:
+				return new RoboScooper();
+			case RBT_SPYKEE:
+				return new Spykee();
+			case RBT_AC13ROVER:
+				return new AC13Rover();
+			case RBT_ROVER2:
+				return new Rover2();
+			case RBT_ROBO40:
+				return new Robo40();
+			case RBT_SPYTANK:
+				return new SpyTank();
 			default: 		
 				throw new Exception();
 		}
 	}
-	
-	public static Class getRobotDeviceClass(RobotType robot) throws Exception {
-		switch (robot) {
-		case RBT_ROOMBA:
-			return Roomba.class;
-		case RBT_NXT:
-			return NXT.class;
-		case RBT_DOTTY:
-			return Dotty.class;
-		default:
-			throw new Exception();
-		}
-	}
-
-	public static void connectToRobot(Activity context, RobotDevice oRobot,
-			BluetoothDevice i_oDevice, ConnectListener oListener) throws Exception {
-		switch (oRobot.getType()) {
-		case RBT_NXT:
-			NXTRobot.connectToNXT(context, (NXT)oRobot, i_oDevice, oListener);
-			break;
-		case RBT_ROOMBA:
-			RoombaRobot.connectToRoomba(context, (Roomba)oRobot, i_oDevice, oListener);
-			break;
-		case RBT_DOTTY:
-			DottyRobot.connectToDotty(context, (Dotty)oRobot, i_oDevice, oListener);
-			break;
-		default:
-			throw new Exception();
-		}
-	}
-
 }

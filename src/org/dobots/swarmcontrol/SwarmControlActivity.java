@@ -1,130 +1,176 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
-import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
-import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.RobotViewFactory;
+import java.util.Arrays;
 
-import android.app.Activity;
+import org.dobots.communication.zmq.ZmqHandler;
+import org.dobots.robots.RobotDeviceFactory;
+import org.dobots.swarmcontrol.SwarmControlTypes.SwarmAction;
+import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
+import org.dobots.swarmcontrol.robots.RobotViewFactory;
+import org.dobots.swarmcontrol.socialize.SocializeEntityHelper;
+import org.dobots.swarmcontrol.socialize.SocializeHelper;
+import org.dobots.swarmcontrol.socialize.SocializeHelper.ILikeEventListener;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.BaseApplication;
+import org.dobots.utilities.Utils;
+import org.dobots.utility.ImprovedArrayAdapter;
+
+import robots.RobotInventory;
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.gui.RobotView;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.BulletSpan;
+import android.text.style.RelativeSizeSpan;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.TextView.BufferType;
+import android.widget.Toast;
 
-public class SwarmControlActivity extends Activity {
+import com.socialize.Socialize;
+import com.socialize.UserUtils;
+import com.socialize.android.ioc.IOCContainer;
+import com.socialize.entity.Entity;
+import com.socialize.error.SocializeException;
+import com.socialize.listener.SocializeInitListener;
+
+public class SwarmControlActivity extends BaseActivity {
 	
 	private static final String TAG = "MAIN_ACTIVITY";
 	
-	private static final String CHANGELOG = "ChangeLog:\n" +
-											"\n" +
-											"  Version 0.1\n" +
-											"    - IRobot Roomba added\n" +
-											"       - Sensor Information Display\n" +
-											"       - Remote Control (Arrows and Accelerometer)\n" +
-											"    - Mindstorms NXT added\n" +
-											"       - Sensor Information Display\n" +
-											"       - Sensor Type Selection\n" +
-											"       - Remote Control (Arrows and Accelerometer)\n";
-
+	private static final int PREFERENCES_DLG = 1;
+	
 	// The different menu options
-	private static final int CONNECT_ID = Menu.FIRST;
-	private static final int DISCONNECT_ID = Menu.FIRST + 1;
-	private static final int ABOUT_ID = Menu.FIRST + 2;
-	private static final int EXIT_ID = Menu.FIRST + 3;
+	private static final int ABOUT_ID = Menu.FIRST;
+	private static final int EXIT_ID = ABOUT_ID + 1;
+	private static final int SOCIALIZE_SETTINGS = EXIT_ID + 1; 
+	private static final int PREFERENCES = SOCIALIZE_SETTINGS + 1;
 
 	private static Context CONTEXT;
 	
-	private enum SwarmAction {
-		sa_Nothing(""),
-		sa_Dance("Dance"),
-		sa_Search("Search"),
-		sa_March("March"),
-		sa_Play("Play"),
-		sa_Guard("Guard"),
-		sa_FollowMe("Follow Me"),
-		sa_FindExit("Find Exit");
-		String strName;
-		
-		private SwarmAction(String i_strName) {
-			this.strName = i_strName;
-		}
-		
-		public String toString() {
-			return strName;
-		}
-	}
+	private ZmqHandler m_oHandler;
 
-    /** Called when the activity is first created. */
+	private ArrayAdapter<RobotType> m_oRobotAdapter;
+	private ArrayAdapter<SwarmAction> m_oSwarmActionAdapter;
+	
+	private Button m_btnRobots;
+	private Button m_btnSwarmActions;
+	private LinearLayout m_laySocializeActionBar;
+
+	private boolean m_bSocializeConnected = false;
+	private boolean m_bHideActionBar = false;
+	private boolean m_bIsLiked = false;
+
+	private Entity m_oEntity;
+	
+	// set to true if Socialize Entities need to be created
+	private final boolean m_bInitSocializeEntities = false; 
+	
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         CONTEXT = this;
+        Utils.setContext(this);
         
+        m_oHandler = new ZmqHandler(this);
+
         setContentView(R.layout.main);
+        
+        // Register for broadcasts when a device is discovered
+        IntentFilter filter = new IntentFilter(RobotView.VIEW_LOADED);
+        registerReceiver(mReceiver, filter);
+
+        m_laySocializeActionBar = (LinearLayout) findViewById(R.id.laySocializeActionBar);
+        
+        loadPreferences();
+        setupSocialize();
+     		
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
-        final Spinner spinner = (Spinner) findViewById(R.id.spinner1);
-		final ArrayAdapter<SwarmAction> oSwarmActionAdapter = new ArrayAdapter<SwarmAction>(this, 
-				android.R.layout.simple_spinner_item, SwarmAction.values());
-		oSwarmActionAdapter.setDropDownViewResource(android.R.layout.select_dialog_item);
-        spinner.setAdapter(oSwarmActionAdapter);
-        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-	
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				SwarmAction eAction = oSwarmActionAdapter.getItem(position);
-				showBehaviour(eAction);
-				spinner.setSelection(0);
-			}
-	
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// do nothing
-			}
+        m_oSwarmActionAdapter = new ImprovedArrayAdapter<SwarmAction>(this, 
+				android.R.layout.select_dialog_item, SwarmAction.values()) {
+
+        	@Override
+        	public boolean isEnabled(int position) {
+        		SwarmAction eAction = m_oSwarmActionAdapter.getItem(position);
+        		return eAction.isEnabled();
+        	}
+        };
+        
+        m_btnSwarmActions = (Button) findViewById(R.id.btnSwarmActions);
+        m_btnSwarmActions.setOnClickListener(new OnClickListener() {
 			
+			@Override
+			public void onClick(View v) {
+				showSwarmActionSelectionDialog();
+			}
 		});
         
-        TextView changelog = (TextView) findViewById(R.id.lblChangeLog);
-        changelog.setText(CHANGELOG);
+        m_oRobotAdapter = new ImprovedArrayAdapter<RobotType>(this, android.R.layout.select_dialog_item,
+				RobotType.getRobots()) {
+
+        	@Override
+        	public boolean isEnabled(int position) {
+        		RobotType eType = m_oRobotAdapter.getItem(position);
+        		return eType.isEnabled();
+        	}
+        	
+        };
         
-//        showRobot(RobotType.RBT_DOTTY);
+        
+        m_btnRobots = (Button) findViewById(R.id.btnRobots);
+        m_btnRobots.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				showRobotSelectionDialog();
+			}
+		});
+        
+        writeChangeLog();
+        
+//        showRobot(RobotType.RBT_ROOMBA);
 //        showBehaviour(SwarmAction.sa_Dance);
     }
+    
+    
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, CONNECT_ID, 1, "Connect");
-		menu.add(0, DISCONNECT_ID, 2, "Disconnect");
-		menu.findItem(DISCONNECT_ID).setVisible(false);
-		menu.add(0, ABOUT_ID, 3, getResources().getString(R.string.about))
-		.setIcon(R.drawable.ic_menu_about);
-		menu.add(0, EXIT_ID, 4, "Exit");
+		menu.add(0, ABOUT_ID, ABOUT_ID, getResources().getString(R.string.about))
+		    .setIcon(R.drawable.ic_menu_about);
+		menu.add(0, EXIT_ID, EXIT_ID, "Exit");
+		menu.add(1, SOCIALIZE_SETTINGS, SOCIALIZE_SETTINGS, "Socialize");
+		menu.add(2, PREFERENCES, PREFERENCES, "Preferences");
 		return true;
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case CONNECT_ID:
-			AlertDialog dlgConnect = CreateConnectDialog();
-			dlgConnect.show();
-			return true;
-		case DISCONNECT_ID:
-			return true;
 		case ABOUT_ID:
 			About about = new About();
 			about.show(this);
@@ -132,65 +178,346 @@ public class SwarmControlActivity extends Activity {
 		case EXIT_ID:
 			finish();
 			return true;
+		case SOCIALIZE_SETTINGS:
+			showSocializeSettings();
+			return true;
+		case PREFERENCES:
+			showDialog(PREFERENCES_DLG);
+			break;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
 	}
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	menu.setGroupVisible(1, m_bSocializeConnected);
+    	menu.setGroupVisible(2, m_bIsLiked); // so long as only the show/hide action bar is in the preferences we only show the preferences if we already got the like
+    	
+    	return true;
+    }
+    	
 	public static Context getContext() {
 		return CONTEXT;
 	}
 	
-	public AlertDialog CreateConnectDialog() {
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Choose a robot");
-		final ArrayAdapter<RobotType> adapter = new ArrayAdapter<RobotType>(this, android.R.layout.select_dialog_item,
-				RobotType.values());
-		builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+	private void showSocializeSettings() {
+		UserUtils.showUserSettings(this);
+	}
+	
+	private void showSwarmActionSelectionDialog() {
+		AlertDialog dialog = Utils.CreateAdapterDialog(this, "Choose a swarm action", m_oSwarmActionAdapter,
+				new DialogInterface.OnClickListener() {
 			
+			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				RobotType eRobot = adapter.getItem(which);
+				SwarmAction eAction = m_oSwarmActionAdapter.getItem(which);
+				dialog.dismiss();
+				showBehaviour(eAction);
+			}
+		});
+		dialog.show();
+	}
+	
+	private void showRobotSelectionDialog() {
+		AlertDialog dialog = Utils.CreateAdapterDialog(this, "Choose a robot", m_oRobotAdapter, 
+				new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				RobotType eRobot = m_oRobotAdapter.getItem(which);
 				dialog.dismiss();
 				showRobot(eRobot);
 			}
 		});
-		return builder.create();
-	}
-	
-	public void showRobot(RobotType i_eType) {
-		Intent intent = new Intent(SwarmControlActivity.this, RobotViewFactory.getRobotViewClass(i_eType));
-		intent.putExtra("RobotType", i_eType);
-		intent.putExtra("InventoryIndex", -1);
-		startActivity(intent);
+		dialog.show();
 	}
 
-	public void showRobot(RobotType i_eType, int i_nIndex) {
+	public void showRobot(RobotType i_eType) {
+		try {
+			String i_strRobotID = createRobot(i_eType);
+			createRobotView(i_eType, i_strRobotID, true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void showRobot(RobotType i_eType, String i_strRobotID) {
+		createRobotView(i_eType, i_strRobotID, false);
+	}
+	
+	public void createRobotView(RobotType i_eType, String i_strRobotID, boolean i_bOwnsRobot) {
 		Intent intent = new Intent(SwarmControlActivity.this, RobotViewFactory.getRobotViewClass(i_eType));
 		intent.putExtra("RobotType", i_eType);
-		intent.putExtra("InventoryIndex", i_nIndex);
+		intent.putExtra("RobotID", i_strRobotID);
+		intent.putExtra("OwnsRobot", i_bOwnsRobot);
 		startActivity(intent);
 	}
 	
-//	public void showRobot(RobotType i_eType, RobotDevice i_oRobot) {
-//		Intent intent = new Intent(SwarmControlActivity.this, RobotViewFactory.getRobotViewClass(i_eType));
-//		intent.putExtra("RobotType", i_eType);
-//		intent.putExtra("RobotDevice", i_oRobot);
-//		startActivity(intent);
-//	}
-	
+	public String createRobot(RobotType i_eType) throws Exception {
+		IRobotDevice oRobot = RobotDeviceFactory.getRobotDevice(i_eType);
+		String i_strRobotID = RobotInventory.getInstance().addRobot(oRobot);
+		return i_strRobotID;
+	}
+
 	public void showBehaviour(SwarmAction eAction) {
+		Intent intent = null;
 		switch(eAction) {
 		case sa_Dance:
-			Intent intent = new Intent(SwarmControlActivity.this, DancingMain.class);
+			intent = new Intent(SwarmControlActivity.this, DancingMain.class);
 			startActivity(intent);
+			break;
+//		case sa_Race:
+//			intent = new Intent(SwarmControlActivity.this, Racing.class);
+//			startActivity(intent);
+//			break;
+		default:
+			Utils.showToast("This swarm action is not yet implemented", Toast.LENGTH_LONG);
 			break;
 		}
 	}
 	
 	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		Socialize.onPause(this);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		Socialize.onResume(this);
+	}
+	
+	@Override
 	public void onDestroy() {
+		Socialize.onDestroy(this);
+		unregisterReceiver(mReceiver);
+		
 		super.onDestroy();
+	}
+
+    // The BroadcastReceiver that listens for discovered devices and
+    // changes the title when discovery is finished
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            // When discovery finds a device
+            if (RobotView.VIEW_LOADED.equals(action)) {
+            	RobotType eRobot = (RobotType) intent.getExtras().get("RobotType");
+            	BaseActivity currentActivity = ((BaseApplication)context.getApplicationContext()).getCurrentActivity();
+                SocializeHelper.setupComments(currentActivity, eRobot);
+                SocializeHelper.registerRobotView(SwarmControlActivity.this, eRobot);
+            };
+        }
+    };
+
+	private void loadPreferences() {
+		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+		m_bHideActionBar = prefs.getBoolean(SwarmControlTypes.HIDE_ACTION_BAR, SwarmControlTypes.HIDE_ACTION_BAR_DEFAULT);
+	}
+
+    /**
+     * This is called when a dialog is created for the first time.  The given
+     * "id" is the same value that is passed to showDialog().
+     */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+    	LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		switch (id) {
+    	case PREFERENCES_DLG:
+        	builder.setTitle("Preferences")
+        	       .setView(inflater.inflate(R.layout.preferences, null))
+        	       .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        		
+        		@Override
+    			public void onClick(DialogInterface dialog, int which) {
+    				adjustPreferences((AlertDialog)dialog);
+    			}
+    		});
+        	return builder.create();
+    	}
+    	return null;
+    }
+
+    /**
+     * This is called each time a dialog is shown.
+     */
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+    	if (id == PREFERENCES_DLG) {
+    		// Pre-fill the text fields with the saved login settings.
+    		CheckBox checkBox;
+    		
+    		checkBox = (CheckBox) dialog.findViewById(R.id.cbxHideActionBar);
+    		checkBox.setChecked(m_bHideActionBar);
+    	}
+    }
+    
+    private void adjustPreferences(Dialog dialog) {
+		CheckBox cbxHideActionBar = (CheckBox) dialog.findViewById(R.id.cbxHideActionBar);
+		
+		m_bHideActionBar = cbxHideActionBar.isChecked();
+		hideSocializeActionBar(m_bHideActionBar);
+		
+		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(SwarmControlTypes.HIDE_ACTION_BAR, cbxHideActionBar.isChecked());
+		editor.commit();
+    	
+    }
+    
+	// Socialize ---------------------------------------------------------------
+    
+	private void setupSocialize() {
+
+    	// Initialize socialize
+    	Socialize.initAsync(SwarmControlActivity.this, new SocializeInitListener() {
+    		
+    		@Override
+    		public void onError(SocializeException error) {
+    			m_bSocializeConnected = false;
+    		}
+    		
+    		@Override
+    		public void onInit(Context context, IOCContainer container) {
+    			m_bSocializeConnected = true;
+    		}
+    	});
+    	
+    	// set up socialize elements asynchronously so as not to delay the ui thread loading the activity
+    	Utils.runAsyncTask(new Runnable() {
+
+			@Override
+			public void run() {
+
+				// ui elements need to be updated by the ui thread
+	    		Utils.runAsyncUiTask(new Runnable() {
+					
+					@Override
+					public void run() {
+						enableSocializeActionBar(false);
+					}
+				});
+
+		    	// only set to true if entities have to be updated / created
+		    	if (m_bInitSocializeEntities) {
+		    		SocializeEntityHelper.initAllEntities(SwarmControlActivity.this);
+		    	}
+		    	
+				m_oEntity = SocializeEntityHelper.getMainEntity(SwarmControlActivity.this);
+				if (m_oEntity != null) {
+			    	SocializeHelper.setupActionBar(SwarmControlActivity.this, m_oEntity, new ILikeEventListener() {
+	
+						@Override
+						public void onLike() {
+							m_bIsLiked = true;
+						}
+	
+						@Override
+						public void onUnlike() {
+							m_bIsLiked = false;
+						}
+					});
+	
+		    		m_bIsLiked = m_oEntity.getUserEntityStats().isLiked();
+	
+					// ui elements need to be updated by the ui thread
+		    		Utils.runAsyncUiTask(new Runnable() {
+						
+						@Override
+						public void run() {
+							hideSocializeActionBar(m_bHideActionBar && m_bIsLiked);
+						}
+					});
+		    		
+		    		// increase view count
+		    		SocializeHelper.registerMainView(SwarmControlActivity.this);
+				}
+			}
+		});
+	}
+
+    private void enableSocializeActionBar(Boolean i_bEnable) {
+    	for (int i = 0; i < m_laySocializeActionBar.getChildCount(); i++) {
+    		View v = m_laySocializeActionBar.getChildAt(i);
+    		v.setEnabled(i_bEnable);
+    	}
+    }
+    
+    private void hideSocializeActionBar(Boolean i_bHide) {
+		if (i_bHide) {
+			m_laySocializeActionBar.setVisibility(View.GONE);
+    	} else {
+    		m_laySocializeActionBar.setVisibility(View.VISIBLE);
+        	enableSocializeActionBar(true);
+    	}
+    }
+	
+	
+	// Rich Text Formatting ----------------------------------------------------
+	
+	private void writeChangeLog() {
+		String strVersion;
+		try {
+			strVersion = "Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			strVersion = "?";
+		}
+		String[] rgstrChangelog = getResources().getStringArray(R.array.changelog);
+		
+		// write title together with the version and increase the text size slightly
+		SpannableString title = new SpannableString("Changelog " + strVersion + "\n\n");
+		title.setSpan(new RelativeSizeSpan(1.3f), 0, title.length(), 0);
+		CharSequence text = title;
+	
+		// assemble the rest of the changelog
+		text = recursive(text, rgstrChangelog);
+
+		// write everything into the textview
+        TextView changelog = (TextView) findViewById(R.id.lblChangeLog);
+        changelog.setText(text, BufferType.SPANNABLE);
+	}
+	
+	private CharSequence recursive(CharSequence text, String[] list) {
+		// iterate recursively until the list is empty
+		if (list.length == 0) {
+			return text;
+		} else {
+			// add the next item from the list to the already assembled text
+			text = assemble(text, list[0]);
+			// continue iterating
+			return recursive(text, Arrays.copyOfRange(list, 1, list.length));
+		}
+	}
+	
+	private CharSequence assemble(CharSequence s1, CharSequence s2) {
+		SpannableString ss1 = new SpannableString(s1);
+		SpannableString ss2 = checkForBullet(s2);
+		return TextUtils.concat(ss1, ss2);
+	}
+	
+	private SpannableString checkForBullet(CharSequence s) {
+		SpannableString ss;
+		// if the first element of the string is a '-' it means
+		// it should be displayed as a bullet. we then remove the
+		// '-' from the list and trim the spaces
+		s = ((String)s).trim();
+		if (s.length() > 0 && s.charAt(0) == '-') {
+			s = ((String)s.subSequence(1, s.length())).trim();
+			ss = new SpannableString(s + "\n");
+			ss.setSpan(new BulletSpan(15), 0, s.length(), 0);
+		} else {
+			ss = new SpannableString(s + "\n");
+		}
+		return ss;
 	}
 
 }

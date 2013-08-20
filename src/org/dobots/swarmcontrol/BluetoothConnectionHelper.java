@@ -1,8 +1,10 @@
 package org.dobots.swarmcontrol;
 
-import org.dobots.swarmcontrol.behaviours.ActivityResultListener;
-import org.dobots.utility.DeviceListActivity;
+import org.dobots.swarmcontrol.utility.DeviceListActivity;
+import org.dobots.utilities.BaseActivity;
+import org.dobots.utilities.IActivityResultListener;
 
+import robots.gui.MessageTypes;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,11 +12,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-public class BluetoothConnectionHelper implements ActivityResultListener {
+public class BluetoothConnectionHelper implements IActivityResultListener {
 	
 	public static String TAG = "BTHelper";
 
-	private Activity m_oParent;
+	private BaseActivity m_oParent;
 	
 	private BluetoothAdapter m_oBTAdapter;
 	
@@ -22,18 +24,18 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 	private String m_strMacFilter;
 
 	public static String MAC_FILTER = "MAC_FILTER";
+	public static String TITLE = "TITLE";
 
-	public static final int REQUEST_CONNECT_ROBOT = 1000;
-	public static final int REQUEST_ENABLE_BT = 1001;
+	private IBluetoothConnectionListener m_oListener;
+
+	private String m_strTitle = "";
 	
-	private BluetoothConnectionListener m_oListener;
-	
-	public BluetoothConnectionHelper(Activity i_oParent, String i_strMacFilter) {
+	public BluetoothConnectionHelper(BaseActivity i_oParent, String i_strMacFilter) {
 		m_oParent = i_oParent;
 		m_strMacFilter = i_strMacFilter;
 	}
 	
-	public void SetOnConnectListener(BluetoothConnectionListener i_oListener) {
+	public void SetOnConnectListener(IBluetoothConnectionListener i_oListener) {
 		m_oListener = i_oListener;
 	}
 
@@ -47,7 +49,7 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 			if (!m_oBTAdapter.isEnabled()) {
 				m_bBTOnByUs = true;
 				Intent oEnableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				m_oParent.startActivityForResult(oEnableBTIntent, REQUEST_ENABLE_BT);
+				m_oParent.startActivityForResult(oEnableBTIntent, MessageTypes.REQUEST_ENABLE_BT, this);
 				return false;
 			} else
 				return true;
@@ -84,17 +86,17 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case REQUEST_CONNECT_ROBOT:
+		case MessageTypes.REQUEST_CONNECT_ROBOT:
 			Log.d(TAG, "DeviceListActivity returns with device to connect");
 			// When DeviceListActivity returns with a device to connect
 			if (resultCode == Activity.RESULT_OK) {
 				// Get the device MAC address and connect to the robot
 				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 				
-				m_oListener.connectToRobot(m_oBTAdapter.getRemoteDevice(address));
+				m_oListener.connect(m_oBTAdapter.getRemoteDevice(address));
 			}
 			break;
-		case REQUEST_ENABLE_BT:
+		case MessageTypes.REQUEST_ENABLE_BT:
 			Log.d(TAG, "SelectRobot request received");
 			if (resultCode == Activity.RESULT_OK) {
 				selectRobot();
@@ -108,8 +110,13 @@ public class BluetoothConnectionHelper implements ActivityResultListener {
 		Intent serverIntent = new Intent(m_oParent, DeviceListActivity.class);
 		Bundle oParam = new Bundle();
 		oParam.putString(MAC_FILTER, m_strMacFilter);
+		oParam.putString(TITLE, m_strTitle);
 		serverIntent.putExtras(oParam);
-		m_oParent.startActivityForResult(serverIntent, REQUEST_CONNECT_ROBOT);
+		m_oParent.startActivityForResult(serverIntent, MessageTypes.REQUEST_CONNECT_ROBOT, this);
+	}
+	
+	public void setTitle(String i_strTitle) {
+		m_strTitle = i_strTitle;
 	}
 	
 }

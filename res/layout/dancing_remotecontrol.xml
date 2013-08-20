@@ -66,12 +66,17 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Button
+    <ToggleButton
         android:id="@+id/btnRemoteControl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/btnDancing_Control" />
-
+        android:layout_gravity="center"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/dancing_Control"
+        android:textOff="@string/dancing_Control"
+        android:textOn="@string/dancing_Control" />
+    
     <include
         android:id="@+id/layRemoteControl"
         layout="@layout/remote_control" />

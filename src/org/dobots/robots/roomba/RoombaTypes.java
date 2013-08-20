@@ -1,9 +1,10 @@
 package org.dobots.robots.roomba;
 
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.UUID;
 
-import org.dobots.utility.Utils;
+import org.dobots.utilities.Utils;
 
 public class RoombaTypes {
 
@@ -14,7 +15,8 @@ public class RoombaTypes {
     public static int MAX_SPEED = 100;
 	
 	public static int MAX_VELOCITY = 500; // -500 - 500 mm/s
-	public static int MAX_RADIUS = 2000;  // -2000 - 2000 mm/s
+//	public static int MAX_RADIUS = 2000;  // -2000 - 2000 mm/s
+	public static int MAX_RADIUS = 1000;  // -2000 - 2000 mm/s
 	public static int STRAIGHT = 32768;
 	public static int CLOCKWISE = -1;
 	public static int COUNTER_CLOCKWISE = 1;
@@ -96,10 +98,10 @@ public class RoombaTypes {
 	
 	public enum ERoombaSensorPackages {
 		sensPkg_None(-1, "Nothing"),
-//		sensPkg_All(0, "Everything"),
 		sensPkg_1(1, "Environment"),
 		sensPkg_2(2, "Actuators"),
-		sensPkg_3(3, "Power");
+		sensPkg_3(3, "Power"),
+		sensPkg_All(100, "Everything");
 		private int id;
 		private String strName;
 		
@@ -203,6 +205,31 @@ public class RoombaTypes {
 		}
 	}
 	
+	public class LightBumper {
+		private static final int LT_BUMPER_RIGHT 		= 5;
+		private static final int LT_BUMPER_FRONT_RIGHT 	= 4;
+		private static final int LT_BUMPER_CENTER_RIGHT	= 3;
+		private static final int LT_BUMPER_CENTER_lEFT 	= 2;
+		private static final int LT_BUMPER_FRONT_LEFT 	= 1;
+		private static final int LT_BUMPER_LEFT 		= 0;
+		
+		public boolean bLtBumperRight;
+		public boolean bLtBumperFrontRight;
+		public boolean bLtBumperCenterRight;
+		public boolean bLtBumperCenterLeft;
+		public boolean bLtBumperFrontLeft;
+		public boolean bLtBumperLeft;
+		
+		LightBumper(int i_nVal) {
+			bLtBumperRight			= Utils.IsBitSet(i_nVal, LT_BUMPER_RIGHT);
+			bLtBumperFrontRight		= Utils.IsBitSet(i_nVal, LT_BUMPER_FRONT_RIGHT);
+			bLtBumperCenterRight	= Utils.IsBitSet(i_nVal, LT_BUMPER_CENTER_RIGHT);
+			bLtBumperCenterLeft		= Utils.IsBitSet(i_nVal, LT_BUMPER_CENTER_lEFT);
+			bLtBumperFrontLeft		= Utils.IsBitSet(i_nVal, LT_BUMPER_FRONT_LEFT);
+			bLtBumperLeft			= Utils.IsBitSet(i_nVal, LT_BUMPER_LEFT);
+		}
+	}
+	
 	public enum EChargingState {
 		chg_notCharging("Not Charging"),
 		chg_chargingRecovery("Recovery Charging"),
@@ -227,6 +254,124 @@ public class RoombaTypes {
 		
 		public String toString() {
 			return strName;
+		}
+	}
+
+	public enum OIMode {
+		oi_off("Off"),
+		oi_passive("Passive"),
+		oi_safe("Safe"),
+		oi_full("Full"),
+		oi_unknown("Unknown");
+		private String strName;
+		
+		OIMode(String i_strName) {
+			this.strName = i_strName;
+		}
+		
+		public static OIMode OrdToEnum(int i_nVal) {
+			try {
+				return OIMode.values()[i_nVal];
+			} catch (ArrayIndexOutOfBoundsException e) {
+				return oi_unknown;
+			}
+		}
+		
+		public String toString() {
+			return strName;
+		}
+	}
+	
+	public enum ChargeMode {
+		chgmode_HomeBase("Home Base", 2),
+		chgmode_Internal("Internal", 1),
+		chgmode_None("None", 0),
+		chgmode_Unknown("Unknown", -1);
+		private String strName;
+		private int nValue;
+		
+		ChargeMode(String i_strName, int i_nValue) {
+			this.strName = i_strName;
+			this.nValue = i_nValue;
+		}
+		
+		public static ChargeMode valToEnum(int i_nVal) {
+			for (ChargeMode eMode : ChargeMode.values()) {
+				if (eMode.toValue() == i_nVal) {
+					return eMode;
+				}
+			}
+			return chgmode_Unknown;
+		}
+		
+		public String toString() {
+			return strName;
+		}
+		
+		public int toValue() {
+			return nValue;
+		}
+	}
+	
+	public enum IROpCode {
+		irop_none("None", 0),
+		irop_left("Left", 129),
+		irop_forward("Forward", 130),
+		irop_right("Right", 131),
+		irop_spot("Spot", 132),
+		irop_max("Max", 133),
+		irop_small("Small", 134),
+		irop_medium("Medium", 135),
+		irop_clean("Clean", 136),
+		irop_stop("Stop", 137),
+		irop_power("Power", 138),
+		irop_arcleft("Arc Left", 139),
+		irop_arcright("Arc Right", 140),
+		irop_stop2("Stop", 141),
+		irop_download("Download", 142),
+		irop_seekdock("Seek Dock", 143),
+		irop_discovery_reserved("Reserved", 240),
+		irop_discovery_redbuoy("Red Buoy", 248),
+		irop_discovery_greenbuoy("Green Buoy", 244),
+		irop_discovery_forcefield("Force Field", 242),
+		irop_discovery_rbgb("Red Buoy and Green Buoy", 252),
+		irop_discovery_rbff("Red Buoy and Force Field", 250),
+		irop_discovery_gbff("Green Buoy and Force Field", 246),
+		irop_discovery_rbgbff("Red Buoy, Green Buoy and Force Field", 254),
+		irop_charge_reserved("Reserved", 160),
+		irop_charge_redbuoy("Red Buoy", 168),
+		irop_charge_greenbuoy("Green Buoy", 164),
+		irop_charge_forcefield("Force Field", 161),
+		irop_charge_rbgb("Red Buoy and Green Buoy", 172),
+		irop_charge_rbff("Red Buoy and Force Field", 169),
+		irop_charge_gbff("Green Buoy and Force Field", 165),
+		irop_charge_rbgbff("Red Buoy, Green Buoy and Force Field", 173),
+		irop_virtualwall("Virtual Wall", 162),
+//		irop_lighthouse("...", ...)
+		irop_unknown("Unknown", -1);
+		private String strName;
+		private int nValue;
+		
+		private IROpCode(String i_strName, int i_nVal) {
+			strName = i_strName;
+			nValue = i_nVal;
+		}
+		
+		public String toString() {
+			return strName;
+		}
+		
+		public int toValue() {
+			return nValue;
+		}
+		
+		public static IROpCode valToEnum(int i_nVal) {
+			for (IROpCode eCode : IROpCode.values()) {
+				if (eCode.toValue() == i_nVal) {
+					return eCode;
+				}
+			}
+			return irop_unknown;
 		}
 	}
 	
@@ -412,38 +557,211 @@ public class RoombaTypes {
 				   "Capacity=" + sCapacity;
 		}
 	}
-	
-	public class SensorPackageAll implements SensorPackage {
-		private static final int IDX_SENSORPACKAGE1_START 	= 0;
-		private static final int IDX_SENSORPACKAGE1_END		= 9;
-		private static final int IDX_SENSORPACKAGE2_START 	= 10;
-		private static final int IDX_SENSORPACKAGE2_END		= 15;
-		private static final int IDX_SENSORPACKAGE3_START 	= 16;
-		private static final int IDX_SENSORPACKAGE3_END		= 25;
+
+	public enum SensorType {
+		WHEELDROP_CASTER("Caster Wheel Drop"),
+		WHEELDROP_LEFT("Left Wheel Drop"),
+		WHEELDROP_RIGHT("Right Wheel Drop"),
+		BUMP_LEFT("Left Bumper"),
+		BUMP_RIGHT("Right Bumper"),
+		WALL("Wall"),
+		CLIFF_LEFT("Cliff Left"),
+		CLIFF_FRONT_LEFT("Cliff Front Left"),
+		CLIFF_FRONT_RIGHT("Cliff Front Right"),
+		CLIFF_RIGHT("Cliff Right"),
+		VIRTUAL_WALL("Virtual Wall"),
+		OVERCURRENT_LEFT("Motor OC Left Whel"),
+		OVERCURRENT_RIGHT("Motor OC Right Wheel"),
+		OVERCURRENT_MAIN_BRUSH("Motor OC Main Brush"),
+		OVERCURRENT_VACUUM("Motor OC Vacuum"),
+		OVERCURRENT_SIDEBRUSH("Motor OC Side Brush"),
+		DIRT_DETECTOR_LEFT("Dirt Detector Left"),
+		DIRT_DETECTOR_RIGHT("Dirt Detector Right"),
+		IR_OPCODE_OMNI("IR Op-Code Omni"),
+		PRESSED_POWER("Power Button pressed"),
+		PRESSED_SPOT("Spot Button pressed"),
+		PRESSED_CLEAN("Clean Button pressed"),
+		PRESSED_MAX("Max button pressed"),
+		DISTANCE("Distance [mm]"),
+		ANGLE("Angle [mm]"),
+		CHARGING_STATE("Charging State"),
+		VOLTAGE("Voltage [mV]"),
+		CURRENT("Current [mA]"),
+		BATTERY_TEMPRERATURE("Battery Temperature [C]"),
+		CHARGE("Charge [mAh]"),
+		CAPACITY("Capacity [mAh]"),
+		WALL_SIGNAL("Wall Signal"),
+		CLIFF_LEFT_SIGNAL("Cliff Left Signal"),
+		CLIFF_FRONT_LEFT_SIGNAL("Cliff Front Left Signal"),
+		CLIFF_FRONT_RIGHT_SIGNAL("Cliff Front Right Signal"),
+		CLIFF_RIGHT_SIGNAL("Cliff Right Signal"),
+		USER_DIGITAL_INPUTS("User Digital Inputs"),
+		USER_ANALOG_INPUT("User Analog Input"),
+		CHARGING_SOURCES_AVAILABLE("Charging Sources Available"),
+		OI_MODE("Open Interface Mode"),
+		SONG_NUMBER("Song Number"),
+		SONG_PLAYING("Song Playing"),
+		NUMBER_OF_STREAM_PACKETS("Number of Stream Packets"),
+		REQUESTED_VELOCITY("Requested Velocity [mm/s]"),
+		REQUESTED_RADIUS("Requested Velocity [mm/s]"),
+		REQUESTED_RIGHT_VELOCITY("Requested Velocity Right [mm/s]"),
+		REQUESTED_LEFT_VELOCITY("Requested Velocity Left [mm/s]"),
+		ENCODER_COUNTS_LEFT("Encoder Counts Left"),
+		ENCODER_COUNTS_RIGHT("Encoder Counts Right"),
+		LIGHT_BUMPER_LEFT("Light Bumper Left"),
+		LIGHT_BUMPER_FRONT_LEFT("Light Bumper Front Left"),
+		LIGHT_BUMPER_CENTER_LEFT("Light Bumper Center Left"),
+		LIGHT_BUMPER_CENTER_RIGHT("Light Bumper Center Right"),
+		LIGHT_BUMPER_FRONT_RIGHT("Light Bumper Front Right"),
+		LIGHT_BUMPER_RIGHT("Light Bumper Right"),
+		LIGHT_BUMP_LEFT_SIGNAL("Light Bump Left Signal"),
+		LIGHT_BUMP_FRONT_LEFT_SIGNAL("Light Bump Front Left Signal"),
+		LIGHT_BUMP_CENTER_LEFT_SIGNAL("Light Bump Center Left Signal"),
+		LIGHT_BUMP_CENTER_RIGHT_SIGNAL("Light Bump Center Right Signal"),
+		LIGHT_BUMP_FRONT_RIGHT_SIGNAL("Light Bump Front Right Signal"),
+		LIGHT_BUMP_RIGHT_SIGNAL("Light Bump Right Signal"),
+		IR_OPCODE_LEFT("IR Op-Code Left"),
+		IR_OPCODE_RIGHT("IR Op-Code Right"),
+		LEFT_MOTOR_CURRENT("Left Motor Current [mA]"),
+		RIGHT_MOTOR_CURRENT("Right Motor Current [mA]"),
+		MAIN_BRUSH_CURRENT("Main Brush Current [mA]"),
+		SIDE_BRUSH_CURRENT("Side Brush Current [mA]"),
+		STASIS("Stasis"),
+		ALL("Show All");
+		private String strName;
 		
-		
-		SensorPackage1 oSensorPackage1;
-		SensorPackage2 oSensorPackage2;
-		SensorPackage3 oSensorPackage3;
-		
-		public SensorPackageAll(byte[] i_rgbyValues) {
-			oSensorPackage1 = new SensorPackage1(Arrays.copyOfRange(i_rgbyValues, IDX_SENSORPACKAGE1_START, IDX_SENSORPACKAGE1_END));
-			oSensorPackage2 = new SensorPackage2(Arrays.copyOfRange(i_rgbyValues, IDX_SENSORPACKAGE2_START, IDX_SENSORPACKAGE2_END));
-			oSensorPackage3 = new SensorPackage3(Arrays.copyOfRange(i_rgbyValues, IDX_SENSORPACKAGE3_START, IDX_SENSORPACKAGE3_END));
+		SensorType(String i_strName) {
+			this.strName = i_strName;
 		}
 		
 		public String toString() {
-			return oSensorPackage1.toString() + ", " +
-				   oSensorPackage2.toString() + ", " +
-				   oSensorPackage3.toString();
+			return strName;
+		}
+	}
+	
+	public class SensorPackageAll implements SensorPackage {
+		public BumpsWheeldrops bumps_wheeldrops;
+		public boolean wall;
+		public boolean cliff_left;
+		public boolean cliff_front_left;
+		public boolean cliff_front_right;
+		public boolean cliff_right;
+		public boolean virtual_wall;
+		public MotorOvercurrents motor_overcurrents;
+		public short dirt_detector_left;
+		public short dirt_detector_right;
+		public IROpCode remote_opcode;
+		public ButtonsPressed buttons;
+		public short distance;
+		public short angle;
+		public EChargingState charging_state;
+		public int voltage;
+		public short current;
+		public byte temprerature;
+		public int charge;
+		public int capacity;
+		public int wall_signal;
+		public int cliff_left_signal;
+		public int cliff_front_left_signal;
+		public int cliff_front_right_signal;
+		public int cliff_right_signal;
+		public short user_digital_inputs;
+		public int user_analog_input;
+		public ChargeMode charging_sources_available;
+		public OIMode oi_mode;
+		public short song_number;
+		public boolean song_playing;
+		public short number_of_stream_packets;
+		public short requested_velocity;
+		public short requested_radius;
+		public short requested_right_velocity;
+		public short requested_left_velocity;
+		public int encoder_counts_left;
+		public int encoder_counts_right;
+		public LightBumper light_bumper;
+		public int light_bump_left_signal;
+		public int light_bump_front_left_signal;
+		public int light_bump_center_left_signal;
+		public int light_bump_center_right_signal;
+		public int light_bump_front_right_signal;
+		public int light_bump_right_signal;
+		public IROpCode ir_opcode_left;
+		public IROpCode ir_opcode_right;
+		public short left_motor_current;
+		public short right_motor_current;
+		public short main_brush_current;
+		public short side_brush_current;
+		public byte stasis;
+		
+		
+		public SensorPackageAll(byte[] i_rgbyValues) {
+			ByteBuffer buffer = ByteBuffer.wrap(i_rgbyValues);
+			buffer.order(ByteOrder.BIG_ENDIAN);
+			
+			bumps_wheeldrops = new BumpsWheeldrops(Utils.getUnsignedByte(buffer));
+			wall = Utils.getBoolean(buffer);
+			cliff_left = Utils.getBoolean(buffer);
+			cliff_front_left = Utils.getBoolean(buffer);
+			cliff_front_right = Utils.getBoolean(buffer);
+			cliff_right = Utils.getBoolean(buffer);
+			virtual_wall = Utils.getBoolean(buffer);
+			motor_overcurrents = new MotorOvercurrents(Utils.getUnsignedByte(buffer));
+			dirt_detector_left = Utils.getUnsignedByte(buffer);
+			dirt_detector_right = Utils.getUnsignedByte(buffer);
+			remote_opcode = IROpCode.valToEnum(Utils.getUnsignedByte(buffer));
+			buttons = new ButtonsPressed(Utils.getUnsignedByte(buffer));
+			distance = buffer.getShort();
+			angle = buffer.getShort();
+			charging_state = EChargingState.OrdToEnum(Utils.getUnsignedByte(buffer));
+			voltage = Utils.getUnsignedShort(buffer);
+			current = buffer.getShort();
+			temprerature = buffer.get();
+			charge = Utils.getUnsignedShort(buffer);
+			capacity = Utils.getUnsignedShort(buffer);
+			wall_signal = Utils.getUnsignedShort(buffer);
+			cliff_left_signal = Utils.getUnsignedShort(buffer);
+			cliff_front_left_signal = Utils.getUnsignedShort(buffer);
+			cliff_front_right_signal = Utils.getUnsignedShort(buffer);
+			cliff_right_signal = Utils.getUnsignedShort(buffer);
+			user_digital_inputs = Utils.getUnsignedByte(buffer);
+			user_analog_input = Utils.getUnsignedShort(buffer);
+			charging_sources_available = ChargeMode.valToEnum(Utils.getUnsignedByte(buffer));
+			oi_mode = OIMode.OrdToEnum(Utils.getUnsignedByte(buffer));
+			song_number = Utils.getUnsignedByte(buffer);
+			song_playing = Utils.getBoolean(buffer);
+			number_of_stream_packets = Utils.getUnsignedByte(buffer);
+			requested_velocity = buffer.getShort();
+			requested_radius = buffer.getShort();
+			requested_right_velocity = buffer.getShort();
+			requested_left_velocity = buffer.getShort();
+			encoder_counts_left = Utils.getUnsignedShort(buffer);
+			encoder_counts_right = Utils.getUnsignedShort(buffer);
+			light_bumper = new LightBumper(Utils.getUnsignedByte(buffer));
+			light_bump_left_signal = Utils.getUnsignedShort(buffer);
+			light_bump_front_left_signal = Utils.getUnsignedShort(buffer);
+			light_bump_center_left_signal = Utils.getUnsignedShort(buffer);
+			light_bump_center_right_signal = Utils.getUnsignedShort(buffer);
+			light_bump_front_right_signal = Utils.getUnsignedShort(buffer);
+			light_bump_right_signal = Utils.getUnsignedShort(buffer);
+			ir_opcode_left = IROpCode.valToEnum(Utils.getUnsignedByte(buffer));
+			ir_opcode_right = IROpCode.valToEnum(Utils.getUnsignedByte(buffer));
+			left_motor_current = buffer.getShort();
+			right_motor_current = buffer.getShort();
+			main_brush_current = buffer.getShort();
+			side_brush_current = buffer.getShort();
+			stasis = buffer.get();
+		}
+		
+		public String toString() {
+			return "";
 		}
 	}
 	
 	public static SensorPackage assembleSensorPackage(ERoombaSensorPackages i_ePackage, byte[] i_bySensorData) {
 		RoombaTypes oRoombaTypes = new RoombaTypes();
 		switch (i_ePackage) {
-//			case sensPkg_All:
-//				return oRoombaTypes.new SensorPackageAll(i_bySensorData);
+			case sensPkg_All:
+				return oRoombaTypes.new SensorPackageAll(i_bySensorData);
 			case sensPkg_1:
 				return oRoombaTypes.new SensorPackage1(i_bySensorData);
 			case sensPkg_2:

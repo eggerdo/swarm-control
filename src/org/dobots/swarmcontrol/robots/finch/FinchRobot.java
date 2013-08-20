@@ -2,37 +2,33 @@ package org.dobots.swarmcontrol.robots.finch;
 
 import java.util.Random;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.RobotType;
-import org.dobots.swarmcontrol.robots.RobotView;
+import org.dobots.utilities.BaseActivity;
 
-//import edu.cmu.ri.createlab.terk.robot.finch.Finch;
-
-import android.app.Activity;
+import robots.RobotType;
+import robots.ctrl.IRobotDevice;
+import robots.gui.RobotView;
+import robots.gui.SensorGatherer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.ViewDebug.IntToString;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
 public class FinchRobot extends RobotView {
 	
-//	private Finch oFinch;
+	//	private Finch oFinch;
 	private FinchSensorData oData;
-	private SensorGatherer oSensorGatherer;
+	private FinchSensorGatherer oSensorGatherer;
 	private Timer oTimer;
 	private UpdateSensorDataTask oGUIUpdater;
 	private Handler oHandler;
 	
 	private Random oRand;
-	
+
 	private class FinchSensorData {
 		public double dblAccelX, dblAccelY, dblAccelZ;
 		double dblTemperature;
@@ -94,7 +90,7 @@ public class FinchRobot extends RobotView {
 
 	}
 	
-	private class SensorGatherer extends Thread {
+	private class FinchSensorGatherer extends Thread {
 		
 		FinchSensorType eSensor;
 		
@@ -146,7 +142,19 @@ public class FinchRobot extends RobotView {
 		}
 		
 	}
-	
+
+	public FinchRobot(BaseActivity i_oOwner) {
+		super(i_oOwner);
+	}
+
+	protected IRobotDevice getRobot() {
+		return null;
+	}
+
+	protected SensorGatherer getSensorGatherer() {
+		return null;
+	}
+
 //	@Override
 //	public void show(Activity myActivity, RobotType i_eRobot) {
 //		super.show(myActivity, i_eRobot);
@@ -157,7 +165,7 @@ public class FinchRobot extends RobotView {
 		
 //		oFinch = new Finch();
 		oData = new FinchSensorData();
-		oSensorGatherer = new SensorGatherer();
+		oSensorGatherer = new FinchSensorGatherer();
 		oHandler = new Handler();
 		oGUIUpdater = new UpdateSensorDataTask();
 		
@@ -166,9 +174,6 @@ public class FinchRobot extends RobotView {
 
 	@Override
 	protected void setProperties(RobotType i_eRobot) {
-		super.setProperties(i_eRobot);
-		
-		
 		// fill spinner
 		Spinner spSensors = (Spinner) m_oActivity.findViewById(R.id.spSensors);
 		spSensors.setVisibility(View.VISIBLE);
@@ -216,12 +221,6 @@ public class FinchRobot extends RobotView {
 	}
 
 	@Override
-	public void shutDown() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	protected void onConnect() {
 		// TODO Auto-generated method stub
 		
@@ -229,6 +228,36 @@ public class FinchRobot extends RobotView {
 
 	@Override
 	protected void onDisconnect() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void connectToRobot() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void disconnect() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void resetLayout() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void updateButtons(boolean i_bEnabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onConnectError() {
 		// TODO Auto-generated method stub
 		
 	}
