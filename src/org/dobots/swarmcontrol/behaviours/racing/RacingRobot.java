@@ -9,8 +9,8 @@ import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.joystick.IJoystickListener;
 import org.dobots.utilities.joystick.Joystick;
 
-import robots.RobotInventory;
 import robots.ctrl.IRobotDevice;
+import robots.gui.RobotInventory;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;

@@ -14,10 +14,10 @@ import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
-import robots.RobotInventory;
 import robots.RobotType;
 import robots.gui.IConnectListener;
 import robots.gui.MessageTypes;
+import robots.gui.RobotInventory;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -451,7 +451,7 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 			}
 		});
 		
-		m_btnAccelerometer = (Button) m_oActivity.findViewById(R.id.btnAccelerometer);
+/*		m_btnAccelerometer = (Button) m_oActivity.findViewById(R.id.btnAccelerometer);
 		m_btnAccelerometer.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -471,7 +471,7 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 				}
 			}
 		});
-		
+*/		
 	}
 
 	public static String getMacFilter() {
