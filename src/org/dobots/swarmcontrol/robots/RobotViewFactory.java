@@ -16,6 +16,7 @@ import org.dobots.swarmcontrol.robots.spykee.SpykeeRobot;
 import robots.RobotType;
 import robots.parrot.ctrl.ParrotTypes;
 import robots.parrot.gui.ParrotRobot;
+import robots.replicator.gui.ReplicatorRobot;
 import robots.rover.ac13.ctrl.AC13RoverTypes;
 import robots.rover.ac13.gui.AC13RoverRobot;
 import robots.rover.rover2.ctrl.Rover2Types;
@@ -46,6 +47,8 @@ public class RobotViewFactory {
 			return Robo40Robot.class;
 		case RBT_SPYTANK:
 			return SpyTankRobot.class;
+		case RBT_REPLICATOR:
+			return ReplicatorRobot.class;
 		default:
 			return UnimplementedRobot.class;
 		}

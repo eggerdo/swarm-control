@@ -65,7 +65,9 @@
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name="robots.spytank.gui.SpyTankRobot"
 		    android:screenOrientation="portrait" ></activity>
-		
+		<activity android:name="robots.replicator.gui.ReplicatorRobot"
+		    android:screenOrientation="portrait" ></activity>
+				
         <!-- Behaviour Activities -->
 		<activity android:name=".behaviours.dancing.DancingMain"
 			android:screenOrientation="portrait" ></activity>

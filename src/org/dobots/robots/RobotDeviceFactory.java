@@ -10,6 +10,7 @@ import org.dobots.robots.spykee.Spykee;
 import robots.RobotType;
 import robots.ctrl.IRobotDevice;
 import robots.parrot.ctrl.Parrot;
+import robots.replicator.ctrl.Replicator;
 import robots.rover.ac13.ctrl.AC13Rover;
 import robots.rover.rover2.ctrl.Rover2;
 import robots.spytank.ctrl.SpyTank;
@@ -39,6 +40,8 @@ public class RobotDeviceFactory {
 				return new Robo40();
 			case RBT_SPYTANK:
 				return new SpyTank();
+			case RBT_REPLICATOR:
+				return new Replicator();
 			default: 		
 				throw new Exception();
 		}

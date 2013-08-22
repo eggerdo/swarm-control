@@ -33,6 +33,7 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BulletSpan;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -81,6 +82,8 @@ public class SwarmControlActivity extends BaseActivity {
 	private boolean m_bHideActionBar = false;
 	private boolean m_bIsLiked = false;
 
+	private final boolean m_bSocializeEnabled = false;
+	
 	private Entity m_oEntity;
 	
 	// set to true if Socialize Entities need to be created
@@ -91,6 +94,8 @@ public class SwarmControlActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        Log.w(TAG, "Start SwarmControl app");
+
         CONTEXT = this;
         Utils.setContext(this);
         
@@ -105,7 +110,9 @@ public class SwarmControlActivity extends BaseActivity {
         m_laySocializeActionBar = (LinearLayout) findViewById(R.id.laySocializeActionBar);
         
         loadPreferences();
-        setupSocialize();
+        
+        if (m_bSocializeEnabled)
+        	setupSocialize();
      		
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
@@ -151,7 +158,7 @@ public class SwarmControlActivity extends BaseActivity {
         
         writeChangeLog();
         
-//        showRobot(RobotType.RBT_ROOMBA);
+        //showRobot(RobotType.RBT_REPLICATOR);
 //        showBehaviour(SwarmAction.sa_Dance);
     }
     
@@ -163,7 +170,7 @@ public class SwarmControlActivity extends BaseActivity {
 		menu.add(0, ABOUT_ID, ABOUT_ID, getResources().getString(R.string.about))
 		    .setIcon(R.drawable.ic_menu_about);
 		menu.add(0, EXIT_ID, EXIT_ID, "Exit");
-		menu.add(1, SOCIALIZE_SETTINGS, SOCIALIZE_SETTINGS, "Socialize");
+		if (m_bSocializeEnabled) menu.add(1, SOCIALIZE_SETTINGS, SOCIALIZE_SETTINGS, "Socialize");
 		menu.add(2, PREFERENCES, PREFERENCES, "Preferences");
 		return true;
 	}
@@ -179,7 +186,10 @@ public class SwarmControlActivity extends BaseActivity {
 			finish();
 			return true;
 		case SOCIALIZE_SETTINGS:
-			showSocializeSettings();
+			if (m_bSocializeEnabled)
+				showSocializeSettings();
+			else 
+				Log.w(TAG, "Huh? Socialize is not enabled");
 			return true;
 		case PREFERENCES:
 			showDialog(PREFERENCES_DLG);
@@ -191,7 +201,7 @@ public class SwarmControlActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	menu.setGroupVisible(1, m_bSocializeConnected);
+    	if (m_bSocializeEnabled) menu.setGroupVisible(1, m_bSocializeConnected);
     	menu.setGroupVisible(2, m_bIsLiked); // so long as only the show/hide action bar is in the preferences we only show the preferences if we already got the like
     	
     	return true;
@@ -283,19 +293,22 @@ public class SwarmControlActivity extends BaseActivity {
 	protected void onPause() {
 		super.onPause();
 		
-		Socialize.onPause(this);
+		if (m_bSocializeEnabled)
+			Socialize.onPause(this);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
 		
-		Socialize.onResume(this);
+		if (m_bSocializeEnabled)
+			Socialize.onResume(this);
 	}
 	
 	@Override
 	public void onDestroy() {
-		Socialize.onDestroy(this);
+		if (m_bSocializeEnabled)
+			Socialize.onDestroy(this);
 		unregisterReceiver(mReceiver);
 		
 		super.onDestroy();
@@ -312,8 +325,10 @@ public class SwarmControlActivity extends BaseActivity {
             if (RobotView.VIEW_LOADED.equals(action)) {
             	RobotType eRobot = (RobotType) intent.getExtras().get("RobotType");
             	BaseActivity currentActivity = ((BaseApplication)context.getApplicationContext()).getCurrentActivity();
-                SocializeHelper.setupComments(currentActivity, eRobot);
-                SocializeHelper.registerRobotView(SwarmControlActivity.this, eRobot);
+            	if (m_bSocializeEnabled) {
+            		SocializeHelper.setupComments(currentActivity, eRobot);
+                    SocializeHelper.registerRobotView(SwarmControlActivity.this, eRobot);
+            	}
             };
         }
     };
@@ -365,7 +380,7 @@ public class SwarmControlActivity extends BaseActivity {
 		CheckBox cbxHideActionBar = (CheckBox) dialog.findViewById(R.id.cbxHideActionBar);
 		
 		m_bHideActionBar = cbxHideActionBar.isChecked();
-		hideSocializeActionBar(m_bHideActionBar);
+		if (m_bSocializeEnabled) hideSocializeActionBar(m_bHideActionBar);
 		
 		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
 		SharedPreferences.Editor editor = prefs.edit();
