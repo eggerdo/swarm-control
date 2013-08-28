@@ -59,7 +59,7 @@
 	        android:visibility="gone" >
 
 	        <Button
-	            android:id="@+id/btnStop"
+	            android:id="@+id/btnStopMode"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/stop" />

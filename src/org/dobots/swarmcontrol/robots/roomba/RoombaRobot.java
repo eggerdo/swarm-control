@@ -4,10 +4,7 @@ import org.dobots.robots.roomba.Roomba;
 import org.dobots.robots.roomba.RoombaBluetooth;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.roomba.RoombaTypes.ERoombaSensorPackages;
-import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper;
-import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
@@ -15,9 +12,13 @@ import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
+import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.RemoteControlHelper;
+import robots.ctrl.RemoteControlHelper.Move;
 import robots.gui.IConnectListener;
 import robots.gui.MessageTypes;
 import robots.gui.RobotInventory;
+import robots.gui.RobotRemoteListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -39,13 +40,12 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class RoombaRobot extends BluetoothRobot implements IRemoteControlListener {
+public class RoombaRobot extends BluetoothRobot {
 	
 	private static String TAG = "Roomba";
 
 	private static final int CONNECT_ID = Menu.FIRST;
 	private static final int ACCEL_ID = CONNECT_ID + 1;
-	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
 	
 	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 	
@@ -66,7 +66,7 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 
 	private Spinner m_spSensors;
 	private Button m_btnClean;
-	private Button m_btnStop;
+	private Button m_btnStopAction;
 	private Button m_btnDock;
 	private Button m_btnMainBrush;
 	private Button m_btnSideBrush;
@@ -77,6 +77,8 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	private Button m_btnCalibrate;
 
 	private double m_dblSpeed;
+
+	private RobotRemoteListener m_oRemoteListener;
 
 	public RoombaRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -100,8 +102,17 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 		m_oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 		m_dblSpeed = m_oRoomba.getBaseSped();
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRoomba, this);
-        m_oRemoteCtrl.setProperties();
+		m_oRemoteListener = new RobotRemoteListener(m_oRoomba) {
+			
+			@Override
+			public void enableControl(boolean i_bEnable) {
+				super.enableControl(i_bEnable);
+				
+				// we also need to update buttons
+				updateControlButtons(i_bEnable);
+			}
+		};
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
 
     	updateButtons(false);
     	updateControlButtons(false);
@@ -122,17 +133,17 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 		super.onCreateOptionsMenu(menu);
 
 		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 2, "Accelerometer");
-		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
 		
 		return true;
 	}
 	   
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	super.onPrepareOptionsMenu(menu);
+    	
     	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
 
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
-    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
     	
 		return true;
     }
@@ -149,9 +160,6 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 			} else {
 				m_oRoomba.moveStop();
 			}
-		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.toggleAdvancedControl();
-			break;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
@@ -250,10 +258,10 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 	}
 
 	public void updateButtons(boolean enabled) {
-		m_oRemoteCtrl.updateButtons(enabled);
+		m_oRemoteCtrl.setControlEnabled(enabled);
 		
 		m_btnClean.setEnabled(enabled);
-		m_btnStop.setEnabled(enabled);
+		m_btnStopAction.setEnabled(enabled);
 		m_btnDock.setEnabled(enabled);
 		m_spSensors.setEnabled(enabled);
 		
@@ -373,8 +381,8 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 			}
 		});
 		
-		m_btnStop = (Button) m_oActivity.findViewById(R.id.btnStop);
-		m_btnStop.setOnClickListener(new OnClickListener() {
+		m_btnStopAction = (Button) m_oActivity.findViewById(R.id.btnStopAction);
+		m_btnStopAction.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -455,22 +463,6 @@ public class RoombaRobot extends BluetoothRobot implements IRemoteControlListene
 
 	public static String getMacFilter() {
 		return RoombaTypes.MAC_FILTER;
-	}
-
-	@Override
-	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
-		m_oRemoteCtrl.onMove(i_oMove, i_dblSpeed, i_dblAngle);
-	}
-
-	@Override
-	public void onMove(Move i_oMove) {
-		m_oRemoteCtrl.onMove(i_oMove);
-	}
-
-	@Override
-	public void enableControl(boolean i_bEnable) {
-		m_oRemoteCtrl.enableControl(i_bEnable);
-		updateControlButtons(i_bEnable);
 	}
 
 }

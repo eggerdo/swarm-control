@@ -5,16 +5,17 @@ import org.dobots.robots.BrainlinkDevice.BrainlinkSensors;
 import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roboscooper.RoboScooperMessageTypes;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
-import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper;
-import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
+import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.RemoteControlHelper;
+import robots.ctrl.RemoteControlHelper.Move;
 import robots.gui.IConnectListener;
+import robots.gui.RobotRemoteListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -30,12 +31,11 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlListener {
+public class RoboScooperRobot extends BluetoothRobot {
 	
 	private static String TAG = "RoboScooper";
 	
 	private static final int ACCEL_ID = CONNECT_ID + 1;
-	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
 	
 	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 
@@ -50,7 +50,7 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 	private Button m_btnTalkMode;
 	private Button m_btnWhackMode;
 	private Button m_btnVision;
-	private Button m_btnStop;
+	private Button m_btnStopMode;
 	private Button m_btnCleanSweepMode;
 	private Button m_btnPickUpMode;
 	private Button m_btnPickup;
@@ -62,6 +62,8 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 	
 	private LinearLayout m_layControls;
 	private LinearLayout m_layPlayModes;
+
+	private RobotRemoteListener m_oRemoteListener;
 
 	
 	public RoboScooperRobot(BaseActivity m_oOwner) {
@@ -85,9 +87,19 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 		
 		m_oSensorGatherer = new RoboScooperSensorGatherer(this, m_oRoboScooper);
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRoboScooper, this);
-        m_oRemoteCtrl.setProperties();
-		
+		m_oRemoteListener = new RobotRemoteListener(m_oRoboScooper) {
+			
+			@Override
+			public void enableControl(boolean i_bEnable) {
+				super.enableControl(i_bEnable);
+				
+				// we also need to update buttons
+				Utils.showLayout(m_layControls, i_bEnable);
+				Utils.showLayout(m_layPlayModes, i_bEnable);
+			}
+		};
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
+
         updateButtons(false);
 
         if (m_oRoboScooper.isConnected()) {
@@ -135,8 +147,8 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 			}
 		});
     	
-    	m_btnStop = (Button) findViewById(R.id.btnStop);
-    	m_btnStop.setOnClickListener(new OnClickListener() {
+    	m_btnStopMode = (Button) findViewById(R.id.btnStopMode);
+    	m_btnStopMode.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -238,17 +250,17 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 		super.onCreateOptionsMenu(menu);
 
 		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 4, "Accelerometer");
-		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
 		
 		return true;
     }
 		
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	super.onPrepareOptionsMenu(menu);
+    	
     	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
     	
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
-    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
     	
 		return true;
     }
@@ -264,9 +276,6 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 			} else {
 				m_oRoboScooper.moveStop();
 			}
-		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.toggleAdvancedControl();
-			break;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
@@ -330,7 +339,7 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 
 	@Override
 	protected void updateButtons(boolean i_bEnabled) {
-		m_oRemoteCtrl.updateButtons(i_bEnabled);
+		m_oRemoteCtrl.setControlEnabled(i_bEnabled);
 		
 		m_btnCleanSweepMode.setEnabled(i_bEnabled);
 		m_btnPickUpMode.setEnabled(i_bEnabled);
@@ -339,30 +348,12 @@ public class RoboScooperRobot extends BluetoothRobot implements IRemoteControlLi
 		
 		m_btnDump.setEnabled(i_bEnabled);
 		m_btnPickup.setEnabled(i_bEnabled);
-		m_btnStop.setEnabled(i_bEnabled);
+		m_btnStopMode.setEnabled(i_bEnabled);
 		m_btnVision.setEnabled(i_bEnabled);
 		
 		m_cbAccelerometer.setEnabled(i_bEnabled);
 		m_cbBattery.setEnabled(i_bEnabled);
 		m_cbLight.setEnabled(i_bEnabled);
-	}
-
-	@Override
-	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
-		m_oRemoteCtrl.onMove(i_oMove, i_dblSpeed, i_dblAngle);
-	}
-
-	@Override
-	public void onMove(Move i_oMove) {
-		m_oRemoteCtrl.onMove(i_oMove);
-	}
-
-	@Override
-	public void enableControl(boolean i_bEnable) {
-		m_oRemoteCtrl.enableControl(i_bEnable);
-		
-		Utils.showLayout(m_layControls, i_bEnable);
-		Utils.showLayout(m_layPlayModes, i_bEnable);
 	}
 
 }

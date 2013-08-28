@@ -80,7 +80,7 @@
 	            android:text="@string/roomba_btn_clean" />
 
 	        <Button
-	            android:id="@+id/btnStop"
+	            android:id="@+id/btnStopAction"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/stop" />
@@ -133,7 +133,6 @@
 	        layout="@layout/roomba_sensors" />
 	    
 	    <include
-            android:id="@+id/layRemoteControl"
             layout="@layout/remote_control" />
 	    
 	</LinearLayout>

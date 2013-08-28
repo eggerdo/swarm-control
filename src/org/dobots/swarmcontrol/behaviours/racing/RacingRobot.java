@@ -3,13 +3,13 @@ package org.dobots.swarmcontrol.behaviours.racing;
 import java.io.IOException;
 
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.SwarmControlActivity;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.joystick.IJoystickListener;
 import org.dobots.utilities.joystick.Joystick;
 
 import robots.ctrl.IRobotDevice;
+import robots.ctrl.RemoteControlHelper.Move;
 import robots.gui.RobotInventory;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -56,7 +56,7 @@ public class RacingRobot extends BaseActivity implements IJoystickListener {
 	}
 	
 	private void setProperties() {
-		setContentView(R.layout.advanced_remote);
+		setContentView(R.layout.joystick_remote);
 
 		m_oJoystick = (Joystick) m_oActivity.findViewById(R.id.oJoystick);
 		m_oJoystick.setUpdateListener(this);

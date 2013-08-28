@@ -77,7 +77,9 @@ public class Roomba extends BaseRobot {
 	}
 	
 	public void destroyConnection() {
-		m_oRoombaCtrl.destroyConnection();
+		if (m_oRoombaCtrl != null) {
+			m_oRoombaCtrl.destroyConnection();
+		}
 	}
 
 	public boolean isConnected() {

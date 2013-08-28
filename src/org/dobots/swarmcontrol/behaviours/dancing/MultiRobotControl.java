@@ -1,12 +1,12 @@
 package org.dobots.swarmcontrol.behaviours.dancing;
 
-import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper;
-import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
 import org.dobots.utilities.BaseActivity;
 
+import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.RemoteControlHelper;
+import robots.ctrl.RemoteControlHelper.Move;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
@@ -38,16 +38,16 @@ public class MultiRobotControl extends BaseActivity implements
 		m_oActivity = this;
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, null, this);
-
 		setProperties();
+		
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, this);
+		m_oRemoteCtrl.setAdvancedControl(false);
+		m_oRemoteCtrl.setControlEnabled(true);
+
 	}
 
 	public void setProperties() {
 		setContentView(R.layout.dancing_remotecontrol);
-
-		m_oRemoteCtrl.setProperties();
-		m_oRemoteCtrl.updateButtons(true);
 	}
 	
 	public void enableControl(boolean i_bEnable) {
@@ -123,7 +123,7 @@ public class MultiRobotControl extends BaseActivity implements
 
 	@Override
 	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
-		// TODO Auto-generated method stub
+		onMove(i_oMove);
 	}
 
 	@Override
@@ -134,19 +134,29 @@ public class MultiRobotControl extends BaseActivity implements
 		case NONE:
 			moveStop();
 			break;
+		case STRAIGHT_BACKWARD:
 		case BACKWARD:
 			moveBackward();
 			break;
+		case STRAIGHT_FORWARD:
 		case FORWARD:
 			moveForward();
 			break;
-		case LEFT:
+		case ROTATE_LEFT:
+//		case LEFT:
 			rotateCounterClockwise();
 			break;
-		case RIGHT:
+		case ROTATE_RIGHT:
+//		case RIGHT:
 			rotateClockwise();
 			break;
 		}
+	}
+
+	@Override
+	public void toggleInvertDrive() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

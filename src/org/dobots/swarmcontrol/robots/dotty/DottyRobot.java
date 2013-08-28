@@ -8,13 +8,14 @@ import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
 import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
+import robots.ctrl.RemoteControlHelper;
 import robots.gui.IConnectListener;
+import robots.gui.RobotRemoteListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -36,8 +37,7 @@ public class DottyRobot extends BluetoothRobot {
 	private static String TAG = "Dotty";
 	
 	private static final int CONNECT_ID = Menu.FIRST;
-	private static final int ADVANCED_CONTROL_ID = CONNECT_ID + 1;
-	private static final int ACCEL_ID = ADVANCED_CONTROL_ID + 1;
+	private static final int ACCEL_ID = CONNECT_ID + 1;
 	
 	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 	
@@ -68,6 +68,8 @@ public class DottyRobot extends BluetoothRobot {
 	
 	private double m_dblSpeed;
 
+	private RobotRemoteListener m_oRemoteListener;
+
 	public DottyRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
 	}
@@ -90,8 +92,8 @@ public class DottyRobot extends BluetoothRobot {
     	m_oSensorGatherer = new DottySensorGatherer(m_oActivity, m_oDotty);
 		m_dblSpeed = m_oDotty.getBaseSped();
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oDotty, null);
-        m_oRemoteCtrl.setProperties();
+		m_oRemoteListener = new RobotRemoteListener(m_oDotty);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
 
         updateButtons(false);
         
@@ -238,7 +240,6 @@ public class DottyRobot extends BluetoothRobot {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 2, "Advanced Control");
 		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 3, "Accelerometer");
 		
 		return true;
@@ -246,10 +247,11 @@ public class DottyRobot extends BluetoothRobot {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	super.onPrepareOptionsMenu(menu);
+    	
     	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
 
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
-    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
 
     	return true;
     }
@@ -257,9 +259,6 @@ public class DottyRobot extends BluetoothRobot {
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.toggleAdvancedControl();
-			return true;
 		case ACCEL_ID:
 			m_bAccelerometer = !m_bAccelerometer;
 
@@ -299,7 +298,7 @@ public class DottyRobot extends BluetoothRobot {
 	}
 	
 	public void updateButtons(boolean enabled) {
-		m_oRemoteCtrl.updateButtons(enabled);
+		m_oRemoteCtrl.setControlEnabled(enabled);
 		
 		m_btnStreaming.setEnabled(enabled);
 		m_edtInterval.setEnabled(enabled);

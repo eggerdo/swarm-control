@@ -23,15 +23,16 @@ import org.dobots.robots.spykee.SpykeeController.DockState;
 import org.dobots.robots.spykee.SpykeeMessageTypes;
 import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.robots.spykee.SpykeeTypes.SpykeeSound;
-import org.dobots.swarmcontrol.IRemoteControlListener;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper;
-import org.dobots.swarmcontrol.RemoteControlHelper.Move;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
+import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.RemoteControlHelper;
+import robots.ctrl.RemoteControlHelper.Move;
 import robots.gui.IConnectListener;
+import robots.gui.RobotRemoteListener;
 import robots.gui.SensorGatherer;
 import robots.gui.WifiRobot;
 import android.app.AlertDialog;
@@ -53,7 +54,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
+public class SpykeeRobot extends WifiRobot {
 
 	private static String TAG = "Spykee";
 
@@ -62,8 +63,7 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 	private static final int SETTINGS_ID = CONNECT_ID + 1;
 	private static final int INVERT_ID = SETTINGS_ID + 1;
 	private static final int ACCEL_ID = INVERT_ID + 1;
-	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
-	private static final int VIDEO_ID = ADVANCED_CONTROL_ID + 1;
+	private static final int VIDEO_ID = ACCEL_ID + 1;
 	private static final int AUDIO_ID = VIDEO_ID + 1;
 	private static final int VIDEO_SCALE_ID = AUDIO_ID + 1;
 	
@@ -98,6 +98,8 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 	private String m_strPassword = null;
 	private boolean m_bSettingsValid = false;
 
+	private RobotRemoteListener m_oRemoteListener;
+
 	public SpykeeRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
 	}
@@ -120,8 +122,17 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 		m_oSensorGatherer = new SpykeeSensorGatherer(this, m_oSpykee);
 		m_dblSpeed = m_oSpykee.getBaseSped();
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oSpykee, this);
-        m_oRemoteCtrl.setProperties();
+		m_oRemoteListener = new RobotRemoteListener(m_oSpykee) {
+			
+			@Override
+			public void enableControl(boolean i_bEnable) {
+				super.enableControl(i_bEnable);
+				
+				// we also need to update buttons
+				Utils.showLayout(m_layControls, i_bEnable);
+			}
+		};
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
 
         updateButtons(false);
 
@@ -252,7 +263,6 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 
 		menu.add(REMOTE_CTRL_GRP, INVERT_ID, 3, "Invert Driving");
 		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 4, "Accelerometer");
-		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
 		
 		menu.add(SENSOR_GRP, VIDEO_ID, 6, "Video");
 		menu.add(SENSOR_GRP, AUDIO_ID, 7, "Audio");
@@ -266,12 +276,13 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	super.onPrepareOptionsMenu(menu);
+    	
     	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oSpykee.isConnected() && m_oRemoteCtrl.isControlEnabled());
     	menu.setGroupVisible(SENSOR_GRP, m_oSpykee.isConnected());
     	menu.setGroupVisible(VIDEO_GRP, m_oSpykee.isConnected() && m_oSpykee.isVideoEnabled());
     	
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
-    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
     	Utils.updateOnOffMenuItem(menu.findItem(INVERT_ID), m_oSpykee.isInverted());
     	Utils.updateOnOffMenuItem(menu.findItem(VIDEO_ID), m_oSpykee.isVideoEnabled());
     	Utils.updateOnOffMenuItem(menu.findItem(AUDIO_ID), m_oSpykee.isAudioEnabled());
@@ -297,9 +308,6 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 			} else {
 				m_oSpykee.moveStop();
 			}
-			break;
-		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.toggleAdvancedControl();
 			break;
 		case VIDEO_ID:
 			m_oSensorGatherer.setVideoEnabled(!m_oSpykee.isVideoEnabled());
@@ -375,7 +383,7 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 
 	@Override
 	protected void updateButtons(boolean i_bEnabled) {
-		m_oRemoteCtrl.updateButtons(i_bEnabled);
+		m_oRemoteCtrl.setControlEnabled(i_bEnabled);
 		
 		m_btnDock.setEnabled(i_bEnabled);
 		
@@ -478,22 +486,5 @@ public class SpykeeRobot extends WifiRobot implements IRemoteControlListener {
 			showToast("Connection Settings not valid, please check again!", Toast.LENGTH_LONG);
 		}
     }
-
-	@Override
-	public void onMove(Move i_oMove, double i_dblSpeed, double i_dblAngle) {
-		m_oRemoteCtrl.onMove(i_oMove, i_dblSpeed, i_dblAngle);
-	}
-
-	@Override
-	public void onMove(Move i_oMove) {
-		m_oRemoteCtrl.onMove(i_oMove);
-	}
-
-	@Override
-	public void enableControl(boolean i_bEnable) {
-		m_oRemoteCtrl.enableControl(i_bEnable);
-		
-		Utils.showLayout(m_layControls, i_bEnable);
-	}
 
 }

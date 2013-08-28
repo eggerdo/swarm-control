@@ -6,8 +6,8 @@
     <string name="about">About</string>
     
     <string-array name="changelog">
-        <item>- Brookstone Rover 2.0 added (Remote Control and Video Playback)</item>
-        <item>- I-Spy Tank added (Remote Control and Video Playback)</item>
+        <item>- Replicator added (Video Playback)</item>
+        <item>- Bugs of version 0.5 fixed</item>
 	</string-array>
     
     <string name="connect">Connect</string>
@@ -23,7 +23,17 @@
 
     <string name="placeholder">This will show data coming from the robot (like images or
         compass needle).</string>
+              
+    <string name="choose_robot">Choose a robot</string>
+    <string name="choose_swarm_action">Choose a swarm action</string>
+    <string name="change_log">Change Log:</string>     
     
+    <string name="robotdevice_title">This is the robot name</string>
+    <string name="robotdevice_sensorselection">Choose one of the following sensors to display its data</string>
+    <string name="robotdevice_motorselection">Choose one of the following motors to display its data</string>
+    
+    <string name="robotdevice_lbl_notimplemented">Access for this robot is not yet implemented</string> 
+       
     <!-- About Dialog -->
     <string name="about_general">  
         Swarm Control is developed at Distributed Organisms or DoBots. DO researches,
@@ -42,17 +52,7 @@
         Swarm Control is released under GPLv3 license, http://gplv3.fsf.org/
     </string>    
     <string name="about_ok">OK</string>
-          
-    <string name="choose_robot">Choose a robot</string>
-    <string name="choose_swarm_action">Choose a swarm action</string>
-    <string name="robotdevice_title">This is the robot name</string>
-    <string name="robotdevice_sensorselection">Choose one of the following sensors to display its data</string>
-    <string name="robotdevice_motorselection">Choose one of the following motors to display its data</string>
-    
-    <string name="robotdevice_lbl_notimplemented">Access for this robot is not yet implemented</string> 
-       
-    <string name="change_log">Change Log:</string>     
-    
+
     <!--  DeviceListActivity -->
     <string name="scanning">scanning for devices...</string>
     <string name="select_device">Select a device to connect</string>

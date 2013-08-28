@@ -7,13 +7,14 @@ import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.robots.robo40.Robo40;
 import org.dobots.robots.robo40.Robo40Types;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
+import robots.ctrl.RemoteControlHelper;
 import robots.gui.IConnectListener;
+import robots.gui.RobotRemoteListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -33,8 +34,7 @@ public class Robo40Robot extends BluetoothRobot {
 	private static String TAG = "Robo40";
 	
 	private static final int CONNECT_ID = Menu.FIRST;
-	private static final int ADVANCED_CONTROL_ID = CONNECT_ID + 1;
-	private static final int ACCEL_ID = ADVANCED_CONTROL_ID + 1;
+	private static final int ACCEL_ID = CONNECT_ID + 1;
 	
 	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 	
@@ -55,6 +55,8 @@ public class Robo40Robot extends BluetoothRobot {
 	private TextView m_edtMotor1;
 	private TextView m_edtMotor2;
 	private TextView m_edtMotor3;
+
+	private RobotRemoteListener m_oRemoteListener;
 
 	public Robo40Robot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -78,8 +80,8 @@ public class Robo40Robot extends BluetoothRobot {
 		m_oSensorGatherer = new Robo40SensorGatherer(m_oActivity, m_oRobo40);
 		m_dblSpeed = m_oRobo40.getBaseSped();
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRobo40, null);
-        m_oRemoteCtrl.setProperties();
+		m_oRemoteListener = new RobotRemoteListener(m_oRobo40);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
 
         updateButtons(false);
         
@@ -161,14 +163,6 @@ public class Robo40Robot extends BluetoothRobot {
         m_sbMotor3 = (SeekBar) findViewById(R.id.sbRobo40Motor3);
         m_sbMotor3.setEnabled(false);
         
-        Button btnStop = (Button) findViewById(R.id.btnStop);
-        btnStop.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				m_oRobo40.moveStop();
-			}
-		});
     }
 
     long last_time = 0;
@@ -192,7 +186,6 @@ public class Robo40Robot extends BluetoothRobot {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 2, "Advanced Control");
 		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 3, "Accelerometer");
 		
 		return true;
@@ -200,10 +193,11 @@ public class Robo40Robot extends BluetoothRobot {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	super.onPrepareOptionsMenu(menu);
+    	
     	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
 
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
-    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
 
     	return true;
     }
@@ -211,9 +205,6 @@ public class Robo40Robot extends BluetoothRobot {
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.toggleAdvancedControl();
-			return true;
 		case ACCEL_ID:
 			m_bAccelerometer = !m_bAccelerometer;
 
@@ -237,7 +228,7 @@ public class Robo40Robot extends BluetoothRobot {
 	}
 	
 	public void updateButtons(boolean enabled) {
-		m_oRemoteCtrl.updateButtons(enabled);
+		m_oRemoteCtrl.setControlEnabled(enabled);
 	}
 
 	@Override

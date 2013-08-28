@@ -8,16 +8,17 @@ import org.dobots.robots.nxt.NXTTypes.ENXTMotorSensorType;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorID;
 import org.dobots.robots.nxt.NXTTypes.ENXTSensorType;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.RemoteControlHelper;
 import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.swarmcontrol.robots.RobotCalibration;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
+import robots.ctrl.RemoteControlHelper;
 import robots.gui.IConnectListener;
 import robots.gui.MessageTypes;
 import robots.gui.RobotInventory;
+import robots.gui.RobotRemoteListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -48,7 +49,6 @@ public class NXTRobot extends BluetoothRobot {
 	private static final int DEBUG_ID = CONNECT_ID + 1;
 	private static final int INVERT_ID = DEBUG_ID + 1;
 	private static final int ACCEL_ID = INVERT_ID + 1;
-	private static final int ADVANCED_CONTROL_ID = ACCEL_ID + 1;
 	
 	private static final int REMOTE_CTRL_GRP = GENERAL_GRP + 1;
 
@@ -80,6 +80,8 @@ public class NXTRobot extends BluetoothRobot {
 	private Button m_btnMotor3Reset;
 
 	private double m_dblSpeed;
+
+	private RobotRemoteListener m_oRemoteListener;
 	
 	public NXTRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -103,8 +105,8 @@ public class NXTRobot extends BluetoothRobot {
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
 		m_dblSpeed = m_oNxt.getBaseSped();
 
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oNxt, null);
-        m_oRemoteCtrl.setProperties();
+		m_oRemoteListener = new RobotRemoteListener(m_oNxt);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
 
         updateButtons(false);
         setDebug(false);
@@ -129,17 +131,17 @@ public class NXTRobot extends BluetoothRobot {
 
 		menu.add(REMOTE_CTRL_GRP, INVERT_ID, 3, "Invert Driving");
 		menu.add(REMOTE_CTRL_GRP, ACCEL_ID, 4, "Accelerometer");
-		menu.add(REMOTE_CTRL_GRP, ADVANCED_CONTROL_ID, 5, "Advanced Control");
 		
 		return true;
 	}
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	super.onPrepareOptionsMenu(menu);
+    	
     	menu.setGroupVisible(REMOTE_CTRL_GRP, m_oRemoteCtrl.isControlEnabled());
     	
     	Utils.updateOnOffMenuItem(menu.findItem(ACCEL_ID), m_bAccelerometer);
-    	Utils.updateOnOffMenuItem(menu.findItem(ADVANCED_CONTROL_ID), m_oRemoteCtrl.isAdvancedControl());
     	Utils.updateOnOffMenuItem(menu.findItem(DEBUG_ID), m_bDebug);
     	Utils.updateOnOffMenuItem(menu.findItem(INVERT_ID), m_oNxt.isInverted());
     	
@@ -163,9 +165,6 @@ public class NXTRobot extends BluetoothRobot {
 			} else {
 				m_oNxt.moveStop();
 			}
-		case ADVANCED_CONTROL_ID:
-			m_oRemoteCtrl.toggleAdvancedControl();
-			break;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
@@ -495,7 +494,7 @@ public class NXTRobot extends BluetoothRobot {
 	}
 
 	public void updateButtons(boolean enabled) {
-		m_oRemoteCtrl.updateButtons(enabled);
+		m_oRemoteCtrl.setControlEnabled(enabled);
 		
 		m_btnCalibrate.setEnabled(enabled);
 		m_cbSensor1.setEnabled(enabled);
