@@ -4,7 +4,7 @@ import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.behaviours.dancing.RobotList.RobotEntry;
 import org.dobots.utilities.BaseActivity;
 
-import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.IDriveControlListener;
 import robots.ctrl.RemoteControlHelper;
 import robots.ctrl.RemoteControlHelper.Move;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.util.Log;
 import android.view.WindowManager.LayoutParams;
 
 public class MultiRobotControl extends BaseActivity implements
-		IRemoteControlListener {
+		IDriveControlListener {
 
 	private static final String TAG = "MultiRobotControl";
 
@@ -40,7 +40,8 @@ public class MultiRobotControl extends BaseActivity implements
 
 		setProperties();
 		
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, this);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl.setDriveControlListener(this);
 		m_oRemoteCtrl.setAdvancedControl(false);
 		m_oRemoteCtrl.setControlEnabled(true);
 

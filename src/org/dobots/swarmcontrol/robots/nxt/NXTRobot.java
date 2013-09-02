@@ -18,7 +18,7 @@ import robots.ctrl.RemoteControlHelper;
 import robots.gui.IConnectListener;
 import robots.gui.MessageTypes;
 import robots.gui.RobotInventory;
-import robots.gui.RobotRemoteListener;
+import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -81,7 +81,7 @@ public class NXTRobot extends BluetoothRobot {
 
 	private double m_dblSpeed;
 
-	private RobotRemoteListener m_oRemoteListener;
+	private RobotDriveCommandListener m_oRemoteListener;
 	
 	public NXTRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -105,8 +105,9 @@ public class NXTRobot extends BluetoothRobot {
 		m_oSensorGatherer = new NXTSensorGatherer(this, m_oNxt);
 		m_dblSpeed = m_oNxt.getBaseSped();
 
-		m_oRemoteListener = new RobotRemoteListener(m_oNxt);
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
+		m_oRemoteListener = new RobotDriveCommandListener(m_oNxt);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl.setDriveControlListener(m_oRemoteListener);
 
         updateButtons(false);
         setDebug(false);

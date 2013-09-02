@@ -15,7 +15,7 @@ import org.dobots.utilities.Utils;
 import robots.RobotType;
 import robots.ctrl.RemoteControlHelper;
 import robots.gui.IConnectListener;
-import robots.gui.RobotRemoteListener;
+import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -68,7 +68,7 @@ public class DottyRobot extends BluetoothRobot {
 	
 	private double m_dblSpeed;
 
-	private RobotRemoteListener m_oRemoteListener;
+	private RobotDriveCommandListener m_oRemoteListener;
 
 	public DottyRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -92,8 +92,9 @@ public class DottyRobot extends BluetoothRobot {
     	m_oSensorGatherer = new DottySensorGatherer(m_oActivity, m_oDotty);
 		m_dblSpeed = m_oDotty.getBaseSped();
 
-		m_oRemoteListener = new RobotRemoteListener(m_oDotty);
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
+		m_oRemoteListener = new RobotDriveCommandListener(m_oDotty);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl.setDriveControlListener(m_oRemoteListener);
 
         updateButtons(false);
         

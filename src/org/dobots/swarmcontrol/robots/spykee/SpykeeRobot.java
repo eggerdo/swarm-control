@@ -28,11 +28,11 @@ import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
-import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.IDriveControlListener;
 import robots.ctrl.RemoteControlHelper;
 import robots.ctrl.RemoteControlHelper.Move;
 import robots.gui.IConnectListener;
-import robots.gui.RobotRemoteListener;
+import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
 import robots.gui.WifiRobot;
 import android.app.AlertDialog;
@@ -98,7 +98,7 @@ public class SpykeeRobot extends WifiRobot {
 	private String m_strPassword = null;
 	private boolean m_bSettingsValid = false;
 
-	private RobotRemoteListener m_oRemoteListener;
+	private RobotDriveCommandListener m_oRemoteListener;
 
 	public SpykeeRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -122,7 +122,7 @@ public class SpykeeRobot extends WifiRobot {
 		m_oSensorGatherer = new SpykeeSensorGatherer(this, m_oSpykee);
 		m_dblSpeed = m_oSpykee.getBaseSped();
 
-		m_oRemoteListener = new RobotRemoteListener(m_oSpykee) {
+		m_oRemoteListener = new RobotDriveCommandListener(m_oSpykee) {
 			
 			@Override
 			public void enableControl(boolean i_bEnable) {
@@ -132,7 +132,8 @@ public class SpykeeRobot extends WifiRobot {
 				Utils.showLayout(m_layControls, i_bEnable);
 			}
 		};
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl.setDriveControlListener(m_oRemoteListener);
 
         updateButtons(false);
 

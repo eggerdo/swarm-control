@@ -12,13 +12,13 @@ import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
-import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.IDriveControlListener;
 import robots.ctrl.RemoteControlHelper;
 import robots.ctrl.RemoteControlHelper.Move;
 import robots.gui.IConnectListener;
 import robots.gui.MessageTypes;
 import robots.gui.RobotInventory;
-import robots.gui.RobotRemoteListener;
+import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -78,7 +78,7 @@ public class RoombaRobot extends BluetoothRobot {
 
 	private double m_dblSpeed;
 
-	private RobotRemoteListener m_oRemoteListener;
+	private RobotDriveCommandListener m_oRemoteListener;
 
 	public RoombaRobot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -102,7 +102,7 @@ public class RoombaRobot extends BluetoothRobot {
 		m_oSensorGatherer = new RoombaSensorGatherer(m_oActivity, m_oRoomba);
 		m_dblSpeed = m_oRoomba.getBaseSped();
 
-		m_oRemoteListener = new RobotRemoteListener(m_oRoomba) {
+		m_oRemoteListener = new RobotDriveCommandListener(m_oRoomba) {
 			
 			@Override
 			public void enableControl(boolean i_bEnable) {
@@ -112,7 +112,8 @@ public class RoombaRobot extends BluetoothRobot {
 				updateControlButtons(i_bEnable);
 			}
 		};
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl.setDriveControlListener(m_oRemoteListener);
 
     	updateButtons(false);
     	updateControlButtons(false);

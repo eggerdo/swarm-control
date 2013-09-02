@@ -11,11 +11,11 @@ import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
-import robots.ctrl.IRemoteControlListener;
+import robots.ctrl.IDriveControlListener;
 import robots.ctrl.RemoteControlHelper;
 import robots.ctrl.RemoteControlHelper.Move;
 import robots.gui.IConnectListener;
-import robots.gui.RobotRemoteListener;
+import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -63,7 +63,7 @@ public class RoboScooperRobot extends BluetoothRobot {
 	private LinearLayout m_layControls;
 	private LinearLayout m_layPlayModes;
 
-	private RobotRemoteListener m_oRemoteListener;
+	private RobotDriveCommandListener m_oRemoteListener;
 
 	
 	public RoboScooperRobot(BaseActivity m_oOwner) {
@@ -87,7 +87,7 @@ public class RoboScooperRobot extends BluetoothRobot {
 		
 		m_oSensorGatherer = new RoboScooperSensorGatherer(this, m_oRoboScooper);
 
-		m_oRemoteListener = new RobotRemoteListener(m_oRoboScooper) {
+		m_oRemoteListener = new RobotDriveCommandListener(m_oRoboScooper) {
 			
 			@Override
 			public void enableControl(boolean i_bEnable) {
@@ -98,7 +98,8 @@ public class RoboScooperRobot extends BluetoothRobot {
 				Utils.showLayout(m_layPlayModes, i_bEnable);
 			}
 		};
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl.setDriveControlListener(m_oRemoteListener);
 
         updateButtons(false);
 

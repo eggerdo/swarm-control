@@ -14,7 +14,7 @@ import org.dobots.utilities.Utils;
 import robots.RobotType;
 import robots.ctrl.RemoteControlHelper;
 import robots.gui.IConnectListener;
-import robots.gui.RobotRemoteListener;
+import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -56,7 +56,7 @@ public class Robo40Robot extends BluetoothRobot {
 	private TextView m_edtMotor2;
 	private TextView m_edtMotor3;
 
-	private RobotRemoteListener m_oRemoteListener;
+	private RobotDriveCommandListener m_oRemoteListener;
 
 	public Robo40Robot(BaseActivity i_oOwner) {
 		super(i_oOwner);
@@ -80,8 +80,9 @@ public class Robo40Robot extends BluetoothRobot {
 		m_oSensorGatherer = new Robo40SensorGatherer(m_oActivity, m_oRobo40);
 		m_dblSpeed = m_oRobo40.getBaseSped();
 
-		m_oRemoteListener = new RobotRemoteListener(m_oRobo40);
-		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity, m_oRemoteListener);
+		m_oRemoteListener = new RobotDriveCommandListener(m_oRobo40);
+		m_oRemoteCtrl = new RemoteControlHelper(m_oActivity);
+		m_oRemoteCtrl.setDriveControlListener(m_oRemoteListener);
 
         updateButtons(false);
         
