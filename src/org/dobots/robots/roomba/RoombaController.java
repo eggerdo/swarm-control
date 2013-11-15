@@ -27,7 +27,7 @@ public class RoombaController extends Loggable {
 	public void destroyConnection() {
 		if (m_oConnection != null) {
 			try {
-				m_oConnection.destroyConnection();
+				m_oConnection.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -474,7 +474,7 @@ public class RoombaController extends Loggable {
 			m_oConnection.send(Utils.stringToByteArray(i_strCmd));
 			
 			// check reply, should be the same as i_strReply
-			reply = m_oConnection.read();
+			reply = m_oConnection.getReply();
 			return Utils.byteArrayToString(reply) != i_strReply;
 					
 		}

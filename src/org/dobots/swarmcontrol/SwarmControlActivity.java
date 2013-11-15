@@ -159,7 +159,7 @@ public class SwarmControlActivity extends BaseActivity {
         
         writeChangeLog();
         
-        //showRobot(RobotType.RBT_REPLICATOR);
+        showRobot(RobotType.RBT_NXT);
 //        showBehaviour(SwarmAction.sa_Dance);
     }
     
@@ -315,8 +315,6 @@ public class SwarmControlActivity extends BaseActivity {
 		super.onDestroy();
 	}
 
-    // The BroadcastReceiver that listens for discovered devices and
-    // changes the title when discovery is finished
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
-import org.dobots.robots.BaseBluetooth;
-import org.dobots.swarmcontrol.robots.IBluetoothConnection;
 
+import robots.ctrl.ProtocolHandler;
+import robots.ctrl.ProtocolHandler.ICommHandler;
+import robots.gui.BluetoothConnection;
+import robots.gui.IRobotConnection;
 import robots.gui.MessageTypes;
+import robots.nxt.ctrl.LCPMessage;
 import android.bluetooth.BluetoothDevice;
 
-public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnection {
+public class RoombaBluetooth extends BluetoothConnection implements IRobotConnection, ICommHandler<byte[]> {
 	
 //	private Object m_oListener;
 	
@@ -19,47 +22,59 @@ public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnecti
 	private int m_nRxBytes;
 
 //	private Object m_oParent;
-	
-	public RoombaBluetooth(BluetoothDevice i_oDevice) {
-		super(i_oDevice);
-		m_oUUID = RoombaTypes.ROOMBA_UUID;
-		m_strRobotName = "Roomba";
-	}
 
-    /**
-     * Creates the connection, waits for incoming messages and dispatches them. The thread will be terminated
-     * on closing of the connection.
-     */
-    @Override
-    public void run() {
+    private class RoombaProtocolHandler extends ProtocolHandler {
 
-    	startUp();
+		public RoombaProtocolHandler(BluetoothConnection connection,	ICommHandler handler) {
+			super(connection, handler);
+		}
 
-    	m_rgRxBuffer = new byte[1024];
-//			int bytes;
-		
-		while (connected && !m_bStopped) {
+	    /**
+	     * Creates the connection, waits for incoming messages and dispatches them. The thread will be terminated
+	     * on closing of the connection.
+	     * @throws IOException 
+	     */
+		@Override
+		public void execute() {
 			try {
-				m_nRxBytes = m_oInStream.read(m_rgRxBuffer);
-				m_bMsgReceived = true;
+				receiveMessage();
 				synchronized(this) {
 					this.notify();
 				}
-//					m_oHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-//							  .sendToTarget();
 			} catch (IOException e) {
 				if (connected) {
-                	connected = false;
-                    sendState(MessageTypes.STATE_RECEIVEERROR);
-                }
+	            	connected = false;
+	                sendState(MessageTypes.STATE_RECEIVEERROR);
+	            }
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return;
 			}
 		}
-			
     }
-
+    
+    private RoombaProtocolHandler mProtocolHandler = new RoombaProtocolHandler(this, this);
+    
+	public RoombaBluetooth(BluetoothDevice i_oDevice) {
+		super(i_oDevice, RoombaTypes.ROOMBA_UUID);
+		m_rgRxBuffer = new byte[1024];
+	}
+	  
+    @Override
+    public boolean open() {
+    	if (super.open()) {
+    		mProtocolHandler.start();
+    		return true;
+    	}
+    	return false;
+    }
+    
+    @Override
+    public void close() throws IOException {
+    	mProtocolHandler.close();
+    	super.close();
+    }
+    
 	public void write(byte[] buffer) {
 		try {
 			m_oOutStream.write(buffer);
@@ -68,26 +83,6 @@ public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnecti
 			e.printStackTrace();
 		}
 	}
-
-	public void open() {
-		startThread();
-	}
-	
-	public void close() {
-		connected = false;
-		
-		try {
-			stopThread();
-			m_oSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		m_oSocket = null;
-		m_oInStream = null;
-		m_oOutStream = null;
-	}
 	
 	public void send(byte[] buffer) {
 		if (connected) {
@@ -95,7 +90,13 @@ public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnecti
 		}
 	}
 	
-	public synchronized byte[] read() throws TimeoutException {
+	protected byte[] receiveMessage() throws IOException {
+		m_nRxBytes = m_oInStream.read(m_rgRxBuffer);
+		m_bMsgReceived = true;
+		return null;
+	}
+	
+	public synchronized byte[] getReply() throws TimeoutException {
 		byte[] buffer = null;
 		
 		try {
@@ -148,6 +149,11 @@ public class RoombaBluetooth extends BaseBluetooth implements IBluetoothConnecti
 		}
 		
 		return buffer;
+	}
+
+	@Override
+	public void onMessage(byte[] message) {
+		// TODO Auto-generated method stub
 	}
 	
 

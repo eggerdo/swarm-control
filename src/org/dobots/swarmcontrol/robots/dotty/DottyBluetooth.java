@@ -2,48 +2,32 @@ package org.dobots.swarmcontrol.robots.dotty;
 
 import java.io.IOException;
 
-import org.dobots.robots.BaseBluetooth;
 import org.dobots.robots.dotty.DottyTypes;
-import org.dobots.robots.msg.MsgTypes;
 import org.dobots.utilities.Utils;
 
+import robots.gui.BluetoothConnection;
 import robots.gui.MessageTypes;
+import robots.nxt.MsgTypes;
 import android.bluetooth.BluetoothDevice;
+import android.os.Handler;
 
-public class DottyBluetooth extends BaseBluetooth {
+public class DottyBluetooth extends BluetoothConnection {
 
     private byte[] returnMessage;
     
 	public DottyBluetooth(BluetoothDevice i_oDevice) {
-		super(i_oDevice);
-		m_oUUID = DottyTypes.DOTTY_UUID;
-        m_strRobotName = "Dotty";
+		super(i_oDevice, DottyTypes.DOTTY_UUID);
 	}
-	
-    @Override
-    public void run() {
 
-    	startUp();
-    	
-		while (connected && !m_bStopped) {
-			try {
-				returnMessage = receiveMessage();
-				if (returnMessage != null) {
-					dispatchMessage(returnMessage);
-				}
-			} catch (IOException e) {
-				if (connected) {
-                	connected = false;
-                	// TODO Auto-generated catch block
-                	e.printStackTrace();
-				}
-			}
-			
-		}
+//    @Override
+//    public void execute() throws IOException {
+//		returnMessage = receiveMessage();
+//		if (returnMessage != null) {
+//			dispatchMessage(returnMessage);
+//		}
+//    }
 
-    }
-
-	private byte[] receiveMessage() throws IOException {
+	protected byte[] receiveMessage() throws IOException {
 		int nHeader = m_oInStream.read();
 		byte[] receiveMessage;
 		int nBytesExpected;
@@ -90,26 +74,6 @@ public class DottyBluetooth extends BaseBluetooth {
 		}
 	}
 
-	public void open() {
-		startThread();
-	}
-	
-	public void close() {
-		connected = false;
-		
-		try {
-			stopThread();
-			m_oSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		m_oSocket = null;
-		m_oInStream = null;
-		m_oOutStream = null;
-	}
-	
     private void dispatchMessage(byte[] message) {
     	switch (message[0]) {
     	case DottyTypes.HEADER:
@@ -127,7 +91,7 @@ public class DottyBluetooth extends BaseBluetooth {
     }
 
     private void sendStateAndData(int i_nCmd, byte[] i_rgbyData) {
-    	Utils.sendMessage(m_oReceiveHandler, i_nCmd, MsgTypes.assembleRawDataMsg(i_rgbyData));
+    	Utils.sendMessage(m_oUiHandler, i_nCmd, MsgTypes.assembleRawDataMsg(i_rgbyData));
     }
 
 }

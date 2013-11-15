@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 public class Robo40Types {
 	
 	private static Robo40Types INSTANCE;
@@ -172,6 +174,7 @@ public class Robo40Types {
 		JSONObject json;
 		try {
 			json = createDriveCommand(left, right);
+			Log.d("Robo40Types", "driveCommand: " + json.toString());
 			return json.toString().getBytes();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -179,7 +182,7 @@ public class Robo40Types {
 		}
 		return null;
 	}
-	
+
 	public static JSONObject createDisconnectCommand() throws JSONException {
 		return createJsonBase(DISCONNECT);
 	}

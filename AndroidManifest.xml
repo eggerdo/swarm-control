@@ -47,9 +47,11 @@
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.finch.FinchRobot"
 			android:screenOrientation="portrait" ></activity>
-		<activity android:name=".robots.nxt.NXTRobot"
+		<activity android:name="robots.nxt.gui.NXTRobot"
 			android:screenOrientation="portrait" ></activity>
 		<activity android:name=".robots.dotty.DottyRobot"
+		    android:screenOrientation="portrait" ></activity>
+		<activity android:name=".robots.piratedotty.PirateDottyRobot"
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name="robots.parrot.gui.ParrotRobot"
 		    android:screenOrientation="portrait" ></activity>
@@ -65,7 +67,7 @@
 		    android:screenOrientation="portrait" ></activity>
 		<activity android:name="robots.spytank.gui.SpyTankRobot"
 		    android:screenOrientation="portrait" ></activity>
-		<activity android:name="robots.replicator.gui.ReplicatorRobot"
+		<activity android:name="robots.replicator.gui.ReplicatorUI"
 		    android:screenOrientation="portrait" ></activity>
 				
         <!-- Behaviour Activities -->
@@ -83,7 +85,7 @@
 			android:screenOrientation="portrait" ></activity>
 		
         <!-- Additional Activities, Dialogs, etc -->
-        <activity android:name="org.dobots.swarmcontrol.utility.DeviceListActivity"
+        <activity android:name="robots.gui.DeviceListActivity"
 			android:label="@string/select_device"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
@@ -92,15 +94,15 @@
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name=".robots.RobotCalibration"
+		<activity android:name="robots.gui.RobotCalibration"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name="org.dobots.swarmcontrol.utility.CalibrationDialogSelf"
+		<activity android:name="robots.gui.CalibrationDialogSelf"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>
-		<activity android:name="org.dobots.swarmcontrol.utility.CalibrationDialogUser"
+		<activity android:name="robots.gui.CalibrationDialogUser"
 			android:screenOrientation="portrait" 
 			android:theme="@android:style/Theme.Dialog"
 			android:configChanges="keyboardHidden|orientation"></activity>

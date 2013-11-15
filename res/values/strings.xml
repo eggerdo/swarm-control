@@ -53,36 +53,6 @@
     </string>    
     <string name="about_ok">OK</string>
 
-    <!--  DeviceListActivity -->
-    <string name="scanning">scanning for devices...</string>
-    <string name="select_device">Select a device to connect</string>
-    <string name="none_paired">No devices have been paired</string>
-    <string name="none_found">No devices found</string>
-    <string name="title_paired_devices">Paired Devices</string>
-    <string name="title_other_devices">Other Available Devices</string>
-    <string name="button_scan">Scan for new devices</string>
-    <string name="pairing_message">After pairing, press menu and connect.</string>
-    <string name="wait_till_bt_on">Turning Bluetooth on (to connect to your robot)</string>
-    <string name="bt_off_message">Bluetooth turned off. See you later!</string>
-  
-    <!-- bluetooth messages -->
-    <string name="connecting_please_wait">Connecting to your robot.\nPlease wait...</string>
-    <string name="no_paired_nxt">No paired NXT robot found!</string>
-    <string name="problem_at_connecting">Problem in creating a connection!</string>
-    <string name="problem_at_closing">Problem in closing the connection!</string>
-    <string name="problem_at_sending">Problem in sending a message!</string>
-    <string name="problem_at_receiving">Problem in receiving a message!</string>  
-        
-    <string name="current_position">Current position: </string>
-    
-    <string name="bt_error_dialog_title">Bluetooth Error</string>    
-
-    <string name="bt_error_dialog_message">
-        Oh, no! It seems that your robot is not switched on. Please make sure that
-        your robot is on, has BlueTooth activated and then try again to connect.
-    </string>    
-    <string name="bt_needs_to_be_enabled">You need to enable BT first!"</string>    
-    
     <!--  General -->
     <string name="stop">Stop</string> 
     <string name="ok">OK</string>   
@@ -147,31 +117,6 @@
     <string name="roomba_btn_vacuum">Vacuum</string>    
     <string name="roomba_btn_power">Power</string>    
     
-    <!--  NXT -->
-    <string name="nxt_title">Mindstorm NXT</string>
-    <string name="nxt_commands">NXT Commands</string>
-    <string name="nxt_lbl_colour">Colour:</string>
-    <string name="nxt_lbl_distance">Distance:</string>
-    <string name="nxt_lbl_Sound">Sound:</string>
-    <string name="nxt_lbl_pushbutton">Push Button Pressed:</string>
-    <string name="nxt_lbl_sonic">Sonic:</string>
-    <string name="nxt_sensor_1_cb">Sensor 1</string>    
-    <string name="nxt_value">Value:</string>    
-    <string name="nxt_sensor_2_cb">Sensor 2</string>    
-    <string name="nxt_sensor_3_cb">Sensor 3</string>    
-    <string name="nxt_sensor_4_cb">Sensor 4</string>    
-    <string name="nxt_rawvalue">Raw Value:</string>    
-    <string name="nxt_normvalue">Normalized Value:</string>    
-    <string name="nxt_scalevalue">Scaled Value:</string>    
-    <string name="nxt_calibvalue">Calibrated Value:</string>    
-    <string name="nxt_motor_1_cb">Motor 1</string>     
-    <string name="nxt_motor_2_cb">Motor 2</string>     
-    <string name="nxt_motor_3_cb">Motor 3</string>     
-    <string name="nxt_reset">Reset</string>     
-    <string name="nxt_powersetpoint">Power Setpoint:</string>     
-    <string name="nxt_tachocount">Tacho Count:</string>     
-    <string name="nxt_rotationcount">Rotation Count:</string>  
-       
     <!--  Dancing -->
     <string name="dancing_Description">Here we show a way to connect to a set of multiple robots which can be chosen from the available robots. Once the robots are paired together, they can be simultaneously controlled. This can be done by manual control or by choosing a set of dancing patterns and letting the robots execute them.</string>     
     <string name="dancing_Add">Add Robot...</string>     
@@ -223,6 +168,11 @@
     <string name="dotty_all">All</string>
     <string name="dotty_interval">Interval:</string>
     <string name="dotty_streaming">Streaming: OFF</string>
+    
+    <!--  PirateDotty -->
+    <string name="piratedotty_title">Pirate Dotty</string>
+    <string name="piratedotty_commands">Pirate Dotty Commands</string>
+    
     
     <!--  Clibration -->
     <string name="feedback_up">Up</string>

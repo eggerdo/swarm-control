@@ -1,22 +1,24 @@
 package org.dobots.swarmcontrol.robots;
 
 import org.dobots.robots.dotty.DottyTypes;
-import org.dobots.robots.nxt.NXTTypes;
 import org.dobots.robots.robo40.Robo40Types;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
 import org.dobots.robots.roomba.RoombaTypes;
 import org.dobots.robots.spykee.SpykeeTypes;
 import org.dobots.swarmcontrol.robots.dotty.DottyRobot;
-import org.dobots.swarmcontrol.robots.nxt.NXTRobot;
 import org.dobots.swarmcontrol.robots.robo40.Robo40Robot;
 import org.dobots.swarmcontrol.robots.roboscooper.RoboScooperRobot;
 import org.dobots.swarmcontrol.robots.roomba.RoombaRobot;
 import org.dobots.swarmcontrol.robots.spykee.SpykeeRobot;
 
 import robots.RobotType;
+import robots.nxt.ctrl.NXTTypes;
+import robots.nxt.gui.NXTRobot;
 import robots.parrot.ctrl.ParrotTypes;
 import robots.parrot.gui.ParrotRobot;
-import robots.replicator.gui.ReplicatorRobot;
+import robots.piratedotty.ctrl.PirateDottyTypes;
+import robots.piratedotty.gui.PirateDottyRobot;
+import robots.replicator.gui.ReplicatorUI;
 import robots.rover.ac13.ctrl.AC13RoverTypes;
 import robots.rover.ac13.gui.AC13RoverRobot;
 import robots.rover.rover2.ctrl.Rover2Types;
@@ -33,6 +35,8 @@ public class RobotViewFactory {
 			return NXTRobot.class;
 		case RBT_DOTTY:
 			return DottyRobot.class;
+		case RBT_PIRATEDOTTY:
+			return PirateDottyRobot.class;
 		case RBT_PARROT:
 			return ParrotRobot.class;
 		case RBT_ROBOSCOOPER:
@@ -48,7 +52,7 @@ public class RobotViewFactory {
 		case RBT_SPYTANK:
 			return SpyTankRobot.class;
 		case RBT_REPLICATOR:
-			return ReplicatorRobot.class;
+			return ReplicatorUI.class;
 		default:
 			return UnimplementedRobot.class;
 		}
@@ -62,6 +66,8 @@ public class RobotViewFactory {
 			return NXTTypes.MAC_FILTER;
 		case RBT_DOTTY:
 			return DottyTypes.MAC_FILTER;
+		case RBT_PIRATEDOTTY:
+			return PirateDottyTypes.MAC_FILTER;
 		case RBT_PARROT:
 			return ParrotTypes.SSID_FILTER;
 		case RBT_ROBOSCOOPER:

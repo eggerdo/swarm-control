@@ -6,17 +6,18 @@ import java.util.Arrays;
 import org.dobots.robots.dotty.Dotty;
 import org.dobots.robots.dotty.DottyTypes;
 import org.dobots.robots.dotty.DottyTypes.EDottySensors;
-import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.RemoteControlHelper;
+import robots.gui.BluetoothConnection;
+import robots.gui.BluetoothRobot;
 import robots.gui.IConnectListener;
 import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
+import robots.nxt.MsgTypes.RawDataMsg;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Message;
@@ -342,11 +343,13 @@ public class DottyRobot extends BluetoothRobot {
 			
 			if (m_oDotty.getConnection() != null) {
 				try {
-					m_oDotty.getConnection().destroyConnection();
+					m_oDotty.getConnection().close();
 				}
 				catch (IOException e) { }
 			}
-			m_oDotty.setConnection(new DottyBluetooth(i_oDevice));
+			BluetoothConnection connection = new BluetoothConnection(i_oDevice, DottyTypes.DOTTY_UUID);
+			connection.setReceiveHandler(m_oUiHandler);
+			m_oDotty.setConnection(connection);
 			m_oDotty.connect();
 //		}
 	}
@@ -368,7 +371,9 @@ public class DottyRobot extends BluetoothRobot {
 		}
 
 		i_oDotty.setHandler(m_oRobot.getUIHandler());
-		i_oDotty.setConnection(new DottyBluetooth(i_oDevice));
+		BluetoothConnection connection = new BluetoothConnection(i_oDevice, DottyTypes.DOTTY_UUID);
+		connection.setReceiveHandler(m_oRobot.getUIHandler());
+		i_oDotty.setConnection(connection);
 		i_oDotty.connect();
 	}
 

@@ -6,7 +6,6 @@ import org.dobots.robots.roboscooper.RoboScooper;
 import org.dobots.robots.roboscooper.RoboScooperMessageTypes;
 import org.dobots.robots.roboscooper.RoboScooperTypes;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
@@ -14,6 +13,7 @@ import robots.RobotType;
 import robots.ctrl.IDriveControlListener;
 import robots.ctrl.RemoteControlHelper;
 import robots.ctrl.RemoteControlHelper.Move;
+import robots.gui.BluetoothRobot;
 import robots.gui.IConnectListener;
 import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;

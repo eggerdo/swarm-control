@@ -1,13 +1,13 @@
 package org.dobots.robots.dotty;
 
 import org.dobots.robots.dotty.DottyTypes.DataPackage;
-import org.dobots.robots.msg.MsgTypes.RawDataMsg;
-import org.dobots.swarmcontrol.robots.dotty.DottyBluetooth;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.DifferentialRobot;
+import robots.gui.BluetoothConnection;
 import robots.gui.MessageTypes;
+import robots.nxt.MsgTypes.RawDataMsg;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -121,12 +121,12 @@ public class Dotty extends DifferentialRobot {
 		m_oController.destroyConnection();
 	}
 
-	public void setConnection(DottyBluetooth i_oConnection) {
+	public void setConnection(BluetoothConnection i_oConnection) {
 		i_oConnection.setReceiveHandler(m_oReceiver.getHandler());
 		m_oController.setConnection(i_oConnection);
 	}
 	
-	public DottyBluetooth getConnection() {
+	public BluetoothConnection getConnection() {
 		return m_oController.getConnection();
 	}
 

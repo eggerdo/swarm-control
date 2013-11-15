@@ -1,6 +1,5 @@
 package org.dobots.robots.robo40;
 
-import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.swarmcontrol.robots.robo40.Robo40Bluetooth;
 import org.dobots.utilities.Utils;
 import org.json.JSONException;
@@ -9,6 +8,7 @@ import org.json.JSONObject;
 import robots.RobotType;
 import robots.ctrl.DifferentialRobot;
 import robots.gui.MessageTypes;
+import robots.nxt.MsgTypes.RawDataMsg;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;

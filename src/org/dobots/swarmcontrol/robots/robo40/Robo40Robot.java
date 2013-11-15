@@ -3,19 +3,19 @@ package org.dobots.swarmcontrol.robots.robo40;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.dobots.robots.msg.MsgTypes.RawDataMsg;
 import org.dobots.robots.robo40.Robo40;
 import org.dobots.robots.robo40.Robo40Types;
 import org.dobots.swarmcontrol.R;
-import org.dobots.swarmcontrol.robots.BluetoothRobot;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.RemoteControlHelper;
+import robots.gui.BluetoothRobot;
 import robots.gui.IConnectListener;
 import robots.gui.RobotDriveCommandListener;
 import robots.gui.SensorGatherer;
+import robots.nxt.MsgTypes.RawDataMsg;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Message;
@@ -256,7 +256,7 @@ public class Robo40Robot extends BluetoothRobot {
 			
 			if (m_oRobo40.getConnection() != null) {
 				try {
-					m_oRobo40.getConnection().destroyConnection();
+					m_oRobo40.getConnection().close();
 				}
 				catch (IOException e) { }
 			}

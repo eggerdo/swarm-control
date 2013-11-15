@@ -6,9 +6,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.dobots.robots.RobotDeviceFactory;
-import org.dobots.swarmcontrol.BluetoothConnectionHelper;
-import org.dobots.swarmcontrol.ConnectionHelper;
-import org.dobots.swarmcontrol.IBluetoothConnectionListener;
 import org.dobots.swarmcontrol.R;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
 import org.dobots.utilities.BaseActivity;
@@ -16,6 +13,9 @@ import org.dobots.utilities.Utils;
 
 import robots.RobotType;
 import robots.ctrl.IRobotDevice;
+import robots.gui.BluetoothConnectionHelper;
+import robots.gui.ConnectionHelper;
+import robots.gui.IBluetoothConnectionListener;
 import robots.gui.IConnectListener;
 import robots.gui.RobotInventory;
 import android.bluetooth.BluetoothAdapter;
