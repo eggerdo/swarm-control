@@ -5,13 +5,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	<ScrollView
 	    android:id="@+id/scrollview"
 	    android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" >
 	
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	<LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:orientation="vertical" >
@@ -108,51 +108,4 @@
 	</LinearLayout>
 	
 	</ScrollView>
-	
-	<LinearLayout
-	    android:id="@+id/laySocializeActionBar"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:background="@android:drawable/title_bar"
-	    android:clickable="false" >
-
-		<CheckBox
-		    android:id="@+id/btnCustomCheckBoxLike"
-		    android:layout_width="0dp"
-		    android:layout_height="wrap_content"
-		    android:layout_gravity="left|center_vertical"
-		    android:layout_weight="5"
-		    android:button="@drawable/like_button_state"
-		    android:text="Like" />
-
-		<View
-		    android:layout_width="1dp"
-		    android:layout_height="fill_parent"
-		    android:background="#FF000000" />
-
-		<CheckBox
-		    android:id="@+id/btnCustomCheckBoxShare"
-		    android:layout_width="0dp"
-		    android:layout_height="wrap_content"
-		    android:layout_gravity="left|center_vertical"
-		    android:layout_weight="5"
-		    android:button="@drawable/share"
-		    android:text="Share" />
-
-		<View
-		    android:layout_width="1dp"
-		    android:layout_height="fill_parent"
-		    android:background="#FF000000" />
-
-		<CheckBox
-		    android:id="@+id/btnCustomCheckBoxComment"
-		    android:layout_width="0dp"
-		    android:layout_height="wrap_content"
-		    android:layout_gravity="left|center_vertical"
-		    android:layout_weight="6"
-		    android:button="@drawable/comment"
-		    android:text="Comment" />
-	    
-	</LinearLayout>
-	
 </LinearLayout>

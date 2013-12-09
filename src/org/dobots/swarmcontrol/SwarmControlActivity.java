@@ -7,9 +7,6 @@ import org.dobots.robots.RobotDeviceFactory;
 import org.dobots.swarmcontrol.SwarmControlTypes.SwarmAction;
 import org.dobots.swarmcontrol.behaviours.dancing.DancingMain;
 import org.dobots.swarmcontrol.robots.RobotViewFactory;
-import org.dobots.swarmcontrol.socialize.SocializeEntityHelper;
-import org.dobots.swarmcontrol.socialize.SocializeHelper;
-import org.dobots.swarmcontrol.socialize.SocializeHelper.ILikeEventListener;
 import org.dobots.utilities.BaseActivity;
 import org.dobots.utilities.BaseApplication;
 import org.dobots.utilities.RTFUtils;
@@ -49,24 +46,13 @@ import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
-import com.socialize.Socialize;
-import com.socialize.UserUtils;
-import com.socialize.android.ioc.IOCContainer;
-import com.socialize.entity.Entity;
-import com.socialize.error.SocializeException;
-import com.socialize.listener.SocializeInitListener;
-
 public class SwarmControlActivity extends BaseActivity {
 	
 	private static final String TAG = "MAIN_ACTIVITY";
 	
-	private static final int PREFERENCES_DLG = 1;
-	
 	// The different menu options
 	private static final int ABOUT_ID = Menu.FIRST;
 	private static final int EXIT_ID = ABOUT_ID + 1;
-	private static final int SOCIALIZE_SETTINGS = EXIT_ID + 1; 
-	private static final int PREFERENCES = SOCIALIZE_SETTINGS + 1;
 
 	private static Context CONTEXT;
 	
@@ -77,18 +63,6 @@ public class SwarmControlActivity extends BaseActivity {
 	
 	private Button m_btnRobots;
 	private Button m_btnSwarmActions;
-	private LinearLayout m_laySocializeActionBar;
-
-	private boolean m_bSocializeConnected = false;
-	private boolean m_bHideActionBar = false;
-	private boolean m_bIsLiked = false;
-
-	private final boolean m_bSocializeEnabled = false;
-	
-	private Entity m_oEntity;
-	
-	// set to true if Socialize Entities need to be created
-	private final boolean m_bInitSocializeEntities = false; 
 	
 	/** Called when the activity is first created. */
     @Override
@@ -104,17 +78,6 @@ public class SwarmControlActivity extends BaseActivity {
 
         setContentView(R.layout.main);
         
-        // Register for broadcasts when a device is discovered
-        IntentFilter filter = new IntentFilter(RobotView.VIEW_LOADED);
-        registerReceiver(mReceiver, filter);
-
-        m_laySocializeActionBar = (LinearLayout) findViewById(R.id.laySocializeActionBar);
-        
-        loadPreferences();
-        
-        if (m_bSocializeEnabled)
-        	setupSocialize();
-     		
 		getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
         m_oSwarmActionAdapter = new ImprovedArrayAdapter<SwarmAction>(this, 
@@ -159,7 +122,7 @@ public class SwarmControlActivity extends BaseActivity {
         
         writeChangeLog();
         
-        showRobot(RobotType.RBT_NXT);
+//        showRobot(RobotType.RBT_NXT);
 //        showBehaviour(SwarmAction.sa_Dance);
     }
     
@@ -171,8 +134,6 @@ public class SwarmControlActivity extends BaseActivity {
 		menu.add(0, ABOUT_ID, ABOUT_ID, getResources().getString(R.string.about))
 		    .setIcon(R.drawable.ic_menu_about);
 		menu.add(0, EXIT_ID, EXIT_ID, "Exit");
-		if (m_bSocializeEnabled) menu.add(1, SOCIALIZE_SETTINGS, SOCIALIZE_SETTINGS, "Socialize");
-		menu.add(2, PREFERENCES, PREFERENCES, "Preferences");
 		return true;
 	}
 
@@ -186,34 +147,13 @@ public class SwarmControlActivity extends BaseActivity {
 		case EXIT_ID:
 			finish();
 			return true;
-		case SOCIALIZE_SETTINGS:
-			if (m_bSocializeEnabled)
-				showSocializeSettings();
-			else 
-				Log.w(TAG, "Huh? Socialize is not enabled");
-			return true;
-		case PREFERENCES:
-			showDialog(PREFERENCES_DLG);
-			break;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (m_bSocializeEnabled) menu.setGroupVisible(1, m_bSocializeConnected);
-    	menu.setGroupVisible(2, m_bIsLiked); // so long as only the show/hide action bar is in the preferences we only show the preferences if we already got the like
-    	
-    	return true;
-    }
-    	
 	public static Context getContext() {
 		return CONTEXT;
-	}
-	
-	private void showSocializeSettings() {
-		UserUtils.showUserSettings(this);
 	}
 	
 	private void showSwarmActionSelectionDialog() {
@@ -289,192 +229,6 @@ public class SwarmControlActivity extends BaseActivity {
 			break;
 		}
 	}
-	
-	@Override
-	protected void onPause() {
-		super.onPause();
-		
-		if (m_bSocializeEnabled)
-			Socialize.onPause(this);
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		if (m_bSocializeEnabled)
-			Socialize.onResume(this);
-	}
-	
-	@Override
-	public void onDestroy() {
-		if (m_bSocializeEnabled)
-			Socialize.onDestroy(this);
-		unregisterReceiver(mReceiver);
-		
-		super.onDestroy();
-	}
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            // When discovery finds a device
-            if (RobotView.VIEW_LOADED.equals(action)) {
-            	RobotType eRobot = (RobotType) intent.getExtras().get("RobotType");
-            	BaseActivity currentActivity = ((BaseApplication)context.getApplicationContext()).getCurrentActivity();
-            	if (m_bSocializeEnabled) {
-            		SocializeHelper.setupComments(currentActivity, eRobot);
-                    SocializeHelper.registerRobotView(SwarmControlActivity.this, eRobot);
-            	}
-            };
-        }
-    };
-
-	private void loadPreferences() {
-		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-		m_bHideActionBar = prefs.getBoolean(SwarmControlTypes.HIDE_ACTION_BAR, SwarmControlTypes.HIDE_ACTION_BAR_DEFAULT);
-	}
-
-    /**
-     * This is called when a dialog is created for the first time.  The given
-     * "id" is the same value that is passed to showDialog().
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-    	LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		switch (id) {
-    	case PREFERENCES_DLG:
-        	builder.setTitle("Preferences")
-        	       .setView(inflater.inflate(R.layout.preferences, null))
-        	       .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-        		
-        		@Override
-    			public void onClick(DialogInterface dialog, int which) {
-    				adjustPreferences((AlertDialog)dialog);
-    			}
-    		});
-        	return builder.create();
-    	}
-    	return null;
-    }
-
-    /**
-     * This is called each time a dialog is shown.
-     */
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog) {
-    	if (id == PREFERENCES_DLG) {
-    		// Pre-fill the text fields with the saved login settings.
-    		CheckBox checkBox;
-    		
-    		checkBox = (CheckBox) dialog.findViewById(R.id.cbxHideActionBar);
-    		checkBox.setChecked(m_bHideActionBar);
-    	}
-    }
-    
-    private void adjustPreferences(Dialog dialog) {
-		CheckBox cbxHideActionBar = (CheckBox) dialog.findViewById(R.id.cbxHideActionBar);
-		
-		m_bHideActionBar = cbxHideActionBar.isChecked();
-		if (m_bSocializeEnabled) hideSocializeActionBar(m_bHideActionBar);
-		
-		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putBoolean(SwarmControlTypes.HIDE_ACTION_BAR, cbxHideActionBar.isChecked());
-		editor.commit();
-    	
-    }
-    
-	// Socialize ---------------------------------------------------------------
-    
-	private void setupSocialize() {
-
-    	// Initialize socialize
-    	Socialize.initAsync(SwarmControlActivity.this, new SocializeInitListener() {
-    		
-    		@Override
-    		public void onError(SocializeException error) {
-    			m_bSocializeConnected = false;
-    		}
-    		
-    		@Override
-    		public void onInit(Context context, IOCContainer container) {
-    			m_bSocializeConnected = true;
-    		}
-    	});
-    	
-    	// set up socialize elements asynchronously so as not to delay the ui thread loading the activity
-    	Utils.runAsyncTask(new Runnable() {
-
-			@Override
-			public void run() {
-
-				// ui elements need to be updated by the ui thread
-	    		Utils.runAsyncUiTask(new Runnable() {
-					
-					@Override
-					public void run() {
-						enableSocializeActionBar(false);
-					}
-				});
-
-		    	// only set to true if entities have to be updated / created
-		    	if (m_bInitSocializeEntities) {
-		    		SocializeEntityHelper.initAllEntities(SwarmControlActivity.this);
-		    	}
-		    	
-				m_oEntity = SocializeEntityHelper.getMainEntity(SwarmControlActivity.this);
-				if (m_oEntity != null) {
-			    	SocializeHelper.setupActionBar(SwarmControlActivity.this, m_oEntity, new ILikeEventListener() {
-	
-						@Override
-						public void onLike() {
-							m_bIsLiked = true;
-						}
-	
-						@Override
-						public void onUnlike() {
-							m_bIsLiked = false;
-						}
-					});
-	
-		    		m_bIsLiked = m_oEntity.getUserEntityStats().isLiked();
-	
-					// ui elements need to be updated by the ui thread
-		    		Utils.runAsyncUiTask(new Runnable() {
-						
-						@Override
-						public void run() {
-							hideSocializeActionBar(m_bHideActionBar && m_bIsLiked);
-						}
-					});
-		    		
-		    		// increase view count
-		    		SocializeHelper.registerMainView(SwarmControlActivity.this);
-				}
-			}
-		});
-	}
-
-    private void enableSocializeActionBar(Boolean i_bEnable) {
-    	for (int i = 0; i < m_laySocializeActionBar.getChildCount(); i++) {
-    		View v = m_laySocializeActionBar.getChildAt(i);
-    		v.setEnabled(i_bEnable);
-    	}
-    }
-    
-    private void hideSocializeActionBar(Boolean i_bHide) {
-		if (i_bHide) {
-			m_laySocializeActionBar.setVisibility(View.GONE);
-    	} else {
-    		m_laySocializeActionBar.setVisibility(View.VISIBLE);
-        	enableSocializeActionBar(true);
-    	}
-    }
-	
 	
 	// Rich Text Formatting ----------------------------------------------------
 	
